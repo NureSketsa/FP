@@ -6,6 +6,7 @@ Route::get('/', function () {
     return view('main');
 });
 
-Route::get('/download', function () {
-    return view('download');
+Route::get('/chat', function () {
+    return view('chat   ');
 });
+
