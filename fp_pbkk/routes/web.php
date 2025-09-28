@@ -7,6 +7,14 @@ Route::get('/', function () {
 });
 
 Route::get('/chat', function () {
-    return view('chat   ');
-});
+    return view('chat');
+    });
+
+Route::get('/login', function () {
+    return view('login');
+    });
+
+Route::get('/register', function () {
+    return view('register');
+    });
 
