@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LearnVid AI - Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-straight/css/uicons-regular-straight.css">
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
+  <style>
+    body {
+      font-family: 'Montaga', serif;
+      background: linear-gradient(135deg, #112D4E 0%, #1a3f63 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-animations {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .floating-symbol {
+      position: absolute;
+      font-family: 'Montaga', serif;
+      font-weight: bold;
+      opacity: 0;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
+    }
+
+    @keyframes floatRandom {
+      0% {
+        opacity: 0;
+        transform: translate(var(--xStart), var(--yStart)) scale(var(--scaleStart)) rotate(var(--rotateStart));
+      }
+      15% { opacity: var(--maxOpacity); }
+      50% {
+        transform: translate(var(--xMid), var(--yMid)) scale(var(--scaleMid)) rotate(var(--rotateMid));
+      }
+      85% { opacity: var(--maxOpacity); }
+      100% {
+        opacity: 0;
+        transform: translate(var(--xEnd), var(--yEnd)) scale(var(--scaleEnd)) rotate(var(--rotateEnd));
+      }
+    }
+
+    .register-container {
+      background: rgba(249, 247, 247, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      animation: slideUp 0.8s ease-out;
+      margin-top: 60px;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon-container {
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      background: #3F72AF;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
+    }
+
+    .register-title {
+      color: #112D4E;
+      font-size: 1.8rem;
+      margin: 20px 0 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      color: #112D4E;
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .required {
+      color: #e74c3c;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #DBE2EF;
+      border-radius: 12px;
+      font-family: 'Montaga', serif;
+      font-size: 14px;
+      background: #F9F7F7;
+      color: #112D4E;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #3F72AF;
+      box-shadow: 0 0 0 3px rgba(63,114,175,.1);
+      transform: translateY(-2px);
+    }
+
+    .form-input.error {
+      border-color: #e74c3c;
+    }
+
+    .form-input.success {
+      border-color: #27ae60;
+    }
+
+    .register-btn {
+      width: 100%;
+      background: #3F72AF;
+      color: #F9F7F7;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+      box-sizing: border-box;
+      font-family: 'Montaga', serif;
+    }
+
+    .register-btn:hover {
+      background: #2d5a94;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(63,114,175,0.3);
+    }
+
+    .login-link-container {
+      margin-top: 25px;
+      font-size: 14px;
+      color: #112D4E;
+    }
+
+    .login-link {
+      color: #3F72AF;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .login-link:hover {
+      color: #2d5a94;
+      text-decoration: underline;
+    }
+
+    /* CSS untuk warning */
+    .alert-banner{
+      background:#ffe3e6;
+      color:#b00020;
+      border:1px solid #ffb3bd;
+      padding:10px 14px;
+      border-radius:10px;
+      margin-bottom:16px;
+      font-weight:600;
+    }
+    .error-text{
+      display:block;
+      margin-top:6px;
+      font-size:.9rem;
+      color:#ff6b6b;
+      min-height:1.1em; /* reservasi ruang agar layout tidak lompat */
+    }
+    .hint{
+      display:block;
+      margin-top:6px;
+      font-size:.85rem;
+      color:#cfe0ff;
+      opacity:.9;
+    }
+    .form-input.error{
+      border:1px solid #ff6b6b !important;
+      box-shadow:0 0 0 3px rgba(255,107,107,.15);
+    }
+    .form-input.success{
+      border:1px solid #27ae60 !important;
+      box-shadow:0 0 0 3px rgba(39,174,96,.12);
+    }
+
+    /* password */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 40px; /* beri ruang di kanan */
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animations"></div>
+
+  <div class="register-container">
+    <!-- Banner error dari server -->
+    {% if message %}
+    <div class="alert-banner" role="alert">
+      {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="icon-container">
+      <lord-icon src="https://cdn.lordicon.com/kdduutaw.json" trigger="loop"
+        stroke="bold" state="hover-looking-around"
+        colors="primary:#f9f7f7,secondary:#f9f7f7"
+        style="width:70px;height:70px">
+      </lord-icon>
+    </div>
+
+    <h1 class="register-title">Create Your Account</h1>
+
+    <!-- method & action ke FastAPI -->
+    <form id="registerForm" method="POST" action="/register" novalidate>
+      <!-- USERNAME -->
+      <div class="form-group">
+        <label class="form-label" for="username"><span class="required">*</span> Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          class="form-input"
+          placeholder="Enter your username"
+          required
+          aria-describedby="usernameErr"
+        />
+        <small id="usernameErr" class="error-text" aria-live="polite"></small>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <label class="form-label" for="email"><span class="required">*</span> Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          class="form-input"
+          placeholder="Enter your email"
+          required
+          aria-describedby="emailErr"
+        />
+        <small id="emailErr" class="error-text" aria-live="polite"></small>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group password-group">
+        <label class="form-label" for="password"><span class="required">*</span> Password</label>
+        <div class="password-wrapper">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            class="form-input"
+            placeholder="Create a password"
+            required
+            aria-describedby="passwordErr"
+          />
+          <!-- Default: ikon "eye" -->
+          <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password">
+            <i class="fi fi-rr-eye"></i>
+          </button>
+        </div>
+        <small id="passwordErr" class="error-text" aria-live="polite"></small>
+      </div>
+
+      <button type="submit" class="register-btn" id="registerBtn">Register</button>
+    </form>
+
+    <div class="login-link-container">
+      already have an account? <a href="/login" class="login-link">Login</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
+<script>
+const form = document.getElementById('registerForm');
+const btn = document.getElementById('registerBtn');
+const username = document.getElementById('username');
+const email = document.getElementById('email');
+const password = document.getElementById('password');
+const usernameErr = document.getElementById('usernameErr');
+const emailErr = document.getElementById('emailErr');
+const passwordErr = document.getElementById('passwordErr');
+
+function clearErrors() {
+  [username, email, password].forEach(i => {
+    i.classList.remove('error', 'success');
+    i.removeAttribute('aria-invalid');
+  });
+  [usernameErr, emailErr, passwordErr].forEach(e => e.textContent = '');
+}
+
+function validate() {
+  clearErrors();
+  let valid = true;
+
+  // Username
+  if (username.value.trim().length < 3) {
+    username.classList.add('error');
+    username.setAttribute('aria-invalid', 'true');
+    usernameErr.textContent = 'Username minimal 3 karakter.';
+    valid = false;
+  } else {
+    username.classList.add('success');
+  }
+
+  // Email
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email.value.trim())) {
+    email.classList.add('error');
+    email.setAttribute('aria-invalid', 'true');
+    emailErr.textContent = 'Email tidak valid.';
+    valid = false;
+  } else {
+    email.classList.add('success');
+  }
+
+  // Password
+  const passVal = password.value;
+  if (passVal.length < 6) {
+    password.classList.add('error');
+    password.setAttribute('aria-invalid', 'true');
+    passwordErr.textContent = 'Password minimal 6 karakter.';
+    valid = false;
+  } else if (new TextEncoder().encode(passVal).length > 72) {
+    password.classList.add('error');
+    password.setAttribute('aria-invalid', 'true');
+    passwordErr.textContent = 'Password terlalu panjang (maks 72 byte).';
+    valid = false;
+  } else {
+    password.classList.add('success');
+  }
+
+  return valid;
+}
+
+// === Event ===
+// Live validasi saat mengetik
+[username, email, password].forEach(input => {
+  input.addEventListener('input', validate);
+  input.addEventListener('blur', validate);
+});
+
+// Submit form hanya kalau valid
+form.addEventListener('submit', function(e) {
+  if (!validate()) {
+    e.preventDefault(); // hentikan submit kalau invalid
+    return;
+  }
+  // Kalau valid → submit normal
+  btn.textContent = 'Registering...';
+  btn.disabled = true;
+});
+
+const passwordField = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+
+togglePassword.addEventListener("click", function () {
+  const isPassword = passwordField.getAttribute("type") === "password";
+  passwordField.setAttribute("type", isPassword ? "text" : "password");
+
+  // Ubah ikon sesuai state
+  this.innerHTML = isPassword 
+    ? '<i class="fi fi-rs-crossed-eye"></i>'  // mata tertutup
+    : '<i class="fi fi-rr-eye"></i>';         // mata terbuka
+  this.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+});
+
+
+</script>
+</body>
+
+</html>
