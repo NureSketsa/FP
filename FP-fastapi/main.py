@@ -2,7 +2,7 @@ import os
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -10,7 +10,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from passlib.context import CryptContext
-from itsdangerous import URLSafeSerializer, BadSignature
+from itsdangerous import URLSafeSerializer, BadSignature 
+from sqlalchemy import func 
 
 # ---------------- DB ----------------
 uri_db = "postgresql://postgres.rulrshmtsosuywbohmva:syPbcNEylfO3zHO5@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
@@ -261,3 +262,70 @@ def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(
             "user_message": {"id": user_msg.id, "role": "user", "content": user_msg.content, "timestamp": user_msg.timestamp.isoformat()},
             "ai_message": {"id": ai_msg.id, "role": "ai", "content": ai_msg.content, "timestamp": ai_msg.timestamp.isoformat()},
         }
+
+class RenameChatIn(BaseModel):
+    title: str
+
+@app.patch("/api/chats/{chat_id}")
+def api_rename_chat(
+    chat_id: int,
+    payload: RenameChatIn = Body(...),
+    user: User = Depends(current_user_required),
+):
+    new_title = (payload.title or "").strip()
+    if not new_title:
+        raise HTTPException(status_code=400, detail="Title required")
+
+    with Session(engine) as session:
+        chat = session.get(ChatFolder, chat_id)
+        if not chat or chat.user_id != user.id:
+            raise HTTPException(status_code=404, detail="Not found")
+        chat.title = new_title
+        session.add(chat)
+        session.commit()
+        session.refresh(chat)
+        return {"ok": True, "id": chat.id, "title": chat.title}
+
+@app.delete("/api/chats/{chat_id}")
+def api_delete_chat(
+    chat_id: int,
+    user: User = Depends(current_user_required),
+):
+    with Session(engine) as session:
+        chat = session.get(ChatFolder, chat_id)
+        if not chat or chat.user_id != user.id:
+            raise HTTPException(status_code=404, detail="Not found")
+
+        # Hapus semua message di chat ini (kalau ON DELETE CASCADE belum diset)
+        session.exec(select(Message).where(Message.chat_folder_id == chat_id))
+        session.query(Message).filter(Message.chat_folder_id == chat_id).delete()
+
+        session.delete(chat)
+        session.commit()
+        return {"ok": True, "id": chat_id}
+
+
+@app.get("/api/chats/search")
+def api_search_chats(
+    q: str = "",
+    limit: int = 50,
+    user: User = Depends(current_user_required),
+):
+    """
+    Cari chat berdasarkan judul (milik user saat ini).
+    GET /api/chats/search?q=...&limit=50
+    Return: [{"id":..., "title":"..."}]
+    """
+    q = (q or "").strip()
+    with Session(engine) as session:
+        stmt = (
+            select(ChatFolder)
+            .where(ChatFolder.user_id == user.id)
+            .order_by(ChatFolder.id.desc())
+            .limit(limit)
+        )
+        if q:
+            stmt = stmt.where(ChatFolder.title.ilike(f"%{q}%"))
+        chats = session.exec(stmt).all()
+
+    return [{"id": c.id, "title": c.title} for c in chats]
