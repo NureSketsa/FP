@@ -283,10 +283,6 @@
     const password = document.getElementById('password');
     const clientBanner = document.getElementById('clientBanner');
 
-    // // Block submit native (termasuk Enter)
-    // form.addEventListener('submit', (e) => e.preventDefault());
-    // form.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
-
     function showClientError(msg) {
       if (!clientBanner) return;
       clientBanner.textContent = msg;
@@ -300,56 +296,6 @@
 
     // Saat input berubah, sembunyikan error client agar tidak mengunci user
     [unameOrEmail, password].forEach(i => i.addEventListener('input', hideClientError));
-
-    // btn.addEventListener('click', async () => {
-    //   hideClientError();
-
-    //   const userVal = (unameOrEmail.value || '').trim();
-    //   const passVal = password.value || '';
-
-    //   // Minimal gate di client: password >= 6 (biar nggak request kalau jelas kosong/pendek)
-    //   if (passVal.length < 6) {
-    //     showClientError('Password minimal 6 karakter.');
-    //     return;
-    //   }
-    //   if (!userVal) {
-    //     showClientError('Harap isi username atau email.');
-    //     return;
-    //   }
-
-    //   // Cek akun dulu
-    //   try {
-    //     btn.disabled = true;
-    //     btn.textContent = 'Checking...';
-
-    //     const res = await fetch('/api/check-account?q=' + encodeURIComponent(userVal));
-    //     if (!res.ok) {
-    //       // Kalau API gagal, jangan blokir; biarkan server handle di /login
-    //       btn.textContent = 'Login';
-    //       btn.disabled = false;
-    //       form.submit();
-    //       return;
-    //     }
-    //     const data = await res.json();
-    //     if (!data.exists) {
-    //       // Akun tidak ada → tampilkan warning, JANGAN submit
-    //       showClientError('Akun tidak ditemukan. Periksa kembali username/email.');
-    //       btn.textContent = 'Login';
-    //       btn.disabled = false;
-    //       return;
-    //     }
-
-    //     // Akun ada → submit ke server (server yang verifikasi password)
-    //     btn.textContent = 'Logging in...';
-    //     form.submit();
-
-    //   } catch (err) {
-    //     // Kalau error jaringan, tetap submit supaya server kasih respons
-    //     btn.textContent = 'Login';
-    //     btn.disabled = false;
-    //     form.submit();
-    //   }
-    // });
   </script>
 </body>
 </html>
