@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 from contextlib import asynccontextmanager
+from AI.app import generate_educational_video
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
@@ -47,7 +48,7 @@ def create_db_and_tables():
 
 # ---------------- App ----------------
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="MAIN/templates")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,7 +65,7 @@ def set_session(response: Response, user_id: int, username: str):  # >>> changed
     token = signer.dumps({"id": user_id, "username": username})
     response.set_cookie(
         key="session",
-        value=token,
+        value=token, 
         httponly=True,
         samesite="lax",
         secure=False,  # set True di production (HTTPS)
@@ -249,32 +250,33 @@ def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):
 import subprocess, shlex, json
 from pathlib import Path
 
+from AI.app import generate_educational_video  # pastikan ada __init__.py di folder AI
+
 def generate_video_for_topic(topic: str) -> Optional[str]:
     """
-    Jalankan app.py dengan argumen topic dan ambil URL video hasil upload ke Supabase.
+    Jalankan langsung fungsi generate_educational_video() dari AI/app.py
+    tanpa menggunakan subprocess. 
+    Mengembalikan URL video hasil upload ke Supabase.
     """
     try:
-        command = f"python3 ../AI/app.py {shlex.quote(topic)}"
-        print(f"[EduGen] Running: {command}")
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=600)
+        print(f"[EduGen] Generating educational video for topic: {topic}")
 
-        print("[EduGen STDOUT]", result.stdout)
-        print("[EduGen STDERR]", result.stderr)
+        # Jalankan fungsi utama secara langsung
+        video_path, response = generate_educational_video(topic)
 
-        # Coba ekstrak URL dari output (karena app.py print hasil video_path)
-        for line in result.stdout.splitlines():
-            if "https://" in line and "supabase.co" in line:
-                return line.strip()  # URL Supabase
+        # Ambil URL dari hasil upload (Supabase)
+        video_url = response.get("video_path")
+        print(f"[EduGen] Video URL: {video_url}")
 
-        # fallback: cari file terbaru di output/
-        output_dir = Path("output")
-        latest = max(output_dir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, default=None)
-        if latest:
-            return str(latest)
+        # Pastikan hasil valid
+        if video_url and "supabase.co" in video_url:
+            return video_url
+        else:
+            print("[EduGen] No Supabase URL found in response.")
+            return None
 
-        return None
     except Exception as e:
-        print("EduGen error:", e)
+        print(f"[EduGen ERROR] {e}")
         return None
 
 @app.post("/api/chats/{chat_id}/messages")

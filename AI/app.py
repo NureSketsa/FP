@@ -2,18 +2,45 @@
 Simple EduGen function - Generate educational videos with a single function call
 """
 
+
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# === Load .env dari beberapa kemungkinan lokasi ===
+current_dir = Path(__file__).resolve().parent
+root_dir = current_dir.parent  # .../FP
+main_dir = root_dir / "MAIN"
+
+possible_envs = [
+    current_dir / ".env",      # FP/AI/.env
+    root_dir / ".env",         # FP/.env
+    main_dir / ".env",         # FP/MAIN/.env
+]
+
+for env_path in possible_envs:
+    if env_path.exists():
+        print(f"✅ Loading environment from: {env_path}")
+        load_dotenv(dotenv_path=env_path)
+        break
+else:
+    print("⚠️ No .env file found in AI/, MAIN/, or project root")
+    
 import json
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Tuple
 
-from script_generator import ScienceVideoGenerator
-from manim_code_generator import ManIMCodeGenerator
-from animation_creator import create_animation_from_code
+
+from AI.script_generator import ScienceVideoGenerator
+from AI.manim_code_generator import ManIMCodeGenerator
+from AI.animation_creator import create_animation_from_code
 
 from supabase import create_client
 import mimetypes
+
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 def upload_to_supabase(file_path: str, bucket_name: str = "videos") -> str:
     """
