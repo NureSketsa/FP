@@ -14,8 +14,31 @@ from passlib.context import CryptContext
 from itsdangerous import URLSafeSerializer, BadSignature 
 from sqlalchemy import func 
 
-# ---------------- DB ----------------
-uri_db = "postgresql://postgres.rulrshmtsosuywbohmva:syPbcNEylfO3zHO5@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+from pathlib import Path
+from dotenv import load_dotenv
+
+# === Load .env dari lokasi AI, MAIN, atau root ===
+BASE_DIR = Path(__file__).resolve().parent
+project_root = BASE_DIR.parent
+env_paths = [
+    BASE_DIR / ".env",           # MAIN/.env
+    project_root / ".env",       # FP/.env
+    project_root / "AI" / ".env" # FP/AI/.env
+]
+for env in env_paths:
+    if env.exists():
+        load_dotenv(dotenv_path=env)
+        print(f"✅ Loaded .env from: {env}")
+        break
+else:
+    print("⚠️ No .env file found in MAIN, FP, or AI.")
+
+# === Database URL ===
+uri_db = os.getenv("DATABASE_URL")
+if not uri_db:
+    raise RuntimeError("❌ DATABASE_URL not found in environment variables")
+
+from sqlmodel import SQLModel, Field, Session, create_engine, select
 engine = create_engine(uri_db, echo=False)
 
 # ---------------- Models DB----------------
@@ -225,6 +248,8 @@ def api_create_chat(payload: NewChatIn, user: User = Depends(current_user_requir
         session.refresh(chat)
         return {"id": chat.id, "title": chat.title}
 
+
+
 @app.get("/api/chats/{chat_id}/messages")
 def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):  # >>> changed
     with Session(engine) as session:
@@ -278,6 +303,24 @@ def generate_video_for_topic(topic: str) -> Optional[str]:
     except Exception as e:
         print(f"[EduGen ERROR] {e}")
         return None
+    
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+def chat_with_gemini(user_message: str) -> str:
+    """
+    Mode chat biasa menggunakan Gemini.
+    """
+    model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
+    prompt = f"Kamu adalah asisten pembelajaran sains yang ramah. Jawab dengan jelas dan singkat.\n\n{user_message}"
+    response = model.invoke(prompt)
+    return response.content
+
+def is_video_request(text: str) -> bool:
+    """
+    Deteksi apakah pesan user bermaksud meminta video.
+    """
+    triggers = ["buat video", "generate video", "buatkan animasi", "render video", "buat animasi"]
+    return any(kw in text.lower() for kw in triggers)
 
 @app.post("/api/chats/{chat_id}/messages")
 def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(current_user_required)):
@@ -293,51 +336,78 @@ def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(
         session.commit()
         session.refresh(user_msg)
 
-        # 🎬 Pesan sementara: sedang membuat video
-        ai_processing_msg = Message(chat_folder_id=chat.id, role=False, content="🎬 Generating educational video...")
-        session.add(ai_processing_msg)
-        session.commit()
+        # 🎯 Deteksi apakah pesan mengandung perintah buat video
+        if is_video_request(payload.content):
+            topic = (
+                payload.content.lower()
+                .replace("buat video", "")
+                .replace("generate video", "")
+                .replace("buatkan animasi", "")
+                .replace("render video", "")
+                .replace("buat animasi", "")
+                .strip()
+            )
 
-        # 🔧 Panggil generator video eksternal
-        video_url = generate_video_for_topic(payload.content)
+            # 🎬 Pesan sementara
+            ai_processing_msg = Message(chat_folder_id=chat.id, role=False, content="🎬 Generating educational video...")
+            session.add(ai_processing_msg)
+            session.commit()
 
-        # ✅ Simpan hasil ke database
-        if video_url:
+            # 🔧 Jalankan generator video
+            video_url = generate_video_for_topic(topic)
+
             ai_msg = Message(
                 chat_folder_id=chat.id,
                 role=False,
-                content="✅ Video generated successfully!",
-                video_url=video_url  # hanya URL disimpan di kolom ini
+                content=f"✅ Video tentang '{topic}' berhasil dibuat!" if video_url else "❌ Maaf, video gagal dibuat.",
+                video_url=video_url
             )
+            session.add(ai_msg)
+            session.commit()
+            session.refresh(ai_msg)
+
+            return {
+                "ok": True,
+                "mode": "video",
+                "user_message": {
+                    "id": user_msg.id,
+                    "role": "user",
+                    "content": user_msg.content,
+                    "timestamp": user_msg.timestamp.isoformat()
+                },
+                "ai_message": {
+                    "id": ai_msg.id,
+                    "role": "ai",
+                    "content": ai_msg.content,
+                    "video_url": ai_msg.video_url,
+                    "timestamp": ai_msg.timestamp.isoformat()
+                },
+            }
+
         else:
-            ai_msg = Message( 
-                chat_folder_id=chat.id,
-                role=False,
-                content="❌ Sorry, failed to generate video.",
-                video_url=None
-            )
+            # 💬 Mode chat biasa → pakai Gemini
+            ai_response = chat_with_gemini(payload.content)
+            ai_msg = Message(chat_folder_id=chat.id, role=False, content=ai_response)
+            session.add(ai_msg)
+            session.commit()
+            session.refresh(ai_msg)
 
-        session.add(ai_msg)
-        session.commit()
-        session.refresh(ai_msg)
-
-        # 📤 Return respons ke frontend
-        return {
-            "ok": True,
-            "user_message": {
-                "id": user_msg.id,
-                "role": "user",
-                "content": user_msg.content,
-                "timestamp": user_msg.timestamp.isoformat()
-            },
-            "ai_message": {
-                "id": ai_msg.id,
-                "role": "ai",
-                "content": ai_msg.content,
-                "video_url": ai_msg.video_url,
-                "timestamp": ai_msg.timestamp.isoformat()
-            },
-        }
+            return {
+                "ok": True,
+                "mode": "chat",
+                "user_message": {
+                    "id": user_msg.id,
+                    "role": "user",
+                    "content": user_msg.content,
+                    "timestamp": user_msg.timestamp.isoformat()
+                },
+                "ai_message": {
+                    "id": ai_msg.id,
+                    "role": "ai",
+                    "content": ai_msg.content,
+                    "timestamp": ai_msg.timestamp.isoformat()
+                },
+            }
         
         
 

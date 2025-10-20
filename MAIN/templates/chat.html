@@ -448,20 +448,66 @@
 
     // 🎬 kalau ada video_url → tambahkan video player di bawah teks
     if (videoUrl) {
+      const videoContainer = document.createElement('div');
+      videoContainer.style.display = 'flex';
+      videoContainer.style.flexDirection = 'column';
+      videoContainer.style.alignItems = 'flex-start';
+      videoContainer.style.marginTop = '10px';
+
       const video = document.createElement('video');
       video.controls = true;
       video.src = videoUrl;
       video.style.maxWidth = '100%';
       video.style.borderRadius = '10px';
-      video.style.marginTop = '10px';
-      content.appendChild(video);
+
+      // 🔽 ambil nama file dari URL Supabase
+      const fileName = videoUrl.split('/').pop() || `EduGen_${Date.now()}.mp4`;
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.textContent = '⬇️ Download Video';
+      downloadBtn.style.marginTop = '6px';
+      downloadBtn.style.fontSize = '13px';
+      downloadBtn.style.color = '#DBE2EF';
+      downloadBtn.style.background = '#112D4E';
+      downloadBtn.style.padding = '6px 10px';
+      downloadBtn.style.border = 'none';
+      downloadBtn.style.borderRadius = '6px';
+      downloadBtn.style.cursor = 'pointer';
+      downloadBtn.style.fontWeight = 'bold';
+
+      downloadBtn.onclick = async () => {
+        try {
+          const response = await fetch(videoUrl);
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = fileName; // ✅ gunakan nama file asli dari Supabase
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+          alert('❌ Gagal mengunduh video.');
+          console.error('Download error:', err);
+        }
+      };
+
+      videoContainer.appendChild(video);
+      videoContainer.appendChild(downloadBtn);
+      content.appendChild(videoContainer);
     }
 
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(content);
 
     chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessages.scrollTo({
+      top: chatMessages.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 
   function ensureNotEmptyState() {
@@ -490,7 +536,17 @@
   async function loadMessages(chatId) {
     const res = await fetch(`/api/chats/${chatId}/messages?username=${encodeURIComponent(CURRENT_USERNAME)}`);
     if (!res.ok) throw new Error('Failed to load messages');
-    return res.json(); // [{id, role, content, timestamp}, ...]
+    const data = await res.json();
+
+    // ✅ scroll otomatis ke bawah setelah data dimuat
+    setTimeout(() => {
+      chatMessages.scrollTo({
+        top: chatMessages.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 200);
+
+    return data;
   }
 
   async function refreshMessages(chatId) {
@@ -654,14 +710,25 @@
       if (data.ai_message.content.includes("Generating")) {
         let retries = 0;
         const interval = setInterval(async () => {
-          retries++;
-          const msgs = await loadMessages(activeChatId);
-          const hasVideo = msgs.some(m => m.video_url && m.video_url.length > 0);
-          if (hasVideo || retries > 60) { // maksimal 3 menit
+          try {
+            retries++;
+            const msgs = await loadMessages(activeChatId);
+
+            const latest = msgs[msgs.length - 1];
+            const hasVideo = latest?.video_url && latest.video_url.length > 0;
+
+            if (hasVideo) {
+              clearInterval(interval);
+              chatMessages.innerHTML = '';
+              msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Cegah infinite loop
+            if (retries > 120) clearInterval(interval); // 6 menit
+          } catch (e) {
+            console.warn('Polling error:', e);
             clearInterval(interval);
-            chatMessages.innerHTML = '';
-            msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
-            chatMessages.scrollTop = chatMessages.scrollHeight;
           }
         }, 3000);
       }
@@ -696,6 +763,13 @@
         showChatUI();
         msgs.forEach(m => addMessage(m.content, m.role, m.video_url)); // ✅ tambahkan video
         activeChatId = firstActive.dataset.chatId;
+        // ✅ Scroll otomatis ke bawah setelah semua pesan awal dimuat
+        setTimeout(() => {
+          chatMessages.scrollTo({
+            top: chatMessages.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 300);
       } catch (e) {
         console.warn('No initial messages loaded:', e);
       }
@@ -909,6 +983,32 @@ if (chatSearchClear) {
     doSearch();
   });
 }
+
+// ====== GLOBAL POLLING UNTUK UPDATE PESAN BARU ======
+setInterval(async () => {
+  try {
+    if (!activeChatId) return; // tidak ada chat aktif
+    const msgs = await loadMessages(activeChatId);
+    const currentCount = document.querySelectorAll('.message').length;
+
+    // kalau jumlah pesan di server lebih banyak, update tampilan
+    // kalau jumlah pesan di server lebih banyak, update tampilan
+    if (msgs.length !== currentCount) {
+      chatMessages.innerHTML = '';
+      msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
+
+      // ✅ scroll ke bawah setelah render selesai
+      setTimeout(() => {
+        chatMessages.scrollTo({
+          top: chatMessages.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 150);
+    }
+  } catch (err) {
+    console.warn('Auto refresh error:', err);
+  }
+}, 5000); // tiap 5 detik
 
 // Saat pertama load, tampilkan semua (query kosong)
 doSearch();
