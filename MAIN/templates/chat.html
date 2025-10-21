@@ -258,6 +258,70 @@
   display: none;
 }
 .search-clear.show { display: inline; }
+
+/* Floating Review Button */
+.floating-review-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+  transition: all 0.3s ease;
+  border: 3px solid #F9F7F7;
+}
+
+.floating-review-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(63, 114, 175, 0.6);
+}
+
+.floating-review-btn:active {
+  cursor: grabbing;
+}
+
+.floating-review-btn svg {
+  width: 28px;
+  height: 28px;
+  color: #F9F7F7;
+}
+
+.review-tooltip {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: #112D4E;
+  color: #F9F7F7;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 4px 15px rgba(17, 45, 78, 0.3);
+}
+
+.floating-review-btn:hover .review-tooltip {
+  opacity: 1;
+}
+
+/* Animasi bounce */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.floating-review-btn.bounce {
+  animation: bounce 2s infinite;
+}
 </style>
 <body>
     <div class="container">
@@ -392,7 +456,13 @@
     <input type="file" id="document-upload" class="file-input" accept=".pdf,.doc,.docx,.txt">
     <input type="file" id="video-upload" class="file-input" accept="video/*">
 
-
+<!-- Floating Review Button -->
+<a href="/reviews" class="floating-review-btn bounce" id="floatingReviewBtn" title="Leave a Review">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+  </svg>
+  <span class="review-tooltip">Leave a Review ⭐</span>
+</a>
 
 
 <script>
@@ -1012,6 +1082,87 @@ setInterval(async () => {
 
 // Saat pertama load, tampilkan semua (query kosong)
 doSearch();
+
+// ====== Draggable Floating Review Button ======
+const floatingBtn = document.getElementById('floatingReviewBtn');
+
+if (floatingBtn) {
+  let isDragging = false;
+  let startX, startY, offsetX, offsetY;
+
+  floatingBtn.addEventListener('mousedown', function(e) {
+    // Jangan drag kalau klik buat navigasi
+    if (e.target.tagName === 'A') return;
+    
+    isDragging = true;
+    floatingBtn.classList.remove('bounce');
+    
+    const rect = floatingBtn.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+    
+    // Batasi agar tidak keluar dari viewport
+    const maxX = window.innerWidth - floatingBtn.offsetWidth;
+    const maxY = window.innerHeight - floatingBtn.offsetHeight;
+    
+    const finalX = Math.max(0, Math.min(x, maxX));
+    const finalY = Math.max(0, Math.min(y, maxY));
+    
+    floatingBtn.style.left = finalX + 'px';
+    floatingBtn.style.top = finalY + 'px';
+    floatingBtn.style.right = 'auto';
+    floatingBtn.style.bottom = 'auto';
+  });
+
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+  });
+
+  // Touch support untuk mobile
+  floatingBtn.addEventListener('touchstart', function(e) {
+    isDragging = true;
+    floatingBtn.classList.remove('bounce');
+    
+    const rect = floatingBtn.getBoundingClientRect();
+    const touch = e.touches[0];
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+  });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!isDragging) return;
+    
+    const touch = e.touches[0];
+    const x = touch.clientX - offsetX;
+    const y = touch.clientY - offsetY;
+    
+    const maxX = window.innerWidth - floatingBtn.offsetWidth;
+    const maxY = window.innerHeight - floatingBtn.offsetHeight;
+    
+    const finalX = Math.max(0, Math.min(x, maxX));
+    const finalY = Math.max(0, Math.min(y, maxY));
+    
+    floatingBtn.style.left = finalX + 'px';
+    floatingBtn.style.top = finalY + 'px';
+    floatingBtn.style.right = 'auto';
+    floatingBtn.style.bottom = 'auto';
+    
+    e.preventDefault();
+  });
+
+  document.addEventListener('touchend', function() {
+    isDragging = false;
+  });
+}
 </script>
 </body>
 </html>
