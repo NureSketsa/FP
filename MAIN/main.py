@@ -200,7 +200,6 @@ def submit_review(data: dict, user: User = Depends(current_user_required)):
 
             return {
                 "ok": True,
-                "message": "Review berhasil disimpan!",
                 "review": {
                     "nama": new_review.nama,
                     "nrp": new_review.nrp,
