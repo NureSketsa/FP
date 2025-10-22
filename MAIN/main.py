@@ -17,6 +17,8 @@ from sqlalchemy import func
 from pathlib import Path
 from dotenv import load_dotenv
 
+templates = Jinja2Templates(directory="MAIN/templates")
+
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent
 project_root = BASE_DIR.parent
