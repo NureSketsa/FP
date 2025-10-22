@@ -1,1 +1,9 @@
+# Python Virtual Environments
+venv/
 manim_env/
+/venv/
+/manim_env/
+
+# Python cache
+__pycache__/
+*.pyc
