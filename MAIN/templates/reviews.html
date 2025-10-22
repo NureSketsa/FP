@@ -648,132 +648,25 @@
       }
 
       // Sample reviews data
-      let reviews = [
-        {
-          nama: "Ahmad Rizki",
-          nrp: "5025211001",
-          kelompok: "A1",
-          rating: 5,
-          review: "Website sangat membantu dalam pembelajaran!",
-          timestamp: Date.now() - 1000000,
-        },
-        {
-          nama: "Siti Nurhaliza",
-          nrp: "5025211015",
-          kelompok: "A2",
-          rating: 4,
-          review: "Interface yang user-friendly dan mudah dipahami.",
-          timestamp: Date.now() - 2000000,
-        },
-        {
-          nama: "Budi Santoso",
-          nrp: "5025211028",
-          kelompok: "B1",
-          rating: 5,
-          review: "Konten pembelajaran sangat lengkap dan terstruktur.",
-          timestamp: Date.now() - 3000000,
-        },
-        {
-          nama: "Dewi Lestari",
-          nrp: "5025211042",
-          kelompok: "B2",
-          rating: 4,
-          review: "Fitur video interaktif sangat membantu pemahaman materi.",
-          timestamp: Date.now() - 4000000,
-        },
-        {
-          nama: "Eko Prasetyo",
-          nrp: "5025211055",
-          kelompok: "A3",
-          rating: 5,
-          review: "Penjelasan materi sangat detail dan mudah dipahami.",
-          timestamp: Date.now() - 5000000,
-        },
-        {
-          nama: "Fitri Handayani",
-          nrp: "5025211069",
-          kelompok: "B3",
-          rating: 3,
-          review: "Bagus, tapi perlu ditambah lebih banyak contoh soal.",
-          timestamp: Date.now() - 6000000,
-        },
-        {
-          nama: "Gunawan Wijaya",
-          nrp: "5025211073",
-          kelompok: "A4",
-          rating: 5,
-          review: "Sangat recommended untuk belajar mandiri!",
-          timestamp: Date.now() - 7000000,
-        },
-        {
-          nama: "Hana Permata",
-          nrp: "5025211087",
-          kelompok: "B4",
-          rating: 4,
-          review: "Desain website menarik dan tidak membosankan.",
-          timestamp: Date.now() - 8000000,
-        },
-        {
-          nama: "Indra Kusuma",
-          nrp: "5025211091",
-          kelompok: "A5",
-          rating: 5,
-          review: "Materi up-to-date dan sesuai dengan kurikulum.",
-          timestamp: Date.now() - 9000000,
-        },
-        {
-          nama: "Julia Ramadhani",
-          nrp: "5025211105",
-          kelompok: "B5",
-          rating: 4,
-          review: "Sistem tracking progress sangat membantu.",
-          timestamp: Date.now() - 10000000,
-        },
-        {
-          nama: "Kemal Akbar",
-          nrp: "5025211119",
-          kelompok: "A6",
-          rating: 5,
-          review: "Kualitas video pembelajaran sangat baik.",
-          timestamp: Date.now() - 11000000,
-        },
-        {
-          nama: "Laila Sari",
-          nrp: "5025211123",
-          kelompok: "B6",
-          rating: 3,
-          review: "Cukup membantu, tapi loading kadang lambat.",
-          timestamp: Date.now() - 12000000,
-        },
-        {
-          nama: "Muhammad Farhan",
-          nrp: "5025211137",
-          kelompok: "A7",
-          rating: 5,
-          review: "Platform terbaik untuk belajar online!",
-          timestamp: Date.now() - 13000000,
-        },
-        {
-          nama: "Nur Azizah",
-          nrp: "5025211141",
-          kelompok: "B7",
-          rating: 4,
-          review: "Fitur quiz interaktif sangat membantu latihan.",
-          timestamp: Date.now() - 14000000,
-        },
-        {
-          nama: "Omar Hassan",
-          nrp: "5025211155",
-          kelompok: "A8",
-          rating: 5,
-          review: "Guru virtual yang sangat membantu pembelajaran.",
-          timestamp: Date.now() - 15000000,
-        },
-      ];
-
+      let reviews = [];
       let currentPage = 1;
       const itemsPerPage = 10;
-      let filteredReviews = [...reviews];
+      let filteredReviews = [];
+
+      // Ambil review dari server
+      async function fetchReviews() {
+        const res = await fetch("/api/reviews");
+        if (!res.ok) {
+          alert("Gagal memuat review dari server");
+          return;
+        }
+        reviews = await res.json();
+        filteredReviews = [...reviews];
+        renderReviews();
+      }
+
+fetchReviews();
+
 
       // Function to filter reviews
       function filterReviews(searchTerm) {
@@ -929,9 +822,10 @@
         });
 
       // Form submission
+
       document
         .getElementById("reviewForm")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
 
           const formData = {
@@ -940,16 +834,10 @@
             kelompok: document.getElementById("kelompok").value.trim(),
             rating: parseInt(ratingInput.value),
             review: document.getElementById("review").value.trim(),
-            timestamp: Date.now(),
           };
 
-          // Validation
-          if (
-            !formData.nama ||
-            !formData.nrp ||
-            !formData.kelompok ||
-            !formData.review
-          ) {
+          // 🔍 Validasi
+          if (!formData.nama || !formData.nrp || !formData.kelompok || !formData.review) {
             alert("Please fill in all required fields!");
             return;
           }
@@ -959,31 +847,42 @@
             return;
           }
 
-          // Add review to array
-          reviews.unshift(formData);
-          filteredReviews = [...reviews];
+          try {
+            // ✅ Kirim ke backend
+            const res = await fetch("/api/reviews", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(formData),
+            });
 
-          // Re-render reviews
-          currentPage = 1;
-          renderReviews();
+            if (!res.ok) {
+              throw new Error("Gagal mengirim review ke server.");
+            }
 
-          // Reset form
-          this.reset();
-          ratingInput.value = 0;
-          currentRating = 0;
-          updateStars(0);
+            const data = await res.json();
+            alert(data.message || "Thank you for your review!");
 
-          // Scroll to reviews section
-          document
-            .querySelector(".reviews-container")
-            .scrollIntoView({ behavior: "smooth" });
+            // 🔁 Refresh tabel dari DB
+            await fetchReviews();
 
-          // Show success message
-          alert("Thank you for your review!");
+            // 🔄 Reset form
+            this.reset();
+            ratingInput.value = 0;
+            currentRating = 0;
+            updateStars(0);
+
+            // 🎯 Scroll ke tabel review
+            document.querySelector(".reviews-container").scrollIntoView({ behavior: "smooth" });
+
+          } catch (err) {
+            console.error(err);
+            alert("Terjadi kesalahan saat mengirim review!");
+          }
         });
 
       // Initial render
       renderReviews();
     </script>
+
   </body>
 </html>
