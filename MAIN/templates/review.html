@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LearnVid AI - Reviews</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+    <style>
+      body {
+        font-family: "Montaga", serif;
+        background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position: relative;
+        padding: 80px 20px 40px;
+      }
+
+      .bg-animations {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .floating-symbol {
+        position: absolute;
+        font-family: "Montaga", serif;
+        font-weight: bold;
+        opacity: 0;
+        will-change: transform, opacity;
+        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+      }
+
+      @keyframes floatRandom {
+        0% {
+          opacity: 0;
+          transform: translate(var(--xStart), var(--yStart))
+            scale(var(--scaleStart)) rotate(var(--rotateStart));
+        }
+        15% {
+          opacity: var(--maxOpacity);
+        }
+        50% {
+          transform: translate(var(--xMid), var(--yMid)) scale(var(--scaleMid))
+            rotate(var(--rotateMid));
+        }
+        85% {
+          opacity: var(--maxOpacity);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--xEnd), var(--yEnd)) scale(var(--scaleEnd))
+            rotate(var(--rotateEnd));
+        }
+      }
+
+      .main-container {
+        width: 100%;
+        max-width: 900px;
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .review-form-container {
+        background: rgba(249, 247, 247, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
+        text-align: center;
+        position: relative;
+        animation: slideUp 0.8s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .icon-container {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 100px;
+        background: #3f72af;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
+      }
+
+      .review-title {
+        color: #112d4e;
+        font-size: 1.8rem;
+        margin: 20px 0 30px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+
+      .form-label {
+        display: block;
+        color: #112d4e;
+        font-size: 14px;
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+
+      .required {
+        color: #e74c3c;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #dbe2ef;
+        border-radius: 12px;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        background: #f9f7f7;
+        color: #112d4e;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        outline: none;
+      }
+
+      .form-input:focus {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+        transform: translateY(-2px);
+      }
+
+      textarea.form-input {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .star-rating {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 15px 0;
+      }
+
+      .star {
+        font-size: 2.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #dbe2ef;
+      }
+
+      .star:hover,
+      .star.active {
+        color: #ffd700;
+        transform: scale(1.1);
+      }
+
+      .submit-btn {
+        width: 100%;
+        background: #3f72af;
+        color: #f9f7f7;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+        box-sizing: border-box;
+        font-family: "Montaga", serif;
+      }
+
+      .submit-btn:hover {
+        background: #2d5a94;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
+      }
+
+      .reviews-container {
+        background: rgba(249, 247, 247, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
+        animation: slideUp 0.8s ease-out 0.2s backwards;
+      }
+
+      .reviews-title {
+        color: #112d4e;
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .table-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .search-box {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border: 2px solid #dbe2ef;
+        border-radius: 12px;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        background: #f9f7f7;
+        color: #112d4e;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .search-box:focus {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+      }
+
+      .sort-select {
+        padding: 12px 16px;
+        border: 2px solid #dbe2ef;
+        border-radius: 12px;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        background: #f9f7f7;
+        color: #112d4e;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .sort-select:focus {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+      }
+
+      .reviews-table-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(17, 45, 78, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9f7f7;
+      }
+
+      thead {
+        background: #3f72af;
+        color: #f9f7f7;
+      }
+
+      th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 500;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid #dbe2ef;
+        color: #112d4e;
+      }
+
+      tbody tr {
+        transition: all 0.2s ease;
+      }
+
+      tbody tr:hover {
+        background: rgba(63, 114, 175, 0.05);
+        transform: translateX(3px);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .rating-stars {
+        color: #ffd700;
+        font-size: 1.1rem;
+        white-space: nowrap;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #112d4e;
+        font-size: 1.1rem;
+      }
+
+      .empty-state lord-icon {
+        margin-bottom: 20px;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+      }
+
+      .page-btn {
+        padding: 10px 16px;
+        background: #f9f7f7;
+        border: 2px solid #dbe2ef;
+        border-radius: 8px;
+        color: #112d4e;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 40px;
+      }
+
+      .page-btn:hover:not(:disabled) {
+        background: #3f72af;
+        color: #f9f7f7;
+        border-color: #3f72af;
+        transform: translateY(-2px);
+      }
+
+      .page-btn.active {
+        background: #3f72af;
+        color: #f9f7f7;
+        border-color: #3f72af;
+        font-weight: 600;
+      }
+
+      .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .page-info {
+        color: #112d4e;
+        font-size: 14px;
+        padding: 0 10px;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 100px 15px 30px;
+        }
+
+        .review-form-container,
+        .reviews-container {
+          padding: 30px 20px;
+        }
+
+        .review-title,
+        .reviews-title {
+          font-size: 1.5rem;
+        }
+
+        table {
+          font-size: 13px;
+        }
+
+        th,
+        td {
+          padding: 12px 8px;
+        }
+
+        .star {
+          font-size: 2rem;
+        }
+      }
+      /* Back to Chat Button - Fixed Top Left */
+      .back-to-chat {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #3f72af 0%, #2d5a94 100%);
+        border: none;
+        border-radius: 12px;
+        color: #f9f7f7;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        z-index: 10000;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+      }
+
+      .back-to-chat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(63, 114, 175, 0.6);
+      }
+
+      .back-to-chat svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 768px) {
+        .back-to-chat {
+          top: 15px;
+          left: 15px;
+          padding: 10px 16px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-animations"></div>
+
+    <div class="main-container">
+      <!-- Review Form Section -->
+      <div class="review-form-container">
+        <div class="icon-container">
+          <lord-icon
+            src="https://cdn.lordicon.com/cvwrvyjv.json"
+            trigger="loop"
+            delay="500"
+            state="hover-wink"
+            colors="primary:#dbe2ef,secondary:#dbe2ef"
+            style="width: 70px; height: 70px"
+          >
+          </lord-icon>
+        </div>
+
+        <h1 class="review-title">Leave a Review</h1>
+
+        <form id="reviewForm" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="nama"
+              ><span class="required">*</span> Nama</label
+            >
+            <input
+              id="nama"
+              name="nama"
+              type="text"
+              class="form-input"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="nrp"
+              ><span class="required">*</span> NRP</label
+            >
+            <input
+              id="nrp"
+              name="nrp"
+              type="text"
+              class="form-input"
+              placeholder="Enter your NRP"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="kelompok"
+              ><span class="required">*</span> Kelompok</label
+            >
+            <input
+              id="kelompok"
+              name="kelompok"
+              type="text"
+              class="form-input"
+              placeholder="Enter your group"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"
+              ><span class="required">*</span> Rate our Website</label
+            >
+            <div class="star-rating">
+              <span class="star" data-rating="1">★</span>
+              <span class="star" data-rating="2">★</span>
+              <span class="star" data-rating="3">★</span>
+              <span class="star" data-rating="4">★</span>
+              <span class="star" data-rating="5">★</span>
+            </div>
+            <input type="hidden" id="rating" name="rating" value="0" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="review"
+              ><span class="required">*</span> Review</label
+            >
+            <textarea
+              id="review"
+              name="review"
+              class="form-input"
+              placeholder="Write your review here..."
+              maxlength="500"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn">Send Review</button>
+        </form>
+      </div>
+
+      <!-- Reviews Table Section -->
+      <div class="reviews-container">
+        <h2 class="reviews-title">Other People Reviews</h2>
+
+        <div class="table-controls">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="🔍 Search by name, NRP, or review..."
+          />
+          <select id="sortSelect" class="sort-select">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="highest">Highest Rating</option>
+            <option value="lowest">Lowest Rating</option>
+            <option value="name">Name (A-Z)</option>
+          </select>
+        </div>
+
+        <div class="reviews-table-wrapper">
+          <table id="reviewsTable">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>NRP</th>
+                <th>Kelompok</th>
+                <th>Rating</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsBody">
+              <!-- Reviews will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination">
+          <!-- Pagination will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Background animation
+      const container = document.querySelector(".bg-animations");
+      const symbols = [
+        "π",
+        "∑",
+        "√",
+        "∞",
+        "△",
+        "∫",
+        "α",
+        "β",
+        "θ",
+        "μ",
+        "∇",
+        "≠",
+        "≤",
+        "≥",
+        "∪",
+        "∩",
+        "∅",
+        "±",
+        "×",
+        "÷",
+        "²",
+        "³",
+        "∠",
+        "⊥",
+        "∥",
+        "φ",
+        "ψ",
+        "ω",
+      ];
+      const colors = [
+        "rgba(255,255,255,0.3)",
+        "rgba(173,216,230,0.35)",
+        "rgba(144,238,144,0.35)",
+        "rgba(255,182,193,0.35)",
+        "rgba(221,160,221,0.35)",
+      ];
+
+      function spawnSymbol() {
+        const el = document.createElement("div");
+        el.className = "floating-symbol";
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        const startX = Math.random() * 100,
+          startY = 100 + Math.random() * 20;
+        const driftX = startX + (Math.random() * 40 - 20);
+        const driftY = startY - (30 + Math.random() * 60);
+        const endX = driftX + (Math.random() * 40 - 20);
+        const endY = driftY - (30 + Math.random() * 40);
+        el.style.setProperty("--xStart", startX + "vw");
+        el.style.setProperty("--yStart", startY + "vh");
+        el.style.setProperty("--xMid", driftX + "vw");
+        el.style.setProperty("--yMid", driftY + "vh");
+        el.style.setProperty("--xEnd", endX + "vw");
+        el.style.setProperty("--yEnd", endY + "vh");
+        el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
+        el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
+        el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
+        el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
+        el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
+        el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
+        el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
+        const duration = 5 + Math.random() * 6 + "s";
+        el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
+        el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), parseFloat(duration) * 1000);
+      }
+      setInterval(() => {
+        for (let i = 0, n = 1 + Math.floor(Math.random() * 3); i < n; i++)
+          spawnSymbol();
+      }, 700);
+
+      // Star rating functionality
+      const stars = document.querySelectorAll(".star");
+      const ratingInput = document.getElementById("rating");
+      let currentRating = 0;
+
+      stars.forEach((star) => {
+        star.addEventListener("click", function () {
+          currentRating = parseInt(this.dataset.rating);
+          ratingInput.value = currentRating;
+          updateStars(currentRating);
+        });
+
+        star.addEventListener("mouseenter", function () {
+          updateStars(parseInt(this.dataset.rating));
+        });
+      });
+
+      document
+        .querySelector(".star-rating")
+        .addEventListener("mouseleave", function () {
+          updateStars(currentRating);
+        });
+
+      function updateStars(rating) {
+        stars.forEach((star) => {
+          const starRating = parseInt(star.dataset.rating);
+          if (starRating <= rating) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      // Sample reviews data
+      let reviews = [
+        {
+          nama: "Ahmad Rizki",
+          nrp: "5025211001",
+          kelompok: "A1",
+          rating: 5,
+          review: "Website sangat membantu dalam pembelajaran!",
+          timestamp: Date.now() - 1000000,
+        },
+        {
+          nama: "Siti Nurhaliza",
+          nrp: "5025211015",
+          kelompok: "A2",
+          rating: 4,
+          review: "Interface yang user-friendly dan mudah dipahami.",
+          timestamp: Date.now() - 2000000,
+        },
+        {
+          nama: "Budi Santoso",
+          nrp: "5025211028",
+          kelompok: "B1",
+          rating: 5,
+          review: "Konten pembelajaran sangat lengkap dan terstruktur.",
+          timestamp: Date.now() - 3000000,
+        },
+        {
+          nama: "Dewi Lestari",
+          nrp: "5025211042",
+          kelompok: "B2",
+          rating: 4,
+          review: "Fitur video interaktif sangat membantu pemahaman materi.",
+          timestamp: Date.now() - 4000000,
+        },
+        {
+          nama: "Eko Prasetyo",
+          nrp: "5025211055",
+          kelompok: "A3",
+          rating: 5,
+          review: "Penjelasan materi sangat detail dan mudah dipahami.",
+          timestamp: Date.now() - 5000000,
+        },
+        {
+          nama: "Fitri Handayani",
+          nrp: "5025211069",
+          kelompok: "B3",
+          rating: 3,
+          review: "Bagus, tapi perlu ditambah lebih banyak contoh soal.",
+          timestamp: Date.now() - 6000000,
+        },
+        {
+          nama: "Gunawan Wijaya",
+          nrp: "5025211073",
+          kelompok: "A4",
+          rating: 5,
+          review: "Sangat recommended untuk belajar mandiri!",
+          timestamp: Date.now() - 7000000,
+        },
+        {
+          nama: "Hana Permata",
+          nrp: "5025211087",
+          kelompok: "B4",
+          rating: 4,
+          review: "Desain website menarik dan tidak membosankan.",
+          timestamp: Date.now() - 8000000,
+        },
+        {
+          nama: "Indra Kusuma",
+          nrp: "5025211091",
+          kelompok: "A5",
+          rating: 5,
+          review: "Materi up-to-date dan sesuai dengan kurikulum.",
+          timestamp: Date.now() - 9000000,
+        },
+        {
+          nama: "Julia Ramadhani",
+          nrp: "5025211105",
+          kelompok: "B5",
+          rating: 4,
+          review: "Sistem tracking progress sangat membantu.",
+          timestamp: Date.now() - 10000000,
+        },
+        {
+          nama: "Kemal Akbar",
+          nrp: "5025211119",
+          kelompok: "A6",
+          rating: 5,
+          review: "Kualitas video pembelajaran sangat baik.",
+          timestamp: Date.now() - 11000000,
+        },
+        {
+          nama: "Laila Sari",
+          nrp: "5025211123",
+          kelompok: "B6",
+          rating: 3,
+          review: "Cukup membantu, tapi loading kadang lambat.",
+          timestamp: Date.now() - 12000000,
+        },
+        {
+          nama: "Muhammad Farhan",
+          nrp: "5025211137",
+          kelompok: "A7",
+          rating: 5,
+          review: "Platform terbaik untuk belajar online!",
+          timestamp: Date.now() - 13000000,
+        },
+        {
+          nama: "Nur Azizah",
+          nrp: "5025211141",
+          kelompok: "B7",
+          rating: 4,
+          review: "Fitur quiz interaktif sangat membantu latihan.",
+          timestamp: Date.now() - 14000000,
+        },
+        {
+          nama: "Omar Hassan",
+          nrp: "5025211155",
+          kelompok: "A8",
+          rating: 5,
+          review: "Guru virtual yang sangat membantu pembelajaran.",
+          timestamp: Date.now() - 15000000,
+        },
+      ];
+
+      let currentPage = 1;
+      const itemsPerPage = 10;
+      let filteredReviews = [...reviews];
+
+      // Function to filter reviews
+      function filterReviews(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filteredReviews = reviews.filter(
+          (r) =>
+            r.nama.toLowerCase().includes(term) ||
+            r.nrp.toLowerCase().includes(term) ||
+            r.review.toLowerCase().includes(term) ||
+            r.kelompok.toLowerCase().includes(term)
+        );
+        currentPage = 1;
+        renderReviews();
+      }
+
+      // Function to sort reviews
+      function sortReviews(sortType) {
+        switch (sortType) {
+          case "newest":
+            filteredReviews.sort((a, b) => b.timestamp - a.timestamp);
+            break;
+          case "oldest":
+            filteredReviews.sort((a, b) => a.timestamp - b.timestamp);
+            break;
+          case "highest":
+            filteredReviews.sort((a, b) => b.rating - a.rating);
+            break;
+          case "lowest":
+            filteredReviews.sort((a, b) => a.rating - b.rating);
+            break;
+          case "name":
+            filteredReviews.sort((a, b) => a.nama.localeCompare(b.nama));
+            break;
+        }
+        currentPage = 1;
+        renderReviews();
+      }
+
+      // Function to render pagination
+      function renderPagination() {
+        const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+        const pagination = document.getElementById("pagination");
+
+        if (totalPages <= 1) {
+          pagination.innerHTML = "";
+          return;
+        }
+
+        let html = "";
+
+        // Previous button
+        html += `<button class="page-btn" onclick="changePage(${
+          currentPage - 1
+        })" ${currentPage === 1 ? "disabled" : ""}>← Prev</button>`;
+
+        // Page numbers
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (startPage > 1) {
+          html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+          if (startPage > 2) html += `<span class="page-info">...</span>`;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+          html += `<button class="page-btn ${
+            i === currentPage ? "active" : ""
+          }" onclick="changePage(${i})">${i}</button>`;
+        }
+
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1)
+            html += `<span class="page-info">...</span>`;
+          html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+        }
+
+        // Next button
+        html += `<button class="page-btn" onclick="changePage(${
+          currentPage + 1
+        })" ${currentPage === totalPages ? "disabled" : ""}>Next →</button>`;
+
+        pagination.innerHTML = html;
+      }
+
+      // Function to change page
+      window.changePage = function (page) {
+        const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderReviews();
+        document
+          .querySelector(".reviews-container")
+          .scrollIntoView({ behavior: "smooth" });
+      };
+
+      // Function to render reviews
+      function renderReviews() {
+        const tbody = document.getElementById("reviewsBody");
+
+        if (filteredReviews.length === 0) {
+          tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <lord-icon
+                src="https://cdn.lordicon.com/hrqwmuhr.json"
+                trigger="loop"
+                colors="primary:#3F72AF,secondary:#112D4E"
+                style="width:80px;height:80px">
+              </lord-icon>
+              <div>No reviews found. Try a different search term.</div>
+            </td>
+          </tr>
+        `;
+          renderPagination();
+          return;
+        }
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageReviews = filteredReviews.slice(startIndex, endIndex);
+
+        tbody.innerHTML = pageReviews
+          .map(
+            (r) => `
+        <tr>
+          <td>${r.nama}</td>
+          <td>${r.nrp}</td>
+          <td>${r.kelompok}</td>
+          <td><span class="rating-stars">${"★".repeat(r.rating)}${"☆".repeat(
+              5 - r.rating
+            )}</span></td>
+          <td>${r.review}</td>
+        </tr>
+      `
+          )
+          .join("");
+
+        renderPagination();
+      }
+
+      // Search functionality
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          filterReviews(e.target.value);
+        });
+
+      // Sort functionality
+      document
+        .getElementById("sortSelect")
+        .addEventListener("change", function (e) {
+          sortReviews(e.target.value);
+        });
+
+      // Form submission
+      document
+        .getElementById("reviewForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const formData = {
+            nama: document.getElementById("nama").value.trim(),
+            nrp: document.getElementById("nrp").value.trim(),
+            kelompok: document.getElementById("kelompok").value.trim(),
+            rating: parseInt(ratingInput.value),
+            review: document.getElementById("review").value.trim(),
+            timestamp: Date.now(),
+          };
+
+          // Validation
+          if (
+            !formData.nama ||
+            !formData.nrp ||
+            !formData.kelompok ||
+            !formData.review
+          ) {
+            alert("Please fill in all required fields!");
+            return;
+          }
+
+          if (formData.rating === 0) {
+            alert("Please select a rating!");
+            return;
+          }
+
+          // Add review to array
+          reviews.unshift(formData);
+          filteredReviews = [...reviews];
+
+          // Re-render reviews
+          currentPage = 1;
+          renderReviews();
+
+          // Reset form
+          this.reset();
+          ratingInput.value = 0;
+          currentRating = 0;
+          updateStars(0);
+
+          // Scroll to reviews section
+          document
+            .querySelector(".reviews-container")
+            .scrollIntoView({ behavior: "smooth" });
+
+          // Show success message
+          alert("Thank you for your review!");
+        });
+
+      // Initial render
+      renderReviews();
+    </script>
+  </body>
+</html>
