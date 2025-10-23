@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from contextlib import asynccontextmanager
-from AI.app import generate_educational_video
+#from AI.app import generate_educational_video
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
@@ -16,6 +16,8 @@ from sqlalchemy import func
 
 from pathlib import Path
 from dotenv import load_dotenv
+
+templates = Jinja2Templates(directory="MAIN/templates")
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -63,6 +65,16 @@ class Message(SQLModel, table=True):
     content: str
     video_url: Optional[str] = None  # ✅ kolom baru
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+    
+class Review(SQLModel, table=True):
+    __tablename__ = "reviews"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nama: str
+    nrp: str
+    kelompok: str
+    rating: int
+    review: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -149,6 +161,77 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
         "chat.html",
         {"request": request, "username": user.username, "chats": chat_list}
     )
+    
+@app.get("/reviews", response_class=HTMLResponse)
+def reviews_page(request: Request, user: User = Depends(current_user_required)):
+    """Tampilkan halaman review"""
+    with Session(engine) as session:
+        all_reviews = session.exec(
+            select(Review).order_by(Review.created_at.desc())
+        ).all()
+    return templates.TemplateResponse(
+        "reviews.html",
+        {"request": request, "username": user.username, "reviews": all_reviews}
+    )
+
+
+@app.post("/api/reviews")
+def submit_review(data: dict, user: User = Depends(current_user_required)):
+    """Terima review dari form frontend (AJAX POST)"""
+    try:
+        nama = data.get("nama", "").strip()
+        nrp = data.get("nrp", "").strip()
+        kelompok = data.get("kelompok", "").strip()
+        rating = int(data.get("rating", 0))
+        review_text = data.get("review", "").strip()
+
+        if not nama or not nrp or not kelompok or not review_text or rating < 1 or rating > 5:
+            raise HTTPException(status_code=400, detail="Invalid input")
+
+        with Session(engine) as session:
+            new_review = Review(
+                nama=nama,
+                nrp=nrp,
+                kelompok=kelompok,
+                rating=rating,
+                review=review_text
+            )
+            session.add(new_review)
+            session.commit()
+            session.refresh(new_review)
+
+            return {
+                "ok": True,
+                "review": {
+                    "nama": new_review.nama,
+                    "nrp": new_review.nrp,
+                    "kelompok": new_review.kelompok,
+                    "rating": new_review.rating,
+                    "review": new_review.review,
+                    "created_at": new_review.created_at.isoformat()
+                }
+            }
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        raise HTTPException(status_code=500, detail="Gagal menyimpan review")
+    
+@app.get("/api/reviews")
+def get_all_reviews():
+    """Ambil semua review untuk tabel frontend"""
+    with Session(engine) as session:
+        reviews = session.exec(select(Review).order_by(Review.created_at.desc())).all()
+    return [
+        {
+            "nama": r.nama,
+            "nrp": r.nrp,
+            "kelompok": r.kelompok,
+            "rating": r.rating,
+            "review": r.review,
+            "created_at": r.created_at.isoformat()
+        }
+        for r in reviews
+    ]
 
 # ---------------- Auth Actions ----------------
 @app.post("/register", response_class=HTMLResponse)
@@ -275,34 +358,39 @@ def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):
 import subprocess, shlex, json
 from pathlib import Path
 
-from AI.app import generate_educational_video  # pastikan ada __init__.py di folder AI
+#from AI.app import generate_educational_video  # pastikan ada __init__.py di folder AI
+
 
 def generate_video_for_topic(topic: str) -> Optional[str]:
-    """
-    Jalankan langsung fungsi generate_educational_video() dari AI/app.py
-    tanpa menggunakan subprocess. 
-    Mengembalikan URL video hasil upload ke Supabase.
-    """
-    try:
-        print(f"[EduGen] Generating educational video for topic: {topic}")
+    """Placeholder - deploy AI separately"""
+    return None
 
-        # Jalankan fungsi utama secara langsung
-        video_path, response = generate_educational_video(topic)
+# def generate_video_for_topic(topic: str) -> Optional[str]:
+#     """
+#     Jalankan langsung fungsi generate_educational_video() dari AI/app.py
+#     tanpa menggunakan subprocess. 
+#     Mengembalikan URL video hasil upload ke Supabase.
+#     """
+#     try:
+#         print(f"[EduGen] Generating educational video for topic: {topic}")
 
-        # Ambil URL dari hasil upload (Supabase)
-        video_url = response.get("video_path")
-        print(f"[EduGen] Video URL: {video_url}")
+#         # Jalankan fungsi utama secara langsung
+#         video_path, response = generate_educational_video(topic)
 
-        # Pastikan hasil valid
-        if video_url and "supabase.co" in video_url:
-            return video_url
-        else:
-            print("[EduGen] No Supabase URL found in response.")
-            return None
+#         # Ambil URL dari hasil upload (Supabase)
+#         video_url = response.get("video_path")
+#         print(f"[EduGen] Video URL: {video_url}")
 
-    except Exception as e:
-        print(f"[EduGen ERROR] {e}")
-        return None
+#         # Pastikan hasil valid
+#         if video_url and "supabase.co" in video_url:
+#             return video_url
+#         else:
+#             print("[EduGen] No Supabase URL found in response.")
+#             return None
+
+#     except Exception as e:
+#         print(f"[EduGen ERROR] {e}")
+#         return None
     
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -315,12 +403,6 @@ def chat_with_gemini(user_message: str) -> str:
     response = model.invoke(prompt)
     return response.content
 
-def is_video_request(text: str) -> bool:
-    """
-    Deteksi apakah pesan user bermaksud meminta video.
-    """
-    triggers = ["buat video", "generate video", "buatkan animasi", "render video", "buat animasi"]
-    return any(kw in text.lower() for kw in triggers)
 
 @app.post("/api/chats/{chat_id}/messages")
 def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(current_user_required)):
@@ -337,79 +419,79 @@ def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(
         session.refresh(user_msg)
 
         # 🎯 Deteksi apakah pesan mengandung perintah buat video
-        if is_video_request(payload.content):
-            topic = (
-                payload.content.lower()
-                .replace("buat video", "")
-                .replace("generate video", "")
-                .replace("buatkan animasi", "")
-                .replace("render video", "")
-                .replace("buat animasi", "")
-                .strip()
-            )
+        # 💬 Mode chat biasa → pakai Gemini langsung
+        ai_response = chat_with_gemini(payload.content)
+        ai_msg = Message(chat_folder_id=chat.id, role=False, content=ai_response)
+        session.add(ai_msg)
+        session.commit()
+        session.refresh(ai_msg)
 
-            # 🎬 Pesan sementara
-            ai_processing_msg = Message(chat_folder_id=chat.id, role=False, content="🎬 Generating educational video...")
-            session.add(ai_processing_msg)
-            session.commit()
+        return {
+            "ok": True,
+            "mode": "chat",
+            "user_message": {
+                "id": user_msg.id,
+                "role": "user",
+                "content": user_msg.content,
+                "timestamp": user_msg.timestamp.isoformat()
+            },
+            "ai_message": {
+                "id": ai_msg.id,
+                "role": "ai",
+                "content": ai_msg.content,
+                "timestamp": ai_msg.timestamp.isoformat()
+            },
+        }
 
-            # 🔧 Jalankan generator video
-            video_url = generate_video_for_topic(topic)
+        
+from fastapi import APIRouter
 
-            ai_msg = Message(
-                chat_folder_id=chat.id,
-                role=False,
-                content=f"✅ Video tentang '{topic}' berhasil dibuat!" if video_url else "❌ Maaf, video gagal dibuat.",
-                video_url=video_url
-            )
-            session.add(ai_msg)
-            session.commit()
-            session.refresh(ai_msg)
+@app.post("/api/chats/{chat_id}/generate_video")
+def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
+    """
+    Endpoint dipanggil oleh tombol "Buat Video"
+    Body JSON: {"topic": "Hukum Newton 1"}
+    """
+    topic = (payload.get("topic") or "").strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic required")
 
-            return {
-                "ok": True,
-                "mode": "video",
-                "user_message": {
-                    "id": user_msg.id,
-                    "role": "user",
-                    "content": user_msg.content,
-                    "timestamp": user_msg.timestamp.isoformat()
-                },
-                "ai_message": {
-                    "id": ai_msg.id,
-                    "role": "ai",
-                    "content": ai_msg.content,
-                    "video_url": ai_msg.video_url,
-                    "timestamp": ai_msg.timestamp.isoformat()
-                },
-            }
-
-        else:
-            # 💬 Mode chat biasa → pakai Gemini
-            ai_response = chat_with_gemini(payload.content)
-            ai_msg = Message(chat_folder_id=chat.id, role=False, content=ai_response)
-            session.add(ai_msg)
-            session.commit()
-            session.refresh(ai_msg)
-
-            return {
-                "ok": True,
-                "mode": "chat",
-                "user_message": {
-                    "id": user_msg.id,
-                    "role": "user",
-                    "content": user_msg.content,
-                    "timestamp": user_msg.timestamp.isoformat()
-                },
-                "ai_message": {
-                    "id": ai_msg.id,
-                    "role": "ai",
-                    "content": ai_msg.content,
-                    "timestamp": ai_msg.timestamp.isoformat()
-                },
-            }
+    with Session(engine) as session:
+        chat = session.get(ChatFolder, chat_id)
+        if not chat or chat.user_id != user.id:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        # 💬 Simpan pesan user agar masuk ke database
+        user_msg = Message(chat_folder_id=chat.id, role=True, content=topic)
+        session.add(user_msg)
+        session.commit()
+        session.refresh(user_msg)
         
         
+        # Simpan placeholder message
+        ai_msg_processing = Message(chat_folder_id=chat.id, role=False, content=f"🎬 Generating video tentang '{topic}'...")
+        session.add(ai_msg_processing)
+        session.commit()
+
+        # Jalankan generator video
+        video_url = generate_video_for_topic(topic)
+
+        ai_msg_done = Message(
+            chat_folder_id=chat.id,
+            role=False,
+            content=f"✅ Video tentang '{topic}' berhasil dibuat!" if video_url else "❌ Maaf, video gagal dibuat.",
+            video_url=video_url
+        )
+        session.add(ai_msg_done)
+        session.commit()
+        session.refresh(ai_msg_done)
+
+    return {
+        "ok": True,
+        "topic": topic,
+        "message": ai_msg_done.content,
+        "video_url": ai_msg_done.video_url
+    }        
 
 class RenameChatIn(BaseModel):
     title: str
