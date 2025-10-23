@@ -397,6 +397,47 @@
           font-size: 2rem;
         }
       }
+      /* Back to Chat Button - Fixed Top Left */
+      .back-to-chat {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #3f72af 0%, #2d5a94 100%);
+        border: none;
+        border-radius: 12px;
+        color: #f9f7f7;
+        font-family: "Montaga", serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        z-index: 10000;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+      }
+
+      .back-to-chat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(63, 114, 175, 0.6);
+      }
+
+      .back-to-chat svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 768px) {
+        .back-to-chat {
+          top: 15px;
+          left: 15px;
+          padding: 10px 16px;
+          font-size: 13px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -485,6 +526,7 @@
               name="review"
               class="form-input"
               placeholder="Write your review here..."
+              maxlength="500"
               required
             ></textarea>
           </div>
