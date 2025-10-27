@@ -1,12 +1,11 @@
 import os
 import re
-from dotenv import load_dotenv
-import logging
 import json
-from langchain.chains import ConversationChain
+import logging
+from dotenv import load_dotenv
+from collections import deque
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
-from langchain_core.messages import SystemMessage
-from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Basic logging configuration
@@ -15,32 +14,67 @@ logging.getLogger('comtypes').setLevel(logging.WARNING)
 
 load_dotenv('.env')
 
+# ==========================================================
+#  Custom lightweight ConversationChain replacement
+# ==========================================================
+class ConversationChainLite:
+    def __init__(self, llm, prompt=None, memory=None, input_key="human_input", verbose=False):
+        self.llm = llm
+        self.prompt = prompt
+        self.verbose = verbose
+        self.input_key = input_key
+        self.memory = memory or deque(maxlen=5)
+
+    def predict(self, **kwargs):
+        human_input = kwargs.get(self.input_key, "")
+        chat_history = list(self.memory)
+
+        # Build message list
+        messages = []
+        if self.prompt:
+            # If ChatPromptTemplate is used, fill it
+            messages = self.prompt.format_messages(human_input=human_input, chat_history=chat_history)
+        else:
+            # Fallback: simple message flow
+            messages = chat_history + [HumanMessage(content=human_input)]
+
+        if self.verbose:
+            print("🧩 Prompt Messages:", [m.content for m in messages])
+
+        response = self.llm.invoke(messages)
+        text = getattr(response, "content", None) or getattr(response, "text", "")
+        self.memory.append(AIMessage(content=text))
+        return text
+
+# ==========================================================
+#  Main ScienceVideoGenerator class (adapted for LangChain 1.x)
+# ==========================================================
 class ScienceVideoGenerator:
     def __init__(self, google_api_key):
         self.google_api_key = google_api_key
-        self.memory = ConversationBufferWindowMemory(k=5, memory_key="chat_history", return_messages=True)
+        self.memory = deque(maxlen=5)
+
         self.google_chat = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             google_api_key=self.google_api_key,
             temperature=0.7,
-            max_tokens=None,
+            max_output_tokens=None,
             timeout=None,
             max_retries=2
         )
-        
-        # Enhanced Stage 1 prompt with detailed step-by-step instructions
+
+        # Prompts
         self.stage1_prompt = self._create_enhanced_stage1_prompt()
         self.stage2_prompt = self._create_stage2_prompt()
-        
-        # Stage 1 conversation chain
-        self.stage1_conversation = ConversationChain(
+
+        # Stage 1 conversation
+        self.stage1_conversation = ConversationChainLite(
             llm=self.google_chat,
             prompt=self.stage1_prompt,
             verbose=True,
             memory=self.memory,
-            input_key="human_input",
+            input_key="human_input"
         )
-
     def generate_educational_breakdown(self, topic):
         """
         Enhanced Stage 1: Generate a comprehensive educational breakdown with detailed step-by-step analysis.

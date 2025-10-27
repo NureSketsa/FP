@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from contextlib import asynccontextmanager
-#from AI.app import generate_educational_video
+from MAIN.AI.app import generate_educational_video
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
@@ -12,12 +12,10 @@ from datetime import datetime
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from passlib.context import CryptContext
 from itsdangerous import URLSafeSerializer, BadSignature 
-from sqlalchemy import func 
+from sqlalchemy import func  
 
 from pathlib import Path
 from dotenv import load_dotenv
-
-templates = Jinja2Templates(directory="MAIN/templates")
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -358,39 +356,34 @@ def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):
 import subprocess, shlex, json
 from pathlib import Path
 
-#from AI.app import generate_educational_video  # pastikan ada __init__.py di folder AI
-
+ 
 
 def generate_video_for_topic(topic: str) -> Optional[str]:
-    """Placeholder - deploy AI separately"""
-    return None
+    """
+    Jalankan langsung fungsi generate_educational_video() dari AI/app.py
+    tanpa menggunakan subprocess. 
+    Mengembalikan URL video hasil upload ke Supabase.
+    """
+    try:
+        print(f"[EduGen] Generating educational video for topic: {topic}")
 
-# def generate_video_for_topic(topic: str) -> Optional[str]:
-#     """
-#     Jalankan langsung fungsi generate_educational_video() dari AI/app.py
-#     tanpa menggunakan subprocess. 
-#     Mengembalikan URL video hasil upload ke Supabase.
-#     """
-#     try:
-#         print(f"[EduGen] Generating educational video for topic: {topic}")
+        # Jalankan fungsi utama secara langsung
+        video_path, response = generate_educational_video(topic)
 
-#         # Jalankan fungsi utama secara langsung
-#         video_path, response = generate_educational_video(topic)
+        # Ambil URL dari hasil upload (Supabase)
+        video_url = response.get("video_path")
+        print(f"[EduGen] Video URL: {video_url}")
 
-#         # Ambil URL dari hasil upload (Supabase)
-#         video_url = response.get("video_path")
-#         print(f"[EduGen] Video URL: {video_url}")
+        # Pastikan hasil valid
+        if video_url and "supabase.co" in video_url:
+            return video_url
+        else:
+            print("[EduGen] No Supabase URL found in response.")
+            return None
 
-#         # Pastikan hasil valid
-#         if video_url and "supabase.co" in video_url:
-#             return video_url
-#         else:
-#             print("[EduGen] No Supabase URL found in response.")
-#             return None
-
-#     except Exception as e:
-#         print(f"[EduGen ERROR] {e}")
-#         return None
+    except Exception as e:
+        print(f"[EduGen ERROR] {e}")
+        return None
     
 from langchain_google_genai import ChatGoogleGenerativeAI
 

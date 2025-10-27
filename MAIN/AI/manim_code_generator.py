@@ -4,11 +4,14 @@ import json
 import logging
 from dotenv import load_dotenv
 import textwrap  
-from langchain.chains import ConversationChain
+from collections import deque
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
-from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+#from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain_google_genai import ChatGoogleGenerativeAI
+from collections import deque
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -16,24 +19,44 @@ logging.getLogger('comtypes').setLevel(logging.WARNING)
 
 load_dotenv('.env')
 
+# ==========================================================
+#  Custom lightweight ConversationChain replacement
+# ==========================================================
+class ConversationChainLite:
+    def __init__(self, llm, prompt=None, memory=None, input_key="human_input", verbose=False):
+        self.llm = llm
+        self.prompt = prompt
+        self.verbose = verbose
+        self.input_key = input_key
+        self.memory = memory or deque(maxlen=5)
+
+    def predict(self, **kwargs):
+        human_input = kwargs.get(self.input_key, "")
+        chat_history = list(self.memory)
+
+        if self.verbose:
+            print("🧩 Prompt input:", human_input)
+
+        response = self.llm.invoke(human_input)
+        text = getattr(response, "content", None) or getattr(response, "text", "")
+        self.memory.append(AIMessage(content=text))
+        return text
+
 class ManIMCodeGenerator:
     def __init__(self, google_api_key):
         self.google_api_key = google_api_key
-        self.memory = ConversationBufferWindowMemory(k=3, memory_key="chat_history", return_messages=True)
+        self.memory = deque(maxlen=3)
         self.google_chat = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             google_api_key=self.google_api_key,
             temperature=0.7,
-            max_tokens=None,
+            max_output_tokens=None,
             timeout=None,
             max_retries=2
         )
         
-        # Enhanced Manim code generation prompt
         self.manim_prompt = self._create_manim_generation_prompt()
-        
-        # Manim conversation chain
-        self.manim_conversation = ConversationChain(
+        self.manim_conversation = ConversationChainLite(
             llm=self.google_chat,
             prompt=self.manim_prompt,
             verbose=True,

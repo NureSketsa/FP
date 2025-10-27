@@ -1,8 +1,0 @@
-AI/
-*.mp4
-*.mov
-media/
-output/
-__pycache__/
-*.pyc
-.env

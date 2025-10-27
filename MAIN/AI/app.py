@@ -32,9 +32,9 @@ from datetime import datetime
 from typing import Dict, Tuple
 
 
-from AI.script_generator import ScienceVideoGenerator
-from AI.manim_code_generator import ManIMCodeGenerator
-from AI.animation_creator import create_animation_from_code
+from MAIN.AI.script_generator import ScienceVideoGenerator
+from MAIN.AI.manim_code_generator import ManIMCodeGenerator
+from MAIN.AI.animation_creator import create_animation_from_code
 
 from supabase import create_client
 import mimetypes
