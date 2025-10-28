@@ -321,137 +321,137 @@
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
 <script>
-    // ===== background animation (punyamu — tidak diubah) =====
-    const container = document.querySelector('.bg-animations');
-    const symbols = ['π','∑','√','∞','△','∫','α','β','θ','μ','∇','≠','≤','≥','∪','∩','∅','±','×','÷','²','³','∠','⊥','∥','φ','ψ','ω'];
-    const colors = ['rgba(255,255,255,0.3)','rgba(173,216,230,0.35)','rgba(144,238,144,0.35)','rgba(255,182,193,0.35)','rgba(221,160,221,0.35)'];
-    function spawnSymbol(){
-      const el = document.createElement('div');
-      el.className = 'floating-symbol';
-      el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-      el.style.fontSize = (1+Math.random()*2.5)+'rem';
-      el.style.color = colors[Math.floor(Math.random()*colors.length)];
-      const startX = Math.random()*100, startY = 100+Math.random()*20;
-      const driftX = startX + (Math.random()*40 - 20);
-      const driftY = startY - (30 + Math.random()*60);
-      const endX  = driftX + (Math.random()*40 - 20);
-      const endY  = driftY - (30 + Math.random()*40);
-      el.style.setProperty('--xStart', startX+'vw');
-      el.style.setProperty('--yStart', startY+'vh');
-      el.style.setProperty('--xMid', driftX+'vw');
-      el.style.setProperty('--yMid', driftY+'vh');
-      el.style.setProperty('--xEnd', endX+'vw');
-      el.style.setProperty('--yEnd', endY+'vh');
-      el.style.setProperty('--rotateStart', (Math.random()*60-30)+'deg');
-      el.style.setProperty('--rotateMid', (Math.random()*80-40)+'deg');
-      el.style.setProperty('--rotateEnd', (Math.random()*120-60)+'deg');
-      el.style.setProperty('--scaleStart', 0.5+Math.random()*0.3);
-      el.style.setProperty('--scaleMid', 1+Math.random()*0.2);
-      el.style.setProperty('--scaleEnd', 1.2+Math.random()*0.3);
-      el.style.setProperty('--maxOpacity', 0.6+Math.random()*0.3);
-      const duration = (5+Math.random()*6)+'s';
-      el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
-      el.style.zIndex = Math.random()<0.3?1:2;
-      container.appendChild(el);
-      setTimeout(()=>el.remove(), parseFloat(duration)*1000);
+  // ===== background animation (punyamu — tidak diubah) =====
+  const container = document.querySelector('.bg-animations');
+  const symbols = ['π','∑','√','∞','△','∫','α','β','θ','μ','∇','≠','≤','≥','∪','∩','∅','±','×','÷','²','³','∠','⊥','∥','φ','ψ','ω'];
+  const colors = ['rgba(255,255,255,0.3)','rgba(173,216,230,0.35)','rgba(144,238,144,0.35)','rgba(255,182,193,0.35)','rgba(221,160,221,0.35)'];
+  function spawnSymbol(){
+    const el = document.createElement('div');
+    el.className = 'floating-symbol';
+    el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    el.style.fontSize = (1+Math.random()*2.5)+'rem';
+    el.style.color = colors[Math.floor(Math.random()*colors.length)];
+    const startX = Math.random()*100, startY = 100+Math.random()*20;
+    const driftX = startX + (Math.random()*40 - 20);
+    const driftY = startY - (30 + Math.random()*60);
+    const endX  = driftX + (Math.random()*40 - 20);
+    const endY  = driftY - (30 + Math.random()*40);
+    el.style.setProperty('--xStart', startX+'vw');
+    el.style.setProperty('--yStart', startY+'vh');
+    el.style.setProperty('--xMid', driftX+'vw');
+    el.style.setProperty('--yMid', driftY+'vh');
+    el.style.setProperty('--xEnd', endX+'vw');
+    el.style.setProperty('--yEnd', endY+'vh');
+    el.style.setProperty('--rotateStart', (Math.random()*60-30)+'deg');
+    el.style.setProperty('--rotateMid', (Math.random()*80-40)+'deg');
+    el.style.setProperty('--rotateEnd', (Math.random()*120-60)+'deg');
+    el.style.setProperty('--scaleStart', 0.5+Math.random()*0.3);
+    el.style.setProperty('--scaleMid', 1+Math.random()*0.2);
+    el.style.setProperty('--scaleEnd', 1.2+Math.random()*0.3);
+    el.style.setProperty('--maxOpacity', 0.6+Math.random()*0.3);
+    const duration = (5+Math.random()*6)+'s';
+    el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
+    el.style.zIndex = Math.random()<0.3?1:2;
+    container.appendChild(el);
+    setTimeout(()=>el.remove(), parseFloat(duration)*1000);
+  }
+  setInterval(()=>{ for(let i=0,n=1+Math.floor(Math.random()*3);i<n;i++) spawnSymbol(); },700);
+
+  // ====== VALIDASI FORM REGISTER ======
+  const form = document.getElementById('registerForm');
+  const btn = document.getElementById('registerBtn');
+  const username = document.getElementById('username');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const usernameErr = document.getElementById('usernameErr');
+  const emailErr = document.getElementById('emailErr');
+  const passwordErr = document.getElementById('passwordErr');
+
+  function clearErrors() {
+    [username, email, password].forEach(i => {
+      i.classList.remove('error', 'success');
+      i.removeAttribute('aria-invalid');
+    });
+    [usernameErr, emailErr, passwordErr].forEach(e => e.textContent = '');
+  }
+
+  function validate() {
+    clearErrors();
+    let valid = true;
+
+    // === USERNAME ===
+    const unameRaw = username.value;
+    const uname = unameRaw.trim(); // tetap boleh untuk panjang validasi
+    if (uname.length < 3) {
+      username.classList.add('error');
+      username.setAttribute('aria-invalid', 'true');
+      usernameErr.textContent = 'Username minimal 3 karakter.';
+      valid = false;
+    } else if (/\s/.test(unameRaw)) { // pakai unameRaw, bukan uname
+      username.classList.add('error');
+      username.setAttribute('aria-invalid', 'true');
+      usernameErr.textContent = 'Username tidak boleh mengandung spasi.';
+      valid = false;
+    } else {
+      username.classList.add('success');
     }
-    setInterval(()=>{ for(let i=0,n=1+Math.floor(Math.random()*3);i<n;i++) spawnSymbol(); },700);
 
-const form = document.getElementById('registerForm');
-const btn = document.getElementById('registerBtn');
-const username = document.getElementById('username');
-const email = document.getElementById('email');
-const password = document.getElementById('password');
-const usernameErr = document.getElementById('usernameErr');
-const emailErr = document.getElementById('emailErr');
-const passwordErr = document.getElementById('passwordErr');
+    // === EMAIL ===
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.value.trim())) {
+      email.classList.add('error');
+      email.setAttribute('aria-invalid', 'true');
+      emailErr.textContent = 'Email tidak valid.';
+      valid = false;
+    } else {
+      email.classList.add('success');
+    }
 
-function clearErrors() {
-  [username, email, password].forEach(i => {
-    i.classList.remove('error', 'success');
-    i.removeAttribute('aria-invalid');
+    // === PASSWORD ===
+    const passVal = password.value;
+    if (passVal.length < 6) {
+      password.classList.add('error');
+      password.setAttribute('aria-invalid', 'true');
+      passwordErr.textContent = 'Password minimal 6 karakter.';
+      valid = false;
+    } else if (new TextEncoder().encode(passVal).length > 72) {
+      password.classList.add('error');
+      password.setAttribute('aria-invalid', 'true');
+      passwordErr.textContent = 'Password terlalu panjang (maks 72 byte).';
+      valid = false;
+    } else {
+      password.classList.add('success');
+    }
+
+    return valid;
+  }
+
+  // Live validation
+  [username, email, password].forEach(input => {
+    input.addEventListener('input', validate);
+    input.addEventListener('blur', validate);
   });
-  [usernameErr, emailErr, passwordErr].forEach(e => e.textContent = '');
-}
 
-function validate() {
-  clearErrors();
-  let valid = true;
+  // Submit form hanya jika valid
+  form.addEventListener('submit', function(e) {
+    if (!validate()) {
+      e.preventDefault();
+      return;
+    }
+    btn.textContent = 'Registering...';
+    btn.disabled = true;
+  });
 
-  // Username
-  if (username.value.trim().length < 3) {
-    username.classList.add('error');
-    username.setAttribute('aria-invalid', 'true');
-    usernameErr.textContent = 'Username minimal 3 karakter.';
-    valid = false;
-  } else {
-    username.classList.add('success');
-  }
-
-  // Email
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email.value.trim())) {
-    email.classList.add('error');
-    email.setAttribute('aria-invalid', 'true');
-    emailErr.textContent = 'Email tidak valid.';
-    valid = false;
-  } else {
-    email.classList.add('success');
-  }
-
-  // Password
-  const passVal = password.value;
-  if (passVal.length < 6) {
-    password.classList.add('error');
-    password.setAttribute('aria-invalid', 'true');
-    passwordErr.textContent = 'Password minimal 6 karakter.';
-    valid = false;
-  } else if (new TextEncoder().encode(passVal).length > 72) {
-    password.classList.add('error');
-    password.setAttribute('aria-invalid', 'true');
-    passwordErr.textContent = 'Password terlalu panjang (maks 72 byte).';
-    valid = false;
-  } else {
-    password.classList.add('success');
-  }
-
-  return valid;
-}
-
-// === Event ===
-// Live validasi saat mengetik
-[username, email, password].forEach(input => {
-  input.addEventListener('input', validate);
-  input.addEventListener('blur', validate);
-});
-
-// Submit form hanya kalau valid
-form.addEventListener('submit', function(e) {
-  if (!validate()) {
-    e.preventDefault(); // hentikan submit kalau invalid
-    return;
-  }
-  // Kalau valid → submit normal
-  btn.textContent = 'Registering...';
-  btn.disabled = true;
-});
-
-const passwordField = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
-
-togglePassword.addEventListener("click", function () {
-  const isPassword = passwordField.getAttribute("type") === "password";
-  passwordField.setAttribute("type", isPassword ? "text" : "password");
-
-  // Ubah ikon sesuai state
-  this.innerHTML = isPassword 
-    ? '<i class="fi fi-rs-crossed-eye"></i>'  // mata tertutup
-    : '<i class="fi fi-rr-eye"></i>';         // mata terbuka
-  this.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
-});
-
-
+  // Toggle show/hide password
+  const togglePassword = document.getElementById("togglePassword");
+  togglePassword.addEventListener("click", function () {
+    const isPassword = password.getAttribute("type") === "password";
+    password.setAttribute("type", isPassword ? "text" : "password");
+    this.innerHTML = isPassword 
+      ? '<i class="fi fi-rs-crossed-eye"></i>'
+      : '<i class="fi fi-rr-eye"></i>';
+    this.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+  });
 </script>
 </body>
-
 </html>

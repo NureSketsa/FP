@@ -261,36 +261,62 @@
     .chat-messages { padding: 16px; }
   }
 
-  .search-row {
+/* ==== FIXED SEARCH ROW ==== */
+.search-row {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  position: relative;
+  margin-bottom: 6px; /* pastikan jarak ke Library stabil */
 }
+
+/* ==== INPUT ==== */
 .search-input {
   flex: 1;
   background: rgba(219,226,239,0.08);
   border: 1px solid rgba(219,226,239,0.2);
   color: #F9F7F7;
   border-radius: 6px;
-  padding: 6px 28px 6px 8px;
+  padding: 6px 30px 6px 8px; /* kasih ruang kanan fix */
   font-size: 13px;
   outline: none;
+  width: 100%;
+  transition: border 0.2s, background 0.2s;
 }
-.search-input::placeholder { color: rgba(219,226,239,0.7); }
+
+.search-input::placeholder {
+  color: rgba(219,226,239,0.7);
+}
+
 .search-input:focus {
   border-color: rgba(219,226,239,0.45);
   background: rgba(219,226,239,0.12);
 }
-.search-clear{
-  position: relative;
-  right: 28px;
+
+/* ==== CLEAR BUTTON ==== */
+.search-clear {
+  position: absolute;
+  right: 8px; /* selalu ada di tempat yang sama */
   background: transparent;
   border: none;
   color: rgba(219,226,239,0.8);
   cursor: pointer;
   font-size: 14px;
-  padding: 0 6px;
-  display: none;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  opacity: 0; /* ⬅️ tidak pakai display:none agar tidak ganggu layout */
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
-.search-clear.show { display: inline; }
+
+.search-clear.show {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 /* Floating Review Button */
 .floating-review-btn {
@@ -354,6 +380,173 @@
 
 .floating-review-btn.bounce {
   animation: bounce 2s infinite;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.25s ease;
+}
+.modal {
+  background: #f9f7f7;
+  color: #112d4e;
+  border-radius: 10px;
+  padding: 24px;
+  width: 300px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease;
+}
+.modal h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.modal-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+}
+.modal-input:focus {
+  border-color: #3f72af;
+  box-shadow: 0 0 0 2px rgba(63,114,175,0.2);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+  gap: 10px;
+}
+.modal-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.modal-btn.cancel {
+  background: #ddd;
+  color: #333;
+}
+.modal-btn.ok {
+  background: #3f72af;
+  color: white;
+}
+.modal-btn.ok:hover {
+  background: #2b5691;
+}
+
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes slideUp { from {transform:translateY(15px);opacity:0;} to {transform:translateY(0);opacity:1;} }
+
+/* ===== CHAT MENU ===== */
+.chat-menu {
+  position: relative;
+}
+.chat-menu-btn {
+  background: transparent;
+  border: none;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.chat-menu-btn:hover {
+  color: #3f72af;
+}
+.chat-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 24px;
+  background: #f9f7f7;
+  color: #112d4e;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  min-width: 110px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+.chat-menu.open .chat-menu-dropdown {
+  display: flex;
+}
+.chat-menu-dropdown button {
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+.chat-menu-dropdown button:hover {
+  background: #dbe2ef;
+}
+.chat-delete {
+  color: #d11a2a;
+}
+.chat-delete:hover {
+  background: #ffe0e0 !important;
+}
+
+.chat-menu-dropdown button {
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+/* Hover umum */
+.chat-menu-dropdown button:hover {
+  background: #dbe2ef;
+}
+
+/* Tombol delete berwarna merah */
+.chat-menu-dropdown .chat-delete {
+  color: #d11a2a;
+  font-weight: 600;
+}
+
+.chat-menu-dropdown .chat-delete:hover {
+  background: #ffe5e5;
+  color: #a00;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.modal-message {
+  margin: 8px 0 16px 0;
+  font-size: 0.95rem;
+  color: #2b3a55;
+  text-align: left;
+}
+.modal-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.chat-header .chat-actions {
+  position: relative;
+  z-index: 5;
+}
+
+.chat-header .action-btn {
+  pointer-events: auto;
 }
 </style>
 <body>
@@ -421,7 +614,8 @@
                 <div class="chat-actions">
                     <!-- <button href="/logout" class="action-btn">Log Out</button> -->
                     <!-- <button class="action-btn">⋯</button> -->
-                     <a href="/logout" class="action-btn">Log out</a>
+                    <!-- <button id="logout-btn" class="action-btn" type="button">Log out</button> -->
+                    <a href="/logout" class="action-btn">Log out</a>
                 </div>
             </div>
 
@@ -734,35 +928,50 @@ function showPopup(message, type = "info") {
   });
 
   // New chat
-  if (newChatBtn) {
-    newChatBtn.addEventListener('click', async function (e) {
-      e.preventDefault();
-      try {
-        const title = prompt('Chat title:', 'New chat');
-        if (title === null) return;
+// New chat
+if (newChatBtn) {
+  newChatBtn.addEventListener('click', async function (e) {
+    e.preventDefault();
+    try {
+      const title = await openModal({
+        title: '💬 New Chat',
+        placeholder: 'Enter chat title...',
+        defaultValue: 'New chat'
+      });
+      if (title === null) return;
 
-        const chat = await createChat((title || 'New chat').trim() || 'New chat');
-        activeChatId = chat.id;
+      const chat = await createChat((title || 'New chat').trim() || 'New chat');
+      activeChatId = chat.id;
 
-        // Tambahkan ke sidebar & set active
-        ensureNotEmptyState();
-        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+      ensureNotEmptyState();
+      document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
 
-        const node = document.createElement('div');
-        node.className = 'chat-item active';
-        node.dataset.chatId = chat.id;
-        node.textContent = chat.title;
-        chatsSection.appendChild(node);
+      // 🟢 Gunakan struktur lengkap (termasuk menu)
+      const node = document.createElement('div');
+      node.className = 'chat-item active';
+      node.dataset.chatId = chat.id;
+      node.innerHTML = `
+        <span class="chat-title">${escapeHtml(chat.title)}</span>
+        <div class="chat-menu">
+          <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+          <div class="chat-menu-dropdown">
+            <button class="chat-rename">Rename</button>
+            <button class="chat-delete">Delete</button>
+          </div>
+        </div>
+      `;
 
-        // tampilkan UI chat kosong
-        chatMessages.innerHTML = '';
-        showChatUI();
-      } catch (err) {
-        console.error(err);
-        alert('Failed to create chat');
-      }
-    });
-  }
+      chatsSection.appendChild(node);
+
+      // tampilkan UI chat kosong
+      chatMessages.innerHTML = '';
+      showChatUI();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create chat');
+    }
+  });
+}
 
   // Delegasi klik chat-item (termasuk yang baru dibuat)
   if (chatsSection) {
@@ -793,65 +1002,63 @@ function showPopup(message, type = "info") {
   }
 
   // Kirim pesan
-  async function sendMessage() {
-    const message = messageInput.value.trim();
-    if (!message) return;
+async function sendMessage() {
+  const message = messageInput.value.trim();
+  if (!message) return;
 
-    // === tampilkan pesan user langsung, tanpa tunggu server ===
+  try {
+    // 🟢 Jika belum ada chat aktif, buat otomatis
+    if (!activeChatId) {
+      const chat = await createChat("New chat");
+      activeChatId = chat.id;
+
+      // Tambahkan ke sidebar
+      ensureNotEmptyState();
+      const node = document.createElement("div");
+      node.className = "chat-item active";
+      node.dataset.chatId = chat.id;
+      node.innerHTML = `
+        <span class="chat-title">${chat.title}</span>
+        <div class="chat-menu">
+          <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+          <div class="chat-menu-dropdown">
+            <button class="chat-rename">Rename</button>
+            <button class="chat-delete">Delete</button>
+          </div>
+        </div>
+      `;
+      chatsSection.appendChild(node);
+      setActiveChatItemById(chat.id);
+    }
+
+    // === tampilkan pesan user langsung
     showChatUI();
     addMessage(message, 'user');
     resetInput();
     sendButton.disabled = true;
 
-try {
-  let data; // <-- TAMBAHKAN INI agar variabel global di dalam try
-
-  if (videoMode) {
-    const res = await fetch(`/api/chats/${activeChatId}/generate_video`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic: message })
-    });
-    if (!res.ok) throw new Error('Gagal membuat video');
-    data = await res.json(); // ⬅️ SIMPAN KE VARIABEL GLOBAL
-    addMessage(data.message, 'ai', data.video_url);
-
-  } else {
-    data = await postMessage(activeChatId, message); // ⬅️ SIMPAN KE VARIABEL GLOBAL
-    addMessage(data.ai_message.content, 'ai', data.ai_message.video_url);
-  }
-
-  // ✅ Sekarang "data" pasti tersedia di sini tanpa error
-  if (data?.ai_message?.content?.includes("Generating")) {
-    let retries = 0;
-    const interval = setInterval(async () => {
-      try {
-        retries++;
-        const msgs = await loadMessages(activeChatId);
-        const latest = msgs[msgs.length - 1];
-        const hasVideo = latest?.video_url?.length > 0;
-
-        if (hasVideo) {
-          clearInterval(interval);
-          chatMessages.innerHTML = '';
-          msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        if (retries > 120) clearInterval(interval);
-      } catch (e) {
-        console.warn('Polling error:', e);
-        clearInterval(interval);
-      }
-    }, 3000);
-  }
-
-} catch (err) {
-  console.error(err);
-  alert('Failed to send message');
-    } finally {
-      sendButton.disabled = false;
+    let data;
+    if (videoMode) {
+      const res = await fetch(`/api/chats/${activeChatId}/generate_video`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: message })
+      });
+      if (!res.ok) throw new Error('Gagal membuat video');
+      data = await res.json();
+      addMessage(data.message, 'ai', data.video_url);
+    } else {
+      data = await postMessage(activeChatId, message);
+      addMessage(data.ai_message.content, 'ai', data.ai_message.video_url);
     }
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to send message');
+  } finally {
+    sendButton.disabled = false;
   }
+}
 
   if (sendButton) {
     sendButton.addEventListener('click', sendMessage);
@@ -924,8 +1131,12 @@ chatsSection.addEventListener('click', async (e) => {
   const titleSpan = item.querySelector('.chat-title');
   const currentTitle = titleSpan?.textContent?.trim() || 'Untitled';
 
-  const newTitle = prompt('Rename chat:', currentTitle);
-  if (newTitle === null) return;               // user cancel
+  const newTitle = await openModal({
+    title: '✏️ Rename Chat',
+    placeholder: 'Enter new title...',
+    defaultValue: currentTitle
+  });
+  if (newTitle === null) return;
   const cleaned = (newTitle || '').trim();
   if (!cleaned || cleaned === currentTitle) {  // kosong/ tidak berubah
     return;
@@ -960,12 +1171,19 @@ chatsSection.addEventListener('click', async (e) => {
   const btn = e.target.closest('.chat-delete');
   if (!btn) return;
 
+
   e.stopPropagation();
   const item = btn.closest('.chat-item');
   const chatId = item?.dataset?.chatId;
   if (!chatId) return;
 
-  if (!confirm('Delete this chat? This action cannot be undone.')) return;
+  const confirmDelete = await openModal({
+    title: 'Delete Chat',
+    message: 'This action cannot be undone!',
+    icon: 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png',
+    isConfirm: true
+  });
+  if (!confirmDelete) return;
 
   try {
     const res = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
@@ -1232,6 +1450,138 @@ floatingBtn.addEventListener('click', function(e) {
 
 // Saat pertama load, tampilkan semua (query kosong)
 doSearch();
+
+// ==== Modal Helper ====
+function openInputModal(title, placeholder = '', defaultValue = '') {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const inputEl = document.getElementById('modal-input');
+    const okBtn = document.getElementById('modal-ok');
+    const cancelBtn = document.getElementById('modal-cancel');
+
+    titleEl.textContent = title;
+    inputEl.placeholder = placeholder;
+    inputEl.value = defaultValue;
+    overlay.style.display = 'flex';
+    inputEl.focus();
+
+    function closeModal(value) {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      inputEl.removeEventListener('keydown', onEnter);
+      resolve(value);
+    }
+
+    function onOk() {
+      const val = inputEl.value.trim();
+      closeModal(val || null);
+    }
+    function onCancel() { closeModal(null); }
+    function onEnter(e) { if (e.key === 'Enter') onOk(); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    inputEl.addEventListener('keydown', onEnter);
+  });
+}
+
+async function openConfirmModal(title, message) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const modal = overlay.querySelector('.modal');
+    const titleEl = document.getElementById('modal-title');
+    const inputEl = document.getElementById('modal-input');
+    const okBtn = document.getElementById('modal-ok');
+    const cancelBtn = document.getElementById('modal-cancel');
+
+    inputEl.style.display = 'none'; // sembunyikan input
+    titleEl.textContent = title;
+    modal.insertAdjacentHTML('beforeend', `<p class="modal-msg">${message}</p>`);
+    overlay.style.display = 'flex';
+
+    function cleanup() {
+      const msgEl = modal.querySelector('.modal-msg');
+      if (msgEl) msgEl.remove();
+      inputEl.style.display = '';
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+    }
+
+    function onOk() { cleanup(); resolve(true); }
+    function onCancel() { cleanup(); resolve(false); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+function openModal({ 
+  title, 
+  message = '', 
+  icon = '', 
+  placeholder = '', 
+  defaultValue = '', 
+  isConfirm = false 
+}) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const msgEl = document.getElementById('modal-message');
+    const iconEl = document.getElementById('modal-icon');
+    const inputEl = document.getElementById('modal-input');
+    const okBtn = document.getElementById('modal-ok');
+    const cancelBtn = document.getElementById('modal-cancel');
+
+    // Atur konten
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+    iconEl.src = icon || '';
+    iconEl.style.display = icon ? 'block' : 'none';
+    inputEl.style.display = isConfirm ? 'none' : 'block';
+    inputEl.placeholder = placeholder;
+    inputEl.value = defaultValue;
+
+    overlay.style.display = 'flex';
+    if (!isConfirm) inputEl.focus();
+
+    function closeModal(value) {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      inputEl.removeEventListener('keydown', onEnter);
+      resolve(value);
+    }
+
+    function onOk() {
+      const val = isConfirm ? true : inputEl.value.trim();
+      closeModal(val || null);
+    }
+    function onCancel() { closeModal(null); }
+    function onEnter(e) { if (e.key === 'Enter') onOk(); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    inputEl.addEventListener('keydown', onEnter);
+  });
+}
+
 </script>
+<div id="modal-overlay" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <img id="modal-icon" class="modal-icon" alt="">
+      <h2 id="modal-title">Modal Title</h2>
+    </div>
+    <p id="modal-message" class="modal-message"></p>
+    <input type="text" id="modal-input" class="modal-input" style="display:none;">
+    <div class="modal-actions">
+      <button id="modal-cancel" class="modal-btn cancel">Cancel</button>
+      <button id="modal-ok" class="modal-btn ok">OK</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

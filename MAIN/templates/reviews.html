@@ -23,6 +23,39 @@
         padding: 80px 20px 40px;
       }
 
+      /* Back to Chat Button - Fixed Top Left */
+      .back-to-chat {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
+        border: none;
+        border-radius: 12px;
+        color: #F9F7F7;
+        font-family: 'Montaga', serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        z-index: 10000;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+      }
+
+      .back-to-chat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(63, 114, 175, 0.6);
+      }
+
+      .back-to-chat svg {
+        width: 18px;
+        height: 18px;
+      }
+
       .bg-animations {
         position: fixed;
         inset: 0;
@@ -369,6 +402,23 @@
         padding: 0 10px;
       }
 
+      .char-counter {
+        display: block;
+        text-align: right;
+        font-size: 12px;
+        color: #3F72AF;
+        margin-top: 4px;
+        opacity: 0.8;
+      }
+
+      .form-input.warning {
+        border-color: #f39c12 !important;
+      }
+
+      .form-input.limit-reached {
+        border-color: #e74c3c !important;
+      }
+
       @media (max-width: 768px) {
         body {
           padding: 100px 15px 30px;
@@ -396,148 +446,125 @@
         .star {
           font-size: 2rem;
         }
+
+        .back-to-chat {
+          top: 15px;
+          left: 15px;
+          padding: 10px 16px;
+          font-size: 13px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="bg-animations"></div>
+  <!-- Back to Chat Button -->
+  <a href="/chat" class="back-to-chat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+    Back to Chat
+  </a>
 
-    <div class="main-container">
-      <!-- Review Form Section -->
-      <div class="review-form-container">
-        <div class="icon-container">
-          <lord-icon
-            src="https://cdn.lordicon.com/cvwrvyjv.json"
-            trigger="loop"
-            delay="500"
-            state="hover-wink"
-            colors="primary:#dbe2ef,secondary:#dbe2ef"
-            style="width: 70px; height: 70px"
-          >
-          </lord-icon>
-        </div>
+  <div class="bg-animations"></div>
 
-        <h1 class="review-title">Leave a Review</h1>
-
-        <form id="reviewForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="nama"
-              ><span class="required">*</span> Nama</label
-            >
-            <input
-              id="nama"
-              name="nama"
-              type="text"
-              class="form-input"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="nrp"
-              ><span class="required">*</span> NRP</label
-            >
-            <input
-              id="nrp"
-              name="nrp"
-              type="text"
-              class="form-input"
-              placeholder="Enter your NRP"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="kelompok"
-              ><span class="required">*</span> Kelompok</label
-            >
-            <input
-              id="kelompok"
-              name="kelompok"
-              type="text"
-              class="form-input"
-              placeholder="Enter your group"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label"
-              ><span class="required">*</span> Rate our Website</label
-            >
-            <div class="star-rating">
-              <span class="star" data-rating="1">★</span>
-              <span class="star" data-rating="2">★</span>
-              <span class="star" data-rating="3">★</span>
-              <span class="star" data-rating="4">★</span>
-              <span class="star" data-rating="5">★</span>
-            </div>
-            <input type="hidden" id="rating" name="rating" value="0" required />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="review"
-              ><span class="required">*</span> Review</label
-            >
-            <textarea
-              id="review"
-              name="review"
-              class="form-input"
-              placeholder="Write your review here..."
-              required
-            ></textarea>
-          </div>
-
-          <button type="submit" class="submit-btn">Send Review</button>
-        </form>
+  <div class="main-container">
+    <!-- Review Form -->
+    <div class="review-form-container">
+      <div class="icon-container">
+        <lord-icon src="https://cdn.lordicon.com/cvwrvyjv.json" trigger="loop" delay="500" state="hover-wink"
+          colors="primary:#dbe2ef,secondary:#dbe2ef" style="width: 70px; height: 70px">
+        </lord-icon>
       </div>
 
-      <!-- Reviews Table Section -->
-      <div class="reviews-container">
-        <h2 class="reviews-title">Other People Reviews</h2>
+      <h1 class="review-title">Leave a Review</h1>
 
-        <div class="table-controls">
-          <input
-            type="text"
-            id="searchInput"
-            class="search-box"
-            placeholder="🔍 Search by name, NRP, or review..."
-          />
-          <select id="sortSelect" class="sort-select">
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="highest">Highest Rating</option>
-            <option value="lowest">Lowest Rating</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
+      <form id="reviewForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="nama"><span class="required">*</span> Nama
+            <span style="font-size:12px; color:#3F72AF;">(Max 50 characters)</span></label>
+          <input id="nama" name="nama" type="text" class="form-input" placeholder="Enter your name" maxlength="50"
+            required />
+          <small class="char-counter" id="namaCounter">0/50</small>
         </div>
 
-        <div class="reviews-table-wrapper">
-          <table id="reviewsTable">
-            <thead>
-              <tr>
-                <th>Nama</th>
-                <th>NRP</th>
-                <th>Kelompok</th>
-                <th>Rating</th>
-                <th>Review</th>
-              </tr>
-            </thead>
-            <tbody id="reviewsBody">
-              <!-- Reviews will be inserted here -->
-            </tbody>
-          </table>
+        <div class="form-group">
+          <label class="form-label" for="nrp"><span class="required">*</span> NRP
+            <span style="font-size:12px; color:#3F72AF;">(Max 20 characters)</span></label>
+          <input id="nrp" name="nrp" type="text" class="form-input" placeholder="Enter your NRP" maxlength="20"
+            required />
+          <small class="char-counter" id="nrpCounter">0/20</small>
         </div>
 
-        <div class="pagination" id="pagination">
-          <!-- Pagination will be inserted here -->
+        <div class="form-group">
+          <label class="form-label" for="kelompok"><span class="required">*</span> Kelompok
+            <span style="font-size:12px; color:#3F72AF;">(Max 10 characters)</span></label>
+          <input id="kelompok" name="kelompok" type="text" class="form-input" placeholder="Enter your group"
+            maxlength="10" required />
+          <small class="char-counter" id="kelompokCounter">0/10</small>
         </div>
-      </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span> Rate our Website</label>
+          <div class="star-rating">
+            <span class="star" data-rating="1">★</span>
+            <span class="star" data-rating="2">★</span>
+            <span class="star" data-rating="3">★</span>
+            <span class="star" data-rating="4">★</span>
+            <span class="star" data-rating="5">★</span>
+          </div>
+          <input type="hidden" id="rating" name="rating" value="0" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="review"><span class="required">*</span> Review
+            <span style="font-size:12px; color:#3F72AF;">(Max 500 characters)</span></label>
+          <textarea id="review" name="review" class="form-input" placeholder="Write your review here..." maxlength="500"
+            required></textarea>
+          <small class="char-counter" id="reviewCounter">0/500</small>
+        </div>
+
+        <button type="submit" class="submit-btn">Send Review</button>
+      </form>
     </div>
 
-    <script>
-      // Background animation
+    <!-- Reviews Table -->
+    <div class="reviews-container">
+      <h2 class="reviews-title">Other People Reviews</h2>
+
+      <div class="table-controls">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, NRP, or review..." />
+        <select id="sortSelect" class="sort-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="highest">Highest Rating</option>
+          <option value="lowest">Lowest Rating</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+
+      <div class="reviews-table-wrapper">
+        <table id="reviewsTable">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>NRP</th>
+              <th>Kelompok</th>
+              <th>Rating</th>
+              <th>Review</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsBody">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <script>
+       // Background animation
       const container = document.querySelector(".bg-animations");
       const symbols = [
         "π",
@@ -647,242 +674,152 @@
         });
       }
 
-      // Sample reviews data
-      let reviews = [];
-      let currentPage = 1;
-      const itemsPerPage = 10;
-      let filteredReviews = [];
+    // === Char Counter ===
+    function setupCharCounter(id, counter, max) {
+      const input = document.getElementById(id), label = document.getElementById(counter);
+      input.addEventListener("input", () => {
+        const len = input.value.length;
+        label.textContent = `${len}/${max}`;
+      });
+    }
+    setupCharCounter("nama", "namaCounter", 50);
+    setupCharCounter("nrp", "nrpCounter", 20);
+    setupCharCounter("kelompok", "kelompokCounter", 10);
+    setupCharCounter("review", "reviewCounter", 500);
 
-      // Ambil review dari server
-      async function fetchReviews() {
+    // === Review Logic (from old version) ===
+    let reviews = [];
+    let filteredReviews = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    async function fetchReviews() {
+      try {
         const res = await fetch("/api/reviews");
-        if (!res.ok) {
-          alert("Gagal memuat review dari server");
-          return;
-        }
+        if (!res.ok) throw new Error("Failed to fetch reviews");
         reviews = await res.json();
         filteredReviews = [...reviews];
         renderReviews();
+      } catch (err) {
+        console.error(err);
+        alert("Gagal memuat review dari server!");
       }
+    }
 
-fetchReviews();
+    function filterReviews(term) {
+      const q = term.toLowerCase();
+      filteredReviews = reviews.filter(r =>
+        r.nama.toLowerCase().includes(q) ||
+        r.nrp.toLowerCase().includes(q) ||
+        r.kelompok.toLowerCase().includes(q) ||
+        r.review.toLowerCase().includes(q)
+      );
+      currentPage = 1;
+      renderReviews();
+    }
 
-
-      // Function to filter reviews
-      function filterReviews(searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filteredReviews = reviews.filter(
-          (r) =>
-            r.nama.toLowerCase().includes(term) ||
-            r.nrp.toLowerCase().includes(term) ||
-            r.review.toLowerCase().includes(term) ||
-            r.kelompok.toLowerCase().includes(term)
-        );
-        currentPage = 1;
-        renderReviews();
+    function sortReviews(type) {
+      switch (type) {
+        case "newest":
+          filteredReviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        case "oldest":
+          filteredReviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+          break;
+        case "highest": filteredReviews.sort((a,b)=>b.rating-a.rating); break;
+        case "lowest": filteredReviews.sort((a,b)=>a.rating-b.rating); break;
+        case "name": filteredReviews.sort((a,b)=>a.nama.localeCompare(b.nama)); break;
       }
+      currentPage = 1;
+      renderReviews();
+    }
 
-      // Function to sort reviews
-      function sortReviews(sortType) {
-        switch (sortType) {
-          case "newest":
-            filteredReviews.sort((a, b) => b.timestamp - a.timestamp);
-            break;
-          case "oldest":
-            filteredReviews.sort((a, b) => a.timestamp - b.timestamp);
-            break;
-          case "highest":
-            filteredReviews.sort((a, b) => b.rating - a.rating);
-            break;
-          case "lowest":
-            filteredReviews.sort((a, b) => a.rating - b.rating);
-            break;
-          case "name":
-            filteredReviews.sort((a, b) => a.nama.localeCompare(b.nama));
-            break;
-        }
-        currentPage = 1;
-        renderReviews();
+    function renderPagination() {
+      const total = Math.ceil(filteredReviews.length / itemsPerPage);
+      const el = document.getElementById("pagination");
+      if (total <= 1) { el.innerHTML = ""; return; }
+      let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===1?"disabled":""}>← Prev</button>`;
+      for (let i=1;i<=total;i++) {
+        html += `<button class="page-btn ${i===currentPage?"active":""}" onclick="changePage(${i})">${i}</button>`;
       }
+      html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===total?"disabled":""}>Next →</button>`;
+      el.innerHTML = html;
+    }
 
-      // Function to render pagination
-      function renderPagination() {
-        const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
-        const pagination = document.getElementById("pagination");
+    window.changePage = function(page) {
+      const total = Math.ceil(filteredReviews.length / itemsPerPage);
+      if (page<1||page>total) return;
+      currentPage = page;
+      renderReviews();
+      document.querySelector(".reviews-container").scrollIntoView({behavior:"smooth"});
+    };
 
-        if (totalPages <= 1) {
-          pagination.innerHTML = "";
-          return;
-        }
-
-        let html = "";
-
-        // Previous button
-        html += `<button class="page-btn" onclick="changePage(${
-          currentPage - 1
-        })" ${currentPage === 1 ? "disabled" : ""}>← Prev</button>`;
-
-        // Page numbers
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, currentPage + 2);
-
-        if (startPage > 1) {
-          html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
-          if (startPage > 2) html += `<span class="page-info">...</span>`;
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-          html += `<button class="page-btn ${
-            i === currentPage ? "active" : ""
-          }" onclick="changePage(${i})">${i}</button>`;
-        }
-
-        if (endPage < totalPages) {
-          if (endPage < totalPages - 1)
-            html += `<span class="page-info">...</span>`;
-          html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
-        }
-
-        // Next button
-        html += `<button class="page-btn" onclick="changePage(${
-          currentPage + 1
-        })" ${currentPage === totalPages ? "disabled" : ""}>Next →</button>`;
-
-        pagination.innerHTML = html;
+    function renderReviews() {
+      const tbody = document.getElementById("reviewsBody");
+      if (filteredReviews.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">
+          <lord-icon src="https://cdn.lordicon.com/hrqwmuhr.json" trigger="loop"
+          colors="primary:#3F72AF,secondary:#112D4E" style="width:80px;height:80px"></lord-icon>
+          <div>No reviews found.</div></td></tr>`;
+        renderPagination(); return;
       }
-
-      // Function to change page
-      window.changePage = function (page) {
-        const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
-        if (page < 1 || page > totalPages) return;
-        currentPage = page;
-        renderReviews();
-        document
-          .querySelector(".reviews-container")
-          .scrollIntoView({ behavior: "smooth" });
-      };
-
-      // Function to render reviews
-      function renderReviews() {
-        const tbody = document.getElementById("reviewsBody");
-
-        if (filteredReviews.length === 0) {
-          tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="empty-state">
-              <lord-icon
-                src="https://cdn.lordicon.com/hrqwmuhr.json"
-                trigger="loop"
-                colors="primary:#3F72AF,secondary:#112D4E"
-                style="width:80px;height:80px">
-              </lord-icon>
-              <div>No reviews found. Try a different search term.</div>
-            </td>
-          </tr>
-        `;
-          renderPagination();
-          return;
-        }
-
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pageReviews = filteredReviews.slice(startIndex, endIndex);
-
-        tbody.innerHTML = pageReviews
-          .map(
-            (r) => `
+      const start = (currentPage - 1) * itemsPerPage;
+      const page = filteredReviews.slice(start, start + itemsPerPage);
+      tbody.innerHTML = page.map(r=>`
         <tr>
           <td>${r.nama}</td>
           <td>${r.nrp}</td>
           <td>${r.kelompok}</td>
-          <td><span class="rating-stars">${"★".repeat(r.rating)}${"☆".repeat(
-              5 - r.rating
-            )}</span></td>
+          <td><span class="rating-stars">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</span></td>
           <td>${r.review}</td>
-        </tr>
-      `
-          )
-          .join("");
+        </tr>`).join("");
+      renderPagination();
+    }
 
-        renderPagination();
+    // Search & Sort
+    document.getElementById("searchInput").addEventListener("input", e=>filterReviews(e.target.value));
+    document.getElementById("sortSelect").addEventListener("change", e=>sortReviews(e.target.value));
+
+    // Submit Form
+    document.getElementById("reviewForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+      const data = {
+        nama: document.getElementById("nama").value.trim(),
+        nrp: document.getElementById("nrp").value.trim(),
+        kelompok: document.getElementById("kelompok").value.trim(),
+        rating: parseInt(ratingInput.value),
+        review: document.getElementById("review").value.trim(),
+      };
+
+      if (!data.nama || !data.nrp || !data.kelompok || !data.review) {
+        alert("Please fill in all required fields!");
+        return;
+      }
+      if (data.rating === 0) {
+        alert("Please select a rating!");
+        return;
       }
 
-      // Search functionality
-      document
-        .getElementById("searchInput")
-        .addEventListener("input", function (e) {
-          filterReviews(e.target.value);
+      try {
+        const res = await fetch("/api/reviews", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(data)
         });
+        if (!res.ok) throw new Error("Failed to send review");
+        await fetchReviews();
+        this.reset();
+        ratingInput.value = 0;
+        currentRating = 0;
+        updateStars(0);
+        document.querySelector(".reviews-container").scrollIntoView({behavior:"smooth"});
+      } catch(err) {
+        console.error(err);
+        alert("Terjadi kesalahan saat mengirim review!");
+      }
+    });
 
-      // Sort functionality
-      document
-        .getElementById("sortSelect")
-        .addEventListener("change", function (e) {
-          sortReviews(e.target.value);
-        });
-
-      // Form submission
-
-      document
-        .getElementById("reviewForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-
-          const formData = {
-            nama: document.getElementById("nama").value.trim(),
-            nrp: document.getElementById("nrp").value.trim(),
-            kelompok: document.getElementById("kelompok").value.trim(),
-            rating: parseInt(ratingInput.value),
-            review: document.getElementById("review").value.trim(),
-          };
-
-          // 🔍 Validasi
-          if (!formData.nama || !formData.nrp || !formData.kelompok || !formData.review) {
-            alert("Please fill in all required fields!");
-            return;
-          }
-
-          if (formData.rating === 0) {
-            alert("Please select a rating!");
-            return;
-          }
-
-          try {
-            // ✅ Kirim ke backend
-            const res = await fetch("/api/reviews", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(formData),
-            });
-
-            if (!res.ok) {
-              throw new Error("Gagal mengirim review ke server.");
-            }
-
-            const data = await res.json();
-            // alert(data.message || "Thank you for your review!");
-
-            // 🔁 Refresh tabel dari DB
-            await fetchReviews();
-
-            // 🔄 Reset form
-            this.reset();
-            ratingInput.value = 0;
-            currentRating = 0;
-            updateStars(0);
-
-            // 🎯 Scroll ke tabel review
-            document.querySelector(".reviews-container").scrollIntoView({ behavior: "smooth" });
-
-          } catch (err) {
-            console.error(err);
-            alert("Terjadi kesalahan saat mengirim review!");
-          }
-        });
-
-      // Initial render
-      renderReviews();
-    </script>
-
-  </body>
-</html>
+    // Init
+    fetchReviews();
+  </script>
+</body>
