@@ -10,6 +10,12 @@
     />
     <script src="https://cdn.lordicon.com/lordicon.js"></script>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
         font-family: "Montaga", serif;
         background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
@@ -23,7 +29,7 @@
         padding: 80px 20px 40px;
       }
 
-      /* Back to Chat Button - Fixed Top Left */
+      /* Back to Chat Button */
       .back-to-chat {
         position: fixed;
         top: 20px;
@@ -61,6 +67,7 @@
         inset: 0;
         pointer-events: none;
         z-index: 1;
+        overflow: hidden;
       }
 
       .floating-symbol {
@@ -175,7 +182,6 @@
         background: #f9f7f7;
         color: #112d4e;
         transition: all 0.3s ease;
-        box-sizing: border-box;
         outline: none;
       }
 
@@ -222,7 +228,6 @@
         cursor: pointer;
         margin-top: 10px;
         transition: 0.3s;
-        box-sizing: border-box;
         font-family: "Montaga", serif;
       }
 
@@ -230,6 +235,10 @@
         background: #2d5a94;
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
+      }
+
+      .submit-btn:active {
+        transform: translateY(0);
       }
 
       .reviews-container {
@@ -411,40 +420,22 @@
         opacity: 0.8;
       }
 
-      .form-input.warning {
-        border-color: #f39c12 !important;
-      }
+      /* ===== RESPONSIVE STYLES ===== */
 
-      .form-input.limit-reached {
-        border-color: #e74c3c !important;
+      /* Tablets */
+      @media (max-width: 1024px) {
+        .main-container {
+          max-width: 800px;
+        }
+
+        th, td {
+          padding: 14px 12px;
+        }
       }
 
       @media (max-width: 768px) {
         body {
-          padding: 100px 15px 30px;
-        }
-
-        .review-form-container,
-        .reviews-container {
-          padding: 30px 20px;
-        }
-
-        .review-title,
-        .reviews-title {
-          font-size: 1.5rem;
-        }
-
-        table {
-          font-size: 13px;
-        }
-
-        th,
-        td {
-          padding: 12px 8px;
-        }
-
-        .star {
-          font-size: 2rem;
+          padding: 90px 15px 30px;
         }
 
         .back-to-chat {
@@ -452,6 +443,369 @@
           left: 15px;
           padding: 10px 16px;
           font-size: 13px;
+        }
+
+        .back-to-chat svg {
+          width: 16px;
+          height: 16px;
+        }
+
+        .main-container {
+          gap: 25px;
+        }
+
+        .review-form-container,
+        .reviews-container {
+          padding: 35px 25px;
+          border-radius: 20px;
+        }
+
+        .icon-container {
+          width: 90px;
+          height: 90px;
+          top: -45px;
+        }
+
+        .icon-container lord-icon {
+          width: 60px !important;
+          height: 60px !important;
+        }
+
+        .review-title,
+        .reviews-title {
+          font-size: 1.6rem;
+          margin-bottom: 25px;
+        }
+
+        .form-label {
+          font-size: 13px;
+        }
+
+        .form-input {
+          padding: 12px 14px;
+          font-size: 13px;
+        }
+
+        .star {
+          font-size: 2.2rem;
+          gap: 6px;
+        }
+
+        .submit-btn {
+          padding: 14px;
+          font-size: 15px;
+        }
+
+        .table-controls {
+          gap: 12px;
+        }
+
+        .search-box,
+        .sort-select {
+          padding: 10px 14px;
+          font-size: 13px;
+          min-width: 150px;
+        }
+
+        table {
+          font-size: 13px;
+        }
+
+        th, td {
+          padding: 12px 10px;
+        }
+
+        .rating-stars {
+          font-size: 1rem;
+        }
+
+        .page-btn {
+          padding: 8px 14px;
+          font-size: 13px;
+        }
+
+        /* Hide background animations on mobile */
+        .floating-symbol {
+          display: none;
+        }
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 85px 12px 25px;
+        }
+
+        .back-to-chat {
+          top: 12px;
+          left: 12px;
+          padding: 8px 14px;
+          font-size: 12px;
+        }
+
+        .back-to-chat svg {
+          width: 14px;
+          height: 14px;
+        }
+
+        .review-form-container,
+        .reviews-container {
+          padding: 30px 20px;
+          border-radius: 18px;
+        }
+
+        .icon-container {
+          width: 80px;
+          height: 80px;
+          top: -40px;
+        }
+
+        .icon-container lord-icon {
+          width: 55px !important;
+          height: 55px !important;
+        }
+
+        .review-title,
+        .reviews-title {
+          font-size: 1.4rem;
+          margin: 15px 0 20px;
+        }
+
+        .form-group {
+          margin-bottom: 16px;
+        }
+
+        .form-label {
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+
+        .form-input {
+          padding: 11px 12px;
+          font-size: 13px;
+          border-radius: 10px;
+        }
+
+        textarea.form-input {
+          min-height: 100px;
+        }
+
+        .star-rating {
+          gap: 6px;
+          margin: 12px 0;
+        }
+
+        .star {
+          font-size: 2rem;
+        }
+
+        .submit-btn {
+          padding: 13px;
+          font-size: 14px;
+          border-radius: 10px;
+        }
+
+        .char-counter {
+          font-size: 11px;
+        }
+
+        .table-controls {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .search-box {
+          width: 100%;
+          min-width: auto;
+        }
+
+        .sort-select {
+          width: 100%;
+        }
+
+        /* Make table scrollable on small screens */
+        .reviews-table-wrapper {
+          -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+          font-size: 12px;
+          min-width: 600px;
+        }
+
+        th {
+          padding: 10px 8px;
+          font-size: 11px;
+        }
+
+        td {
+          padding: 10px 8px;
+        }
+
+        .rating-stars {
+          font-size: 0.9rem;
+        }
+
+        .empty-state {
+          padding: 30px 20px;
+          font-size: 1rem;
+        }
+
+        .pagination {
+          gap: 6px;
+          margin-top: 20px;
+        }
+
+        .page-btn {
+          padding: 7px 12px;
+          font-size: 12px;
+          min-width: 36px;
+        }
+
+        .page-info {
+          font-size: 12px;
+          padding: 0 5px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 80px 10px 20px;
+        }
+
+        .back-to-chat {
+          top: 10px;
+          left: 10px;
+          padding: 7px 12px;
+          font-size: 11px;
+          border-radius: 10px;
+        }
+
+        .main-container {
+          gap: 20px;
+        }
+
+        .review-form-container,
+        .reviews-container {
+          padding: 25px 15px;
+          border-radius: 16px;
+        }
+
+        .icon-container {
+          width: 70px;
+          height: 70px;
+          top: -35px;
+        }
+
+        .icon-container lord-icon {
+          width: 50px !important;
+          height: 50px !important;
+        }
+
+        .review-title,
+        .reviews-title {
+          font-size: 1.3rem;
+          margin: 12px 0 18px;
+        }
+
+        .form-group {
+          margin-bottom: 14px;
+        }
+
+        .form-label {
+          font-size: 11px;
+        }
+
+        .form-input {
+          padding: 10px;
+          font-size: 12px;
+        }
+
+        textarea.form-input {
+          min-height: 90px;
+        }
+
+        .star {
+          font-size: 1.8rem;
+        }
+
+        .submit-btn {
+          padding: 12px;
+          font-size: 13px;
+        }
+
+        table {
+          min-width: 550px;
+          font-size: 11px;
+        }
+
+        th, td {
+          padding: 8px 6px;
+        }
+
+        th {
+          font-size: 10px;
+        }
+
+        .rating-stars {
+          font-size: 0.85rem;
+        }
+
+        .page-btn {
+          padding: 6px 10px;
+          font-size: 11px;
+          min-width: 32px;
+        }
+      }
+
+      /* Very small screens */
+      @media (max-width: 360px) {
+        .review-title,
+        .reviews-title {
+          font-size: 1.2rem;
+        }
+
+        .star {
+          font-size: 1.6rem;
+        }
+
+        table {
+          min-width: 500px;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        body {
+          padding: 70px 15px 20px;
+        }
+
+        .icon-container {
+          width: 60px;
+          height: 60px;
+          top: -30px;
+        }
+
+        .icon-container lord-icon {
+          width: 45px !important;
+          height: 45px !important;
+        }
+
+        .review-title,
+        .reviews-title {
+          font-size: 1.3rem;
+          margin: 10px 0 15px;
+        }
+
+        .form-group {
+          margin-bottom: 12px;
+        }
+
+        textarea.form-input {
+          min-height: 80px;
+        }
+
+        .star-rating {
+          margin: 10px 0;
         }
       }
     </style>
@@ -564,117 +918,95 @@
   </div>
 
   <script>
-       // Background animation
-      const container = document.querySelector(".bg-animations");
-      const symbols = [
-        "π",
-        "∑",
-        "√",
-        "∞",
-        "△",
-        "∫",
-        "α",
-        "β",
-        "θ",
-        "μ",
-        "∇",
-        "≠",
-        "≤",
-        "≥",
-        "∪",
-        "∩",
-        "∅",
-        "±",
-        "×",
-        "÷",
-        "²",
-        "³",
-        "∠",
-        "⊥",
-        "∥",
-        "φ",
-        "ψ",
-        "ω",
-      ];
-      const colors = [
-        "rgba(255,255,255,0.3)",
-        "rgba(173,216,230,0.35)",
-        "rgba(144,238,144,0.35)",
-        "rgba(255,182,193,0.35)",
-        "rgba(221,160,221,0.35)",
-      ];
+    // Background animation
+    const container = document.querySelector(".bg-animations");
+    const symbols = [
+      "π", "∑", "√", "∞", "△", "∫", "α", "β", "θ", "μ", "∇", "≠", "≤", "≥",
+      "∪", "∩", "∅", "±", "×", "÷", "²", "³", "∠", "⊥", "∥", "φ", "ψ", "ω"
+    ];
+    const colors = [
+      "rgba(255,255,255,0.3)",
+      "rgba(173,216,230,0.35)",
+      "rgba(144,238,144,0.35)",
+      "rgba(255,182,193,0.35)",
+      "rgba(221,160,221,0.35)"
+    ];
 
-      function spawnSymbol() {
-        const el = document.createElement("div");
-        el.className = "floating-symbol";
-        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
-        el.style.color = colors[Math.floor(Math.random() * colors.length)];
-        const startX = Math.random() * 100,
-          startY = 100 + Math.random() * 20;
-        const driftX = startX + (Math.random() * 40 - 20);
-        const driftY = startY - (30 + Math.random() * 60);
-        const endX = driftX + (Math.random() * 40 - 20);
-        const endY = driftY - (30 + Math.random() * 40);
-        el.style.setProperty("--xStart", startX + "vw");
-        el.style.setProperty("--yStart", startY + "vh");
-        el.style.setProperty("--xMid", driftX + "vw");
-        el.style.setProperty("--yMid", driftY + "vh");
-        el.style.setProperty("--xEnd", endX + "vw");
-        el.style.setProperty("--yEnd", endY + "vh");
-        el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
-        el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
-        el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
-        el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
-        el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
-        el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
-        el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
-        const duration = 5 + Math.random() * 6 + "s";
-        el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
-        el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
-        container.appendChild(el);
-        setTimeout(() => el.remove(), parseFloat(duration) * 1000);
-      }
+    function spawnSymbol() {
+      const el = document.createElement("div");
+      el.className = "floating-symbol";
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
+      el.style.color = colors[Math.floor(Math.random() * colors.length)];
+      const startX = Math.random() * 100,
+        startY = 100 + Math.random() * 20;
+      const driftX = startX + (Math.random() * 40 - 20);
+      const driftY = startY - (30 + Math.random() * 60);
+      const endX = driftX + (Math.random() * 40 - 20);
+      const endY = driftY - (30 + Math.random() * 40);
+      el.style.setProperty("--xStart", startX + "vw");
+      el.style.setProperty("--yStart", startY + "vh");
+      el.style.setProperty("--xMid", driftX + "vw");
+      el.style.setProperty("--yMid", driftY + "vh");
+      el.style.setProperty("--xEnd", endX + "vw");
+      el.style.setProperty("--yEnd", endY + "vh");
+      el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
+      el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
+      el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
+      el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
+      el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
+      el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
+      el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
+      const duration = 5 + Math.random() * 6 + "s";
+      el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
+      el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), parseFloat(duration) * 1000);
+    }
+
+    // Only run animation on larger screens
+    if (window.innerWidth > 768) {
       setInterval(() => {
         for (let i = 0, n = 1 + Math.floor(Math.random() * 3); i < n; i++)
           spawnSymbol();
       }, 700);
+    }
 
-      // Star rating functionality
-      const stars = document.querySelectorAll(".star");
-      const ratingInput = document.getElementById("rating");
-      let currentRating = 0;
+    // Star rating functionality
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.getElementById("rating");
+    let currentRating = 0;
 
-      stars.forEach((star) => {
-        star.addEventListener("click", function () {
-          currentRating = parseInt(this.dataset.rating);
-          ratingInput.value = currentRating;
-          updateStars(currentRating);
-        });
-
-        star.addEventListener("mouseenter", function () {
-          updateStars(parseInt(this.dataset.rating));
-        });
+    stars.forEach((star) => {
+      star.addEventListener("click", function () {
+        currentRating = parseInt(this.dataset.rating);
+        ratingInput.value = currentRating;
+        updateStars(currentRating);
       });
 
-      document
-        .querySelector(".star-rating")
-        .addEventListener("mouseleave", function () {
-          updateStars(currentRating);
-        });
+      star.addEventListener("mouseenter", function () {
+        updateStars(parseInt(this.dataset.rating));
+      });
+    });
 
-      function updateStars(rating) {
-        stars.forEach((star) => {
-          const starRating = parseInt(star.dataset.rating);
-          if (starRating <= rating) {
-            star.classList.add("active");
-          } else {
-            star.classList.remove("active");
-          }
-        });
-      }
+    document
+      .querySelector(".star-rating")
+      .addEventListener("mouseleave", function () {
+        updateStars(currentRating);
+      });
 
-    // === Char Counter ===
+    function updateStars(rating) {
+      stars.forEach((star) => {
+        const starRating = parseInt(star.dataset.rating);
+        if (starRating <= rating) {
+          star.classList.add("active");
+        } else {
+          star.classList.remove("active");
+        }
+      });
+    }
+
+    // Char Counter
     function setupCharCounter(id, counter, max) {
       const input = document.getElementById(id), label = document.getElementById(counter);
       input.addEventListener("input", () => {
@@ -687,7 +1019,7 @@
     setupCharCounter("kelompok", "kelompokCounter", 10);
     setupCharCounter("review", "reviewCounter", 500);
 
-    // === Review Logic (from old version) ===
+    // Review Logic
     let reviews = [];
     let filteredReviews = [];
     let currentPage = 1;
@@ -812,6 +1144,13 @@
         ratingInput.value = 0;
         currentRating = 0;
         updateStars(0);
+        
+        // Reset char counters
+        document.getElementById("namaCounter").textContent = "0/50";
+        document.getElementById("nrpCounter").textContent = "0/20";
+        document.getElementById("kelompokCounter").textContent = "0/10";
+        document.getElementById("reviewCounter").textContent = "0/500";
+        
         document.querySelector(".reviews-container").scrollIntoView({behavior:"smooth"});
       } catch(err) {
         console.error(err);
@@ -823,3 +1162,4 @@
     fetchReviews();
   </script>
 </body>
+</html>

@@ -7,8 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet">
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 
-
-    
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap');
 
@@ -23,15 +21,15 @@
     overflow: hidden;
   }
 
-.upload-btn.active {
-  background: rgba(63, 114, 175, 0.15);
-  border: 2px solid #3F72AF;
-  box-shadow: 0 0 10px rgba(63, 114, 175, 0.3);
-  transform: scale(1.05);
-}
-.upload-btn.active svg {
-  stroke: #3F72AF;
-}
+  .upload-btn.active {
+    background: rgba(63, 114, 175, 0.15);
+    border: 2px solid #3F72AF;
+    box-shadow: 0 0 10px rgba(63, 114, 175, 0.3);
+    transform: scale(1.05);
+  }
+  .upload-btn.active svg {
+    stroke: #3F72AF;
+  }
 
   .container { display: flex; height: 100vh; }
 
@@ -43,7 +41,40 @@
     display: flex;
     flex-direction: column;
     border-right: 1px solid rgba(219, 226, 239, 0.1);
+    transition: transform 0.3s ease;
   }
+
+  /* Mobile Sidebar Toggle */
+  .mobile-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    backdrop-filter: blur(2px);
+  }
+
+  .mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #112D4E;
+    color: #F9F7F7;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: #F9F7F7;
+  }
+
   .sidebar-header { padding: 16px 12px; }
 
   .new-chat-btn {
@@ -61,15 +92,13 @@
 
   .sidebar-menu { padding: 8px 12px; flex: 1; overflow-y: auto; }
 
-  .menu-item search-row{
+  .menu-item {
     display: flex; align-items: center; gap: 10px;
     padding: 8px 12px; margin-bottom: 2px;
     color: #DBE2EF; border-radius: 6px;
     cursor: pointer; transition: all 0.2s ease; font-size: 14px;
   }
-  /* .menu-item:hover { background: rgba(219, 226, 239, 0.1); } */
   .menu-item svg { width: 16px; height: 16px; }
-
 
   .chats-section { margin-top: 20px; }
   .chats-title {
@@ -78,7 +107,6 @@
     margin-bottom: 8px; padding: 0 12px;
   }
 
-  /* Chat items + menu (ellipsis, dropdown) */
   .chat-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 12px; margin-bottom: 2px; position: relative;
@@ -99,7 +127,7 @@
     background: none; border: none; cursor: pointer;
     font-size: 16px; color: #666; display: inline-flex; align-items: center;
   }
-  .fi-rr-file-edit { color: #fff; } /* ikon edit putih di sidebar gelap */
+  .fi-rr-file-edit { color: #fff; }
 
   .chat-menu-dropdown {
     display: none; position: absolute; right: 0; top: 100%;
@@ -137,7 +165,7 @@
     border-bottom: 1px solid rgba(17, 45, 78, 0.1);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .chat-header .chat-title { /* judul header app */
+  .chat-header .chat-title {
     font-family: 'Montaga', cursive; font-size: 1.1rem; color: #112D4E;
     max-width: none; white-space: normal; overflow: visible; text-overflow: clip;
   }
@@ -146,6 +174,7 @@
     padding: 6px 12px; background: transparent;
     border: 1px solid rgba(17, 45, 78, 0.2);
     border-radius: 6px; color: #3F72AF; cursor: pointer; transition: .2s; font-size: 12px;
+    text-decoration: none;
   }
   .action-btn:hover { background: rgba(63, 114, 175, 0.1); color: #112D4E; }
 
@@ -162,24 +191,24 @@
   .chat-messages { flex: 1; padding: 20px; display: none; overflow-y: auto; }
 
   .review-tooltip {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
-  background: #112D4E;
-  color: #F9F7F7;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  box-shadow: 0 4px 15px rgba(17, 45, 78, 0.3);
-}
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    background: #112D4E;
+    color: #F9F7F7;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 15px rgba(17, 45, 78, 0.3);
+  }
 
-.floating-review-btn:hover .review-tooltip {
-  opacity: 1;
-}
+  .floating-review-btn:hover .review-tooltip {
+    opacity: 1;
+  }
 
   .message {
     margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px;
@@ -217,23 +246,6 @@
   .upload-btn:hover { background: rgba(63, 114, 175, 0.1); color: #112D4E; }
   .upload-btn svg { width: 20px; height: 20px; }
 
-  .upload-dropdown {
-    position: absolute; bottom: 100%; left: 0; margin-bottom: 8px;
-    background: #F9F7F7; border: 2px solid #DBE2EF; border-radius: 8px;
-    min-width: 200px; display: none; z-index: 1000;
-    box-shadow: 0 4px 20px rgba(17, 45, 78, 0.1);
-  }
-  .upload-dropdown.show { display: block; }
-
-  .upload-option {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px; border-bottom: 1px solid #DBE2EF;
-    color: #112D4E; cursor: pointer; transition: .2s; font-size: 14px;
-  }
-  .upload-option:last-child { border-bottom: none; }
-  .upload-option:hover { background: rgba(63, 114, 175, 0.1); color: #112D4E; }
-  .upload-option svg { width: 16px; height: 16px; color: #3F72AF; }
-
   .message-input {
     flex: 1; padding: 12px 16px; min-height: 24px; max-height: 120px;
     border: none; background: transparent; outline: none; resize: none;
@@ -248,311 +260,568 @@
   .send-button:disabled { opacity: .4; cursor: not-allowed; }
   .send-button:not(:disabled):hover { background: rgba(63, 114, 175, 0.1); }
   .send-button svg { width: 20px; height: 20px; color: #3F72AF; }
-  .send-button:not(:disabled) svg { color: #3F72AF; }
 
-  /* Hidden file inputs */
   .file-input { display: none; }
 
-  /* Mobile */
-  @media (max-width: 768px) {
-    .sidebar { width: 240px; }
-    .welcome-title { font-size: 1.5rem; }
-    .input-area { padding: 16px; }
-    .chat-messages { padding: 16px; }
+  /* Search Row */
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    margin-bottom: 6px;
   }
 
-/* ==== FIXED SEARCH ROW ==== */
-.search-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  margin-bottom: 6px; /* pastikan jarak ke Library stabil */
-}
+  .search-input {
+    flex: 1;
+    background: rgba(219,226,239,0.08);
+    border: 1px solid rgba(219,226,239,0.2);
+    color: #F9F7F7;
+    border-radius: 6px;
+    padding: 6px 30px 6px 8px;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    transition: border 0.2s, background 0.2s;
+  }
 
-/* ==== INPUT ==== */
-.search-input {
-  flex: 1;
-  background: rgba(219,226,239,0.08);
-  border: 1px solid rgba(219,226,239,0.2);
-  color: #F9F7F7;
-  border-radius: 6px;
-  padding: 6px 30px 6px 8px; /* kasih ruang kanan fix */
-  font-size: 13px;
-  outline: none;
-  width: 100%;
-  transition: border 0.2s, background 0.2s;
-}
+  .search-input::placeholder {
+    color: rgba(219,226,239,0.7);
+  }
 
-.search-input::placeholder {
-  color: rgba(219,226,239,0.7);
-}
+  .search-input:focus {
+    border-color: rgba(219,226,239,0.45);
+    background: rgba(219,226,239,0.12);
+  }
 
-.search-input:focus {
-  border-color: rgba(219,226,239,0.45);
-  background: rgba(219,226,239,0.12);
-}
+  .search-clear {
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: rgba(219,226,239,0.8);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
 
-/* ==== CLEAR BUTTON ==== */
-.search-clear {
-  position: absolute;
-  right: 8px; /* selalu ada di tempat yang sama */
-  background: transparent;
-  border: none;
-  color: rgba(219,226,239,0.8);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  opacity: 0; /* ⬅️ tidak pakai display:none agar tidak ganggu layout */
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
+  .search-clear.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
-.search-clear.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+  /* Floating Review Button */
+  .floating-review-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+    transition: all 0.3s ease;
+    border: 3px solid #F9F7F7;
+    text-decoration: none;
+  }
 
-/* Floating Review Button */
-.floating-review-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: move;
-  z-index: 9999;
-  box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
-  transition: all 0.3s ease;
-  border: 3px solid #F9F7F7;
-}
+  .floating-review-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(63, 114, 175, 0.6);
+  }
 
-.floating-review-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 30px rgba(63, 114, 175, 0.6);
-}
+  .floating-review-btn:active {
+    cursor: grabbing;
+  }
 
-.floating-review-btn:active {
-  cursor: grabbing;
-}
+  .floating-review-btn svg {
+    width: 28px;
+    height: 28px;
+    color: #F9F7F7;
+  }
 
-.floating-review-btn svg {
-  width: 28px;
-  height: 28px;
-  color: #F9F7F7;
-}
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
 
-.review-tooltip {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
-  background: #112D4E;
-  color: #F9F7F7;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  box-shadow: 0 4px 15px rgba(17, 45, 78, 0.3);
-}
+  .floating-review-btn.bounce {
+    animation: bounce 2s infinite;
+  }
 
-.floating-review-btn:hover .review-tooltip {
-  opacity: 1;
-}
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.25s ease;
+  }
+  .modal {
+    background: #f9f7f7;
+    color: #112d4e;
+    border-radius: 10px;
+    padding: 24px;
+    width: 90%;
+    max-width: 300px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  .modal h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  .modal-input {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+  }
+  .modal-input:focus {
+    border-color: #3f72af;
+    box-shadow: 0 0 0 2px rgba(63,114,175,0.2);
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+    gap: 10px;
+  }
+  .modal-btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .modal-btn.cancel {
+    background: #ddd;
+    color: #333;
+  }
+  .modal-btn.ok {
+    background: #3f72af;
+    color: white;
+  }
+  .modal-btn.ok:hover {
+    background: #2b5691;
+  }
 
-/* Animasi bounce */
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .modal-message {
+    margin: 8px 0 16px 0;
+    font-size: 0.95rem;
+    color: #2b3a55;
+    text-align: left;
+  }
+  .modal-icon {
+    width: 20px;
+    height: 20px;
+  }
 
-.floating-review-btn.bounce {
-  animation: bounce 2s infinite;
-}
+  .chat-delete {
+    color: #d11a2a;
+    font-weight: 600;
+  }
 
-/* ===== MODAL ===== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  backdrop-filter: blur(2px);
-  animation: fadeIn 0.25s ease;
-}
-.modal {
-  background: #f9f7f7;
-  color: #112d4e;
-  border-radius: 10px;
-  padding: 24px;
-  width: 300px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  animation: slideUp 0.3s ease;
-}
-.modal h2 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-.modal-input {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  font-size: 15px;
-}
-.modal-input:focus {
-  border-color: #3f72af;
-  box-shadow: 0 0 0 2px rgba(63,114,175,0.2);
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 18px;
-  gap: 10px;
-}
-.modal-btn {
-  padding: 7px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.modal-btn.cancel {
-  background: #ddd;
-  color: #333;
-}
-.modal-btn.ok {
-  background: #3f72af;
-  color: white;
-}
-.modal-btn.ok:hover {
-  background: #2b5691;
-}
+  .chat-delete:hover {
+    background: #ffe5e5 !important;
+    color: #a00;
+  }
 
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-@keyframes slideUp { from {transform:translateY(15px);opacity:0;} to {transform:translateY(0);opacity:1;} }
+  @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+  @keyframes slideUp { from {transform:translateY(15px);opacity:0;} to {transform:translateY(0);opacity:1;} }
 
-/* ===== CHAT MENU ===== */
-.chat-menu {
-  position: relative;
-}
-.chat-menu-btn {
-  background: transparent;
-  border: none;
-  color: #ddd;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.chat-menu-btn:hover {
-  color: #3f72af;
-}
-.chat-menu-dropdown {
-  position: absolute;
-  right: 0;
-  top: 24px;
-  background: #f9f7f7;
-  color: #112d4e;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-  display: none;
-  flex-direction: column;
-  min-width: 110px;
-  overflow: hidden;
-  animation: fadeIn 0.2s ease;
-}
-.chat-menu.open .chat-menu-dropdown {
-  display: flex;
-}
-.chat-menu-dropdown button {
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.2s;
-}
-.chat-menu-dropdown button:hover {
-  background: #dbe2ef;
-}
-.chat-delete {
-  color: #d11a2a;
-}
-.chat-delete:hover {
-  background: #ffe0e0 !important;
-}
+  /* ===== RESPONSIVE STYLES ===== */
 
-.chat-menu-dropdown button {
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.2s, color 0.2s;
-  font-weight: 500;
-}
+  /* Tablets and below */
+  @media (max-width: 1024px) {
+    .sidebar {
+      width: 240px;
+    }
 
-/* Hover umum */
-.chat-menu-dropdown button:hover {
-  background: #dbe2ef;
-}
+    .chat-title {
+      max-width: 140px;
+    }
 
-/* Tombol delete berwarna merah */
-.chat-menu-dropdown .chat-delete {
-  color: #d11a2a;
-  font-weight: 600;
-}
+    .message-content {
+      max-width: 75%;
+    }
+  }
 
-.chat-menu-dropdown .chat-delete:hover {
-  background: #ffe5e5;
-  color: #a00;
-}
-.modal-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-.modal-message {
-  margin: 8px 0 16px 0;
-  font-size: 0.95rem;
-  color: #2b3a55;
-  text-align: left;
-}
-.modal-icon {
-  width: 20px;
-  height: 20px;
-}
+  @media (max-width: 768px) {
+    /* Mobile sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      z-index: 999;
+      transform: translateX(-100%);
+      width: 280px;
+    }
 
-.chat-header .chat-actions {
-  position: relative;
-  z-index: 5;
-}
+    .sidebar.open {
+      transform: translateX(0);
+    }
 
-.chat-header .action-btn {
-  pointer-events: auto;
-}
+    .mobile-sidebar-overlay {
+      display: none;
+    }
+
+    .mobile-sidebar-overlay.active {
+      display: block;
+    }
+
+    .mobile-sidebar-toggle {
+      display: block;
+    }
+
+    .chat-main {
+      width: 100%;
+    }
+
+    .chat-header {
+      padding: 12px 60px 12px 60px;
+    }
+
+    .chat-header .chat-title {
+      font-size: 1rem;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 1rem;
+    }
+
+    .chat-messages {
+      padding: 16px 12px;
+    }
+
+    .message {
+      gap: 8px;
+    }
+
+    .message-content {
+      max-width: 80%;
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+
+    .input-area {
+      padding: 16px 12px;
+    }
+
+    .input-container {
+      border-radius: 20px;
+    }
+
+    .message-input {
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+
+    .floating-review-btn {
+      width: 50px;
+      height: 50px;
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .floating-review-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .review-tooltip {
+      display: none;
+    }
+
+    .modal {
+      padding: 20px;
+      max-width: 280px;
+    }
+
+    .modal h2 {
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .sidebar {
+      width: 260px;
+    }
+
+    .chat-header {
+      padding: 10px 55px 10px 55px;
+    }
+
+    .welcome-screen {
+      padding: 30px 20px;
+    }
+
+    .welcome-title {
+      font-size: 1.8rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 0.95rem;
+    }
+
+    .message-avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 11px;
+    }
+
+    .message-content {
+      padding: 10px 14px;
+      font-size: 13px;
+      max-width: 85%;
+    }
+
+    .upload-btn,
+    .send-button {
+      padding: 10px;
+    }
+
+    .upload-btn svg,
+    .send-button svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar {
+      width: 240px;
+    }
+
+    .mobile-sidebar-toggle {
+      top: 12px;
+      left: 12px;
+      padding: 8px;
+    }
+
+    .mobile-sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .chat-header {
+      padding: 8px 50px 8px 50px;
+    }
+
+    .chat-header .chat-title {
+      font-size: 0.95rem;
+    }
+
+    .action-btn {
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .welcome-screen {
+      padding: 20px 15px;
+    }
+
+    .welcome-title {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .welcome-subtitle {
+      font-size: 0.9rem;
+    }
+
+    .chat-messages {
+      padding: 12px 10px;
+    }
+
+    .message {
+      margin-bottom: 16px;
+    }
+
+    .message-avatar {
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+    }
+
+    .message-content {
+      padding: 10px 12px;
+      font-size: 12px;
+      border-radius: 14px;
+      max-width: 88%;
+    }
+
+    .input-area {
+      padding: 12px 10px;
+    }
+
+    .input-container {
+      min-height: 48px;
+    }
+
+    .message-input {
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    .upload-btn,
+    .send-button {
+      padding: 8px;
+      margin: 3px;
+    }
+
+    .upload-btn svg,
+    .send-button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .floating-review-btn {
+      width: 45px;
+      height: 45px;
+      bottom: 15px;
+      right: 15px;
+    }
+
+    .floating-review-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .new-chat-btn {
+      font-size: 13px;
+      padding: 9px 10px;
+    }
+
+    .new-chat-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .chat-item {
+      font-size: 13px;
+      padding: 7px 10px;
+    }
+
+    .username {
+      font-size: 13px;
+    }
+
+    .modal {
+      padding: 18px;
+      max-width: 260px;
+    }
+
+    .modal h2 {
+      font-size: 1rem;
+    }
+
+    .modal-input {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .modal-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+  }
+
+  /* Very small screens */
+  @media (max-width: 360px) {
+    .sidebar {
+      width: 220px;
+    }
+
+    .welcome-title {
+      font-size: 1.3rem;
+    }
+
+    .message-content {
+      max-width: 90%;
+    }
+  }
+
+  /* Landscape mobile */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .welcome-screen {
+      padding: 20px 15px;
+    }
+
+    .welcome-title {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .welcome-subtitle {
+      font-size: 0.9rem;
+    }
+
+    .chat-messages {
+      padding: 10px;
+    }
+
+    .message {
+      margin-bottom: 12px;
+    }
+
+    .input-area {
+      padding: 10px;
+    }
+  }
 </style>
+</head>
 <body>
     <div class="container">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+            </svg>
+        </button>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
+
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <button class="new-chat-btn" id="new-chat-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -564,11 +833,11 @@
 
             <div class="sidebar-menu">
                 <div class="menu-item search-row">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-                </svg>
-                <input id="chat-search" class="search-input" type="text" placeholder="Search chats..." autocomplete="off"/>
-                <button id="chat-search-clear" class="search-clear" aria-label="Clear">✕</button>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                    <input id="chat-search" class="search-input" type="text" placeholder="Search chats..." autocomplete="off"/>
+                    <button id="chat-search-clear" class="search-clear" aria-label="Clear">✕</button>
                 </div>
 
                 <div class="menu-item">
@@ -579,23 +848,23 @@
                 </div>
 
                 <div class="chats-section" id="chats-section">
-                <div class="chats-title">Your Chats</div>
-                {% if chats and chats|length > 0 %}
-                    {% for c in chats %}
-                    <div class="chat-item{% if loop.first %} active{% endif %}" data-chat-id="{{ c.id }}">
-                        <span class="chat-title">{{ c.title }}</span>
-                        <div class="chat-menu">
-                        <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-                        <div class="chat-menu-dropdown">
-                            <button class="chat-rename">Rename</button>
-                            <button class="chat-delete">Delete</button>
+                    <div class="chats-title">Your Chats</div>
+                    {% if chats and chats|length > 0 %}
+                        {% for c in chats %}
+                        <div class="chat-item{% if loop.first %} active{% endif %}" data-chat-id="{{ c.id }}">
+                            <span class="chat-title">{{ c.title }}</span>
+                            <div class="chat-menu">
+                                <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+                                <div class="chat-menu-dropdown">
+                                    <button class="chat-rename">Rename</button>
+                                    <button class="chat-delete">Delete</button>
+                                </div>
+                            </div>
                         </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div id="empty-state" class="chat-item empty">No chats yet</div>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div id="empty-state" class="chat-item empty">No chats yet</div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -612,9 +881,6 @@
             <div class="chat-header">
                 <div class="chat-title">LearnVid AI</div>
                 <div class="chat-actions">
-                    <!-- <button href="/logout" class="action-btn">Log Out</button> -->
-                    <!-- <button class="action-btn">⋯</button> -->
-                    <!-- <button id="logout-btn" class="action-btn" type="button">Log out</button> -->
                     <a href="/logout" class="action-btn">Log out</a>
                 </div>
             </div>
@@ -632,16 +898,14 @@
                 </div>
             </div>
 
-
-
             <!-- Input Area -->
             <div class="input-area">
                 <div class="input-container">
                     <div class="upload-btn" id="upload-btn" title="Buat Video">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <polygon points="23 7 16 12 23 17 23 7"/>
-                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="23 7 16 12 23 17 23 7"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
                     </div>
 
                     <textarea class="message-input" id="message-input" placeholder="Ask anything" rows="1"></textarea>
@@ -664,13 +928,27 @@
 
     <!-- Floating Review Button -->
     <a href="/reviews" class="floating-review-btn bounce" id="floatingReviewBtn" title="Leave a Review">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-      <span class="review-tooltip">Leave a Review ⭐</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span class="review-tooltip">Leave a Review ⭐</span>
     </a>
 
-
+    <!-- Modal -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <img id="modal-icon" class="modal-icon" alt="">
+                <h2 id="modal-title">Modal Title</h2>
+            </div>
+            <p id="modal-message" class="modal-message"></p>
+            <input type="text" id="modal-input" class="modal-input" style="display:none;">
+            <div class="modal-actions">
+                <button id="modal-cancel" class="modal-btn cancel">Cancel</button>
+                <button id="modal-ok" class="modal-btn ok">OK</button>
+            </div>
+        </div>
+    </div>
 
 <script>
   // ====== User context dari Jinja ======
@@ -683,8 +961,10 @@
   const welcomeScreen  = document.getElementById('welcome-screen');
   const newChatBtn     = document.getElementById('new-chat-btn');
   const uploadBtn      = document.getElementById('upload-btn');
-  const uploadDropdown = document.getElementById('upload-dropdown');
   const chatsSection   = document.querySelector('.chats-section');
+  const sidebar        = document.getElementById('sidebar');
+  const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+  const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
 
   // File inputs (opsional)
   const imageUpload    = document.getElementById('image-upload');
@@ -697,41 +977,64 @@
     const firstActive = document.querySelector('.chat-item.active');
     return firstActive ? (firstActive.dataset.chatId || null) : null;
   })();
+  let videoMode = false;
+
+  // ====== Mobile Sidebar Toggle ======
+  if (mobileSidebarToggle) {
+    mobileSidebarToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      mobileSidebarOverlay.classList.toggle('active');
+    });
+  }
+
+  if (mobileSidebarOverlay) {
+    mobileSidebarOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      mobileSidebarOverlay.classList.remove('active');
+    });
+  }
+
+  // Close sidebar when clicking a chat item on mobile
+  function closeMobileSidebar() {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('open');
+      mobileSidebarOverlay.classList.remove('active');
+    }
+  }
 
   // === Popup Helper ===
-function showPopup(message, type = "info") {
-  const popup = document.createElement("div");
-  popup.textContent = message;
-  popup.className = `popup ${type}`;
-  Object.assign(popup.style, {
-    position: "fixed",
-    bottom: "30px",
-    right: "30px",
-    background: type === "info" ? "#3f72af" : type === "success" ? "#3f72af" : "#112D4E",
-    color: "white",
-    padding: "12px 16px",
-    borderRadius: "8px",
-    boxShadow: "0 3px 8px rgba(0,0,0,0.3)",
-    fontSize: "14px",
-    zIndex: 9999,
-    opacity: "0",
-    transition: "opacity 0.3s ease, transform 0.3s ease",
-    transform: "translateY(10px)"
-  });
+  function showPopup(message, type = "info") {
+    const popup = document.createElement("div");
+    popup.textContent = message;
+    popup.className = `popup ${type}`;
+    Object.assign(popup.style, {
+      position: "fixed",
+      bottom: "30px",
+      right: "30px",
+      background: type === "info" ? "#3f72af" : type === "success" ? "#3f72af" : "#112D4E",
+      color: "white",
+      padding: "12px 16px",
+      borderRadius: "8px",
+      boxShadow: "0 3px 8px rgba(0,0,0,0.3)",
+      fontSize: "14px",
+      zIndex: 9999,
+      opacity: "0",
+      transition: "opacity 0.3s ease, transform 0.3s ease",
+      transform: "translateY(10px)"
+    });
 
-  document.body.appendChild(popup);
-  setTimeout(() => {
-    popup.style.opacity = "1";
-    popup.style.transform = "translateY(0)";
-  }, 50);
+    document.body.appendChild(popup);
+    setTimeout(() => {
+      popup.style.opacity = "1";
+      popup.style.transform = "translateY(0)";
+    }, 50);
 
-  // Hilang otomatis setelah 2.5 detik
-  setTimeout(() => {
-    popup.style.opacity = "0";
-    popup.style.transform = "translateY(10px)";
-    setTimeout(() => popup.remove(), 300);
-  }, 1500);
-}
+    setTimeout(() => {
+      popup.style.opacity = "0";
+      popup.style.transform = "translateY(10px)";
+      setTimeout(() => popup.remove(), 300);
+    }, 1500);
+  }
 
   // ====== Helpers UI ======
   function showChatUI() {
@@ -758,7 +1061,6 @@ function showPopup(message, type = "info") {
     content.className = 'message-content';
     content.innerHTML = text;
 
-    // 🎬 kalau ada video_url → tambahkan video player di bawah teks
     if (videoUrl) {
       const videoContainer = document.createElement('div');
       videoContainer.style.display = 'flex';
@@ -772,7 +1074,6 @@ function showPopup(message, type = "info") {
       video.style.maxWidth = '100%';
       video.style.borderRadius = '10px';
 
-      // 🔽 ambil nama file dari URL Supabase
       const fileName = videoUrl.split('/').pop() || `EduGen_${Date.now()}.mp4`;
 
       const downloadBtn = document.createElement('button');
@@ -795,7 +1096,7 @@ function showPopup(message, type = "info") {
 
           const a = document.createElement('a');
           a.href = blobUrl;
-          a.download = fileName; // ✅ gunakan nama file asli dari Supabase
+          a.download = fileName;
           document.body.appendChild(a);
           a.click();
           a.remove();
@@ -823,7 +1124,6 @@ function showPopup(message, type = "info") {
   }
 
   function ensureNotEmptyState() {
-    // hapus placeholder "No chats yet" jika ada
     const emptyState = document.getElementById('empty-state') || document.querySelector('.chat-item.empty');
     if (emptyState) emptyState.remove();
   }
@@ -834,6 +1134,12 @@ function showPopup(message, type = "info") {
     if (node) node.classList.add('active');
   }
 
+  function escapeHtml(str=''){
+    return str.replace(/[&<>"']/g, s => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+  }
+
   // ====== API calls ======
   async function createChat(title) {
     const res = await fetch('/api/chats', {
@@ -842,7 +1148,7 @@ function showPopup(message, type = "info") {
       body: JSON.stringify({ username: CURRENT_USERNAME, title })
     });
     if (!res.ok) throw new Error('Failed to create chat');
-    return res.json(); // { id, title }
+    return res.json();
   }
 
   async function loadMessages(chatId) {
@@ -850,7 +1156,6 @@ function showPopup(message, type = "info") {
     if (!res.ok) throw new Error('Failed to load messages');
     const data = await res.json();
 
-    // ✅ scroll otomatis ke bawah setelah data dimuat
     setTimeout(() => {
       chatMessages.scrollTo({
         top: chatMessages.scrollHeight,
@@ -878,102 +1183,60 @@ function showPopup(message, type = "info") {
       body: JSON.stringify({ username: CURRENT_USERNAME, content })
     });
     if (!res.ok) throw new Error('Failed to send message');
-    return res.json(); // { ok, user_message, ai_message }
+    return res.json();
   }
 
   // ====== Event handlers ======
-  // Auto-resize + enable/disable send
   messageInput.addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     sendButton.disabled = !this.value.trim();
   });
 
-  // Upload dropdown toggle
-  if (uploadBtn && uploadDropdown) {
-    uploadBtn.addEventListener('click', function () {
-      uploadDropdown.classList.toggle('show');
-    });
-
-    // Close dropdown ketika klik di luar
-    document.addEventListener('click', function (e) {
-      if (!uploadBtn.contains(e.target) && !uploadDropdown.contains(e.target)) {
-        uploadDropdown.classList.remove('show');
-      }
-    });
-  }
-
-
-
-  // Trigger file uploads (opsional)
-  function triggerFileUpload(type) {
-    const fileInput = document.getElementById(type + '-upload');
-    if (fileInput) {
-      fileInput.click();
-      if (uploadDropdown) uploadDropdown.classList.remove('show');
-    }
-  }
-  window.triggerFileUpload = triggerFileUpload;
-
-  // File uploads UI feedback (opsional)
-  [imageUpload, documentUpload, videoUpload].forEach(input => {
-    if (!input) return;
-    input.addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        addMessage(`📎 Uploaded: ${file.name}`, 'user');
-        setTimeout(() => addMessage(`I can see you've uploaded a file. How can I help you with it?`, 'ai'), 800);
-      }
-    });
-  });
-
   // New chat
-// New chat
-if (newChatBtn) {
-  newChatBtn.addEventListener('click', async function (e) {
-    e.preventDefault();
-    try {
-      const title = await openModal({
-        title: '💬 New Chat',
-        placeholder: 'Enter chat title...',
-        defaultValue: 'New chat'
-      });
-      if (title === null) return;
+  if (newChatBtn) {
+    newChatBtn.addEventListener('click', async function (e) {
+      e.preventDefault();
+      try {
+        const title = await openModal({
+          title: '💬 New Chat',
+          placeholder: 'Enter chat title...',
+          defaultValue: 'New chat'
+        });
+        if (title === null) return;
 
-      const chat = await createChat((title || 'New chat').trim() || 'New chat');
-      activeChatId = chat.id;
+        const chat = await createChat((title || 'New chat').trim() || 'New chat');
+        activeChatId = chat.id;
 
-      ensureNotEmptyState();
-      document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+        ensureNotEmptyState();
+        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
 
-      // 🟢 Gunakan struktur lengkap (termasuk menu)
-      const node = document.createElement('div');
-      node.className = 'chat-item active';
-      node.dataset.chatId = chat.id;
-      node.innerHTML = `
-        <span class="chat-title">${escapeHtml(chat.title)}</span>
-        <div class="chat-menu">
-          <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-          <div class="chat-menu-dropdown">
-            <button class="chat-rename">Rename</button>
-            <button class="chat-delete">Delete</button>
+        const node = document.createElement('div');
+        node.className = 'chat-item active';
+        node.dataset.chatId = chat.id;
+        node.innerHTML = `
+          <span class="chat-title">${escapeHtml(chat.title)}</span>
+          <div class="chat-menu">
+            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+            <div class="chat-menu-dropdown">
+              <button class="chat-rename">Rename</button>
+              <button class="chat-delete">Delete</button>
+            </div>
           </div>
-        </div>
-      `;
+        `;
 
-      chatsSection.appendChild(node);
+        chatsSection.appendChild(node);
+        chatMessages.innerHTML = '';
+        showChatUI();
+        closeMobileSidebar();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to create chat');
+      }
+    });
+  }
 
-      // tampilkan UI chat kosong
-      chatMessages.innerHTML = '';
-      showChatUI();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to create chat');
-    }
-  });
-}
-
-  // Delegasi klik chat-item (termasuk yang baru dibuat)
+  // Delegasi klik chat-item
   if (chatsSection) {
     chatsSection.addEventListener('click', async function (e) {
       const target = e.target.closest('.chat-item');
@@ -983,17 +1246,16 @@ if (newChatBtn) {
         const chatId = target.dataset.chatId;
         if (!chatId) return;
 
-        // set active
         document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
         target.classList.add('active');
         activeChatId = chatId;
 
-        // load messages
         const msgs = await loadMessages(chatId);
         ensureNotEmptyState();
         chatMessages.innerHTML = '';
         showChatUI();
-        msgs.forEach(m => addMessage(m.content, m.role, m.video_url)); // ✅ kirim URL video
+        msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
+        closeMobileSidebar();
       } catch (err) {
         console.error(err);
         alert('Failed to load messages');
@@ -1002,63 +1264,60 @@ if (newChatBtn) {
   }
 
   // Kirim pesan
-async function sendMessage() {
-  const message = messageInput.value.trim();
-  if (!message) return;
+  async function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
 
-  try {
-    // 🟢 Jika belum ada chat aktif, buat otomatis
-    if (!activeChatId) {
-      const chat = await createChat("New chat");
-      activeChatId = chat.id;
+    try {
+      if (!activeChatId) {
+        const chat = await createChat("New chat");
+        activeChatId = chat.id;
 
-      // Tambahkan ke sidebar
-      ensureNotEmptyState();
-      const node = document.createElement("div");
-      node.className = "chat-item active";
-      node.dataset.chatId = chat.id;
-      node.innerHTML = `
-        <span class="chat-title">${chat.title}</span>
-        <div class="chat-menu">
-          <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-          <div class="chat-menu-dropdown">
-            <button class="chat-rename">Rename</button>
-            <button class="chat-delete">Delete</button>
+        ensureNotEmptyState();
+        const node = document.createElement("div");
+        node.className = "chat-item active";
+        node.dataset.chatId = chat.id;
+        node.innerHTML = `
+          <span class="chat-title">${chat.title}</span>
+          <div class="chat-menu">
+            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+            <div class="chat-menu-dropdown">
+              <button class="chat-rename">Rename</button>
+              <button class="chat-delete">Delete</button>
+            </div>
           </div>
-        </div>
-      `;
-      chatsSection.appendChild(node);
-      setActiveChatItemById(chat.id);
+        `;
+        chatsSection.appendChild(node);
+        setActiveChatItemById(chat.id);
+      }
+
+      showChatUI();
+      addMessage(message, 'user');
+      resetInput();
+      sendButton.disabled = true;
+
+      let data;
+      if (videoMode) {
+        const res = await fetch(`/api/chats/${activeChatId}/generate_video`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: message })
+        });
+        if (!res.ok) throw new Error('Gagal membuat video');
+        data = await res.json();
+        addMessage(data.message, 'ai', data.video_url);
+      } else {
+        data = await postMessage(activeChatId, message);
+        addMessage(data.ai_message.content, 'ai', data.ai_message.video_url);
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send message');
+    } finally {
+      sendButton.disabled = false;
     }
-
-    // === tampilkan pesan user langsung
-    showChatUI();
-    addMessage(message, 'user');
-    resetInput();
-    sendButton.disabled = true;
-
-    let data;
-    if (videoMode) {
-      const res = await fetch(`/api/chats/${activeChatId}/generate_video`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: message })
-      });
-      if (!res.ok) throw new Error('Gagal membuat video');
-      data = await res.json();
-      addMessage(data.message, 'ai', data.video_url);
-    } else {
-      data = await postMessage(activeChatId, message);
-      addMessage(data.ai_message.content, 'ai', data.ai_message.video_url);
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert('Failed to send message');
-  } finally {
-    sendButton.disabled = false;
   }
-}
 
   if (sendButton) {
     sendButton.addEventListener('click', sendMessage);
@@ -1072,7 +1331,7 @@ async function sendMessage() {
     });
   }
 
-  // ====== Optional: auto-load pesan untuk chat yang sudah active saat render ======
+  // Auto-load pesan untuk chat yang sudah active
   (async function initAutoLoadActive() {
     const firstActive = document.querySelector('.chat-item.active');
     if (firstActive && firstActive.dataset.chatId) {
@@ -1081,9 +1340,8 @@ async function sendMessage() {
         ensureNotEmptyState();
         chatMessages.innerHTML = '';
         showChatUI();
-        msgs.forEach(m => addMessage(m.content, m.role, m.video_url)); // ✅ tambahkan video
+        msgs.forEach(m => addMessage(m.content, m.role, m.video_url));
         activeChatId = firstActive.dataset.chatId;
-        // ✅ Scroll otomatis ke bawah setelah semua pesan awal dimuat
         setTimeout(() => {
           chatMessages.scrollTo({
             top: chatMessages.scrollHeight,
@@ -1096,492 +1354,370 @@ async function sendMessage() {
     }
   })();
 
-//   ------
-// ===== Chat menu: toggle, rename, delete =====
-function closeAllChatMenus(except) {
-  document.querySelectorAll('.chat-menu').forEach(m => {
-    if (m !== except) m.classList.remove('open');
-  });
-}
-
-// Buka/tutup dropdown saat klik ikon pensil
-chatsSection.addEventListener('click', (e) => {
-  const btn = e.target.closest('.chat-menu-btn');
-  if (!btn) return;
-  e.stopPropagation();
-  const menu = btn.closest('.chat-menu');
-  const isOpen = menu.classList.contains('open');
-  closeAllChatMenus(menu);
-  if (!isOpen) menu.classList.add('open');
-});
-
-// Tutup dropdown kalau klik di luar
-document.addEventListener('click', () => closeAllChatMenus(null));
-
-// Handler RENAME
-chatsSection.addEventListener('click', async (e) => {
-  const btn = e.target.closest('.chat-rename');
-  if (!btn) return;
-
-  e.stopPropagation();
-  const item = btn.closest('.chat-item');
-  const chatId = item?.dataset?.chatId;
-  if (!chatId) return;
-
-  const titleSpan = item.querySelector('.chat-title');
-  const currentTitle = titleSpan?.textContent?.trim() || 'Untitled';
-
-  const newTitle = await openModal({
-    title: '✏️ Rename Chat',
-    placeholder: 'Enter new title...',
-    defaultValue: currentTitle
-  });
-  if (newTitle === null) return;
-  const cleaned = (newTitle || '').trim();
-  if (!cleaned || cleaned === currentTitle) {  // kosong/ tidak berubah
-    return;
-  }
-
-  try {
-    // PATCH ke backend
-    const res = await fetch(`/api/chats/${chatId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: cleaned })
+  // Chat menu: toggle, rename, delete
+  function closeAllChatMenus(except) {
+    document.querySelectorAll('.chat-menu').forEach(m => {
+      if (m !== except) m.classList.remove('open');
     });
-    if (!res.ok) throw new Error('Rename failed');
-    const data = await res.json();
-
-    // Update UI (ellipsis tetap jalan via CSS .chat-title)
-    titleSpan.textContent = data.title;
-
-    // Kalau chat ini sedang aktif & kamu punya header judul lain, bisa ikut di-update:
-    // document.querySelector('.chat-header .chat-title')?.textContent = data.title;
-
-    // Tutup dropdown
-    closeAllChatMenus(null);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to rename chat');
   }
-});
 
-// Handler DELETE
-chatsSection.addEventListener('click', async (e) => {
-  const btn = e.target.closest('.chat-delete');
-  if (!btn) return;
-
-
-  e.stopPropagation();
-  const item = btn.closest('.chat-item');
-  const chatId = item?.dataset?.chatId;
-  if (!chatId) return;
-
-  const confirmDelete = await openModal({
-    title: 'Delete Chat',
-    message: 'This action cannot be undone!',
-    icon: 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png',
-    isConfirm: true
+  chatsSection.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chat-menu-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    const menu = btn.closest('.chat-menu');
+    const isOpen = menu.classList.contains('open');
+    closeAllChatMenus(menu);
+    if (!isOpen) menu.classList.add('open');
   });
-  if (!confirmDelete) return;
 
-  try {
-    const res = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Delete failed');
+  document.addEventListener('click', () => closeAllChatMenus(null));
 
-    // Jika chat yang dihapus sedang aktif, reset area chat
-    const deletingActive = item.classList.contains('active');
-    item.remove();
+  // Handler RENAME
+  chatsSection.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.chat-rename');
+    if (!btn) return;
 
-    // Jika tidak ada chat lagi → tampilkan placeholder
-    if (!document.querySelector('.chat-item')) {
-      const placeholder = document.createElement('div');
-      placeholder.id = 'empty-state';
-      placeholder.className = 'chat-item empty';
-      placeholder.textContent = 'No chats yet';
-      chatsSection.appendChild(placeholder);
+    e.stopPropagation();
+    const item = btn.closest('.chat-item');
+    const chatId = item?.dataset?.chatId;
+    if (!chatId) return;
+
+    const titleSpan = item.querySelector('.chat-title');
+    const currentTitle = titleSpan?.textContent?.trim() || 'Untitled';
+
+    const newTitle = await openModal({
+      title: '✏️ Rename Chat',
+      placeholder: 'Enter new title...',
+      defaultValue: currentTitle
+    });
+    if (newTitle === null) return;
+    const cleaned = (newTitle || '').trim();
+    if (!cleaned || cleaned === currentTitle) return;
+
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: cleaned })
+      });
+      if (!res.ok) throw new Error('Rename failed');
+      const data = await res.json();
+
+      titleSpan.textContent = data.title;
+      closeAllChatMenus(null);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to rename chat');
     }
+  });
 
-    if (deletingActive) {
-      // Kosongkan messages & tampilkan welcome
-      chatMessages.innerHTML = '';
-      chatMessages.style.display = 'none';
-      welcomeScreen.classList.remove('hidden');
-      activeChatId = null;
+  // Handler DELETE
+  chatsSection.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.chat-delete');
+    if (!btn) return;
 
-      // Optional: aktifkan chat pertama yang tersisa
-      const first = document.querySelector('.chat-item[data-chat-id]');
-      if (first) {
-        first.classList.add('active');
-        activeChatId = first.dataset.chatId;
-        try {
-          const msgs = await loadMessages(activeChatId);
-          chatMessages.innerHTML = '';
-          showChatUI();
-          msgs.forEach(m => addMessage(m.content, m.role));
-        } catch {}
+    e.stopPropagation();
+    const item = btn.closest('.chat-item');
+    const chatId = item?.dataset?.chatId;
+    if (!chatId) return;
+
+    const confirmDelete = await openModal({
+      title: 'Delete Chat',
+      message: 'This action cannot be undone!',
+      icon: 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png',
+      isConfirm: true
+    });
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+
+      const deletingActive = item.classList.contains('active');
+      item.remove();
+
+      if (!document.querySelector('.chat-item')) {
+        const placeholder = document.createElement('div');
+        placeholder.id = 'empty-state';
+        placeholder.className = 'chat-item empty';
+        placeholder.textContent = 'No chats yet';
+        chatsSection.appendChild(placeholder);
       }
+
+      if (deletingActive) {
+        chatMessages.innerHTML = '';
+        chatMessages.style.display = 'none';
+        welcomeScreen.classList.remove('hidden');
+        activeChatId = null;
+
+        const first = document.querySelector('.chat-item[data-chat-id]');
+        if (first) {
+          first.classList.add('active');
+          activeChatId = first.dataset.chatId;
+          try {
+            const msgs = await loadMessages(activeChatId);
+            chatMessages.innerHTML = '';
+            showChatUI();
+            msgs.forEach(m => addMessage(m.content, m.role));
+          } catch {}
+        }
+      }
+
+      closeAllChatMenus(null);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete chat');
     }
+  });
 
-    // Tutup dropdown
-    closeAllChatMenus(null);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to delete chat');
-  }
-});
+  // Search chats
+  const chatSearchInput = document.getElementById('chat-search');
+  const chatSearchClear = document.getElementById('chat-search-clear');
 
-// ====== Search chats ======
-const chatSearchInput = document.getElementById('chat-search');
-const chatSearchClear = document.getElementById('chat-search-clear');
+  function renderChatList(chats) {
+    const container = document.getElementById('chats-section');
+    if (!container) return;
 
-function renderChatList(chats) {
-  const container = document.getElementById('chats-section');
-  if (!container) return;
-
-  // Bangun ulang daftar
-  const titleHtml = '<div class="chats-title">Your Chats</div>';
-  let listHtml = '';
-  if (chats.length === 0) {
-    listHtml = '<div id="empty-state" class="chat-item empty">No chats yet</div>';
-  } else {
-    listHtml = chats.map((c, i) => `
-      <div class="chat-item${(activeChatId && String(activeChatId)===String(c.id)) ? ' active' : ''}" data-chat-id="${c.id}">
-        <span class="chat-title">${escapeHtml(c.title)}</span>
-        <div class="chat-menu">
-          <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-          <div class="chat-menu-dropdown">
-            <button class="chat-rename">Rename</button>
-            <button class="chat-delete">Delete</button>
+    const titleHtml = '<div class="chats-title">Your Chats</div>';
+    let listHtml = '';
+    if (chats.length === 0) {
+      listHtml = '<div id="empty-state" class="chat-item empty">No chats yet</div>';
+    } else {
+      listHtml = chats.map((c) => `
+        <div class="chat-item${(activeChatId && String(activeChatId)===String(c.id)) ? ' active' : ''}" data-chat-id="${c.id}">
+          <span class="chat-title">${escapeHtml(c.title)}</span>
+          <div class="chat-menu">
+            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+            <div class="chat-menu-dropdown">
+              <button class="chat-rename">Rename</button>
+              <button class="chat-delete">Delete</button>
+            </div>
           </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    }
+    container.innerHTML = titleHtml + listHtml;
   }
-  container.innerHTML = titleHtml + listHtml;
-}
 
-// simple escaper biar aman
-function escapeHtml(str=''){
-  return str.replace(/[&<>"']/g, s => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[s]));
-}
-
-// debounce helper
-function debounce(fn, ms=250){
-  let t; 
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-}
-
-async function fetchSearchResults(query){
-  const url = '/api/chats/search?q=' + encodeURIComponent(query || '');
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Search failed');
-  return res.json(); // [{id,title}]
-}
-
-const doSearch = debounce(async () => {
-  try {
-    const q = chatSearchInput.value.trim();
-    chatSearchClear.classList.toggle('show', q.length > 0);
-
-    const result = await fetchSearchResults(q);
-    renderChatList(result);
-  } catch (e) {
-    console.error(e);
+  function debounce(fn, ms=250){
+    let t; 
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
+    };
   }
-}, 300);
 
-// events
-if (chatSearchInput) {
-  chatSearchInput.addEventListener('input', doSearch);
-  chatSearchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+  async function fetchSearchResults(query){
+    const url = '/api/chats/search?q=' + encodeURIComponent(query || '');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Search failed');
+    return res.json();
+  }
+
+  const doSearch = debounce(async () => {
+    try {
+      const q = chatSearchInput.value.trim();
+      chatSearchClear.classList.toggle('show', q.length > 0);
+
+      const result = await fetchSearchResults(q);
+      renderChatList(result);
+    } catch (e) {
+      console.error(e);
+    }
+  }, 300);
+
+  if (chatSearchInput) {
+    chatSearchInput.addEventListener('input', doSearch);
+    chatSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        chatSearchInput.value = '';
+        doSearch();
+        chatSearchInput.blur();
+      }
+    });
+  }
+  if (chatSearchClear) {
+    chatSearchClear.addEventListener('click', () => {
       chatSearchInput.value = '';
+      chatSearchInput.focus();
       doSearch();
-      chatSearchInput.blur();
-    }
-  });
-}
-if (chatSearchClear) {
-  chatSearchClear.addEventListener('click', () => {
-    chatSearchInput.value = '';
-    chatSearchInput.focus();
-    doSearch();
-  });
-}
-
-// === Toggle Mode: Buat Video ===
-let videoMode = false;
-const uploadBtnEl = document.getElementById('upload-btn');
-
-if (uploadBtnEl) {
-  uploadBtnEl.addEventListener('click', () => {
-    videoMode = !videoMode;
-    uploadBtnEl.classList.toggle('active', videoMode);
-
-    if (videoMode) {
-      uploadBtnEl.title = "Mode Video Aktif 🎬 (klik lagi untuk nonaktif)";
-      showPopup("🎬 Mode pembuatan video diaktifkan", "success");
-    } else {
-      uploadBtnEl.title = "Buat Video";
-      showPopup("💬 Mode video dinonaktifkan. Kembali ke mode chat biasa", "info");
-    }
-  });
-}
-
-const lastRenderedText = currentMsgs[currentCount - 1]?.querySelector('.message-content')?.innerText || "";
-if (msgs[msgs.length - 1]?.content !== lastRenderedText) {
-  // ada pesan baru, tambahkan yang belum ada
-}
-// ====== GLOBAL POLLING UNTUK UPDATE PESAN BARU TANPA SCROLL ======
-setInterval(async () => {
-  try {
-    if (!activeChatId) return; // tidak ada chat aktif
-
-    // Ambil data terbaru dari server
-    const msgs = await loadMessages(activeChatId);
-    const currentMsgs = Array.from(document.querySelectorAll('.message'));
-    const currentCount = currentMsgs.length;
-
-    // Jika ada pesan baru di server
-    if (msgs.length > currentCount) {
-      const newMsgs = msgs.slice(currentCount); // ambil pesan baru saja
-      newMsgs.forEach(m => addMessage(m.content, m.role, m.video_url));
-    }
-
-    // ❌ tidak scroll, biarkan posisi user tetap
-  } catch (err) {
-    console.warn('Auto refresh error:', err);
+    });
   }
-}, 5000);
 
-// ====== Draggable Floating Review Button ======
-const floatingBtn = document.getElementById('floatingReviewBtn');
+  // Toggle Mode: Buat Video
+  const uploadBtnEl = document.getElementById('upload-btn');
 
-if (floatingBtn) {
-  let isDragging = false;
-  let startX, startY, offsetX, offsetY;
+  if (uploadBtnEl) {
+    uploadBtnEl.addEventListener('click', () => {
+      videoMode = !videoMode;
+      uploadBtnEl.classList.toggle('active', videoMode);
 
-floatingBtn.addEventListener('mousedown', function(e) {
-  // Jika user klik biasa (bukan drag) → biarkan link bekerja
-  if (e.target.closest('a')) return;
-
-  isDragging = true;
-  floatingBtn.classList.remove('bounce');
-
-  const rect = floatingBtn.getBoundingClientRect();
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
-
-  e.preventDefault();
-});
-
-floatingBtn.addEventListener('click', function(e) {
-  // Jika user hanya klik (tidak drag jauh), lanjut ke /reviews
-  if (!isDragging) {
-    window.location.href = '/reviews';
+      if (videoMode) {
+        uploadBtnEl.title = "Mode Video Aktif 🎬 (klik lagi untuk nonaktif)";
+        showPopup("🎬 Mode pembuatan video diaktifkan", "success");
+      } else {
+        uploadBtnEl.title = "Buat Video";
+        showPopup("💬 Mode video dinonaktifkan. Kembali ke mode chat biasa", "info");
+      }
+    });
   }
-});
 
-  document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
-    
-    // Batasi agar tidak keluar dari viewport
-    const maxX = window.innerWidth - floatingBtn.offsetWidth;
-    const maxY = window.innerHeight - floatingBtn.offsetHeight;
-    
-    const finalX = Math.max(0, Math.min(x, maxX));
-    const finalY = Math.max(0, Math.min(y, maxY));
-    
-    floatingBtn.style.left = finalX + 'px';
-    floatingBtn.style.top = finalY + 'px';
-    floatingBtn.style.right = 'auto';
-    floatingBtn.style.bottom = 'auto';
-  });
+  // Global polling untuk update pesan baru
+  setInterval(async () => {
+    try {
+      if (!activeChatId) return;
 
-  document.addEventListener('mouseup', function() {
-    isDragging = false;
-  });
+      const msgs = await loadMessages(activeChatId);
+      const currentMsgs = Array.from(document.querySelectorAll('.message'));
+      const currentCount = currentMsgs.length;
 
-  // Touch support untuk mobile
-  floatingBtn.addEventListener('touchstart', function(e) {
-    isDragging = true;
-    floatingBtn.classList.remove('bounce');
-    
-    const rect = floatingBtn.getBoundingClientRect();
-    const touch = e.touches[0];
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
-  });
-
-  document.addEventListener('touchmove', function(e) {
-    if (!isDragging) return;
-    
-    const touch = e.touches[0];
-    const x = touch.clientX - offsetX;
-    const y = touch.clientY - offsetY;
-    
-    const maxX = window.innerWidth - floatingBtn.offsetWidth;
-    const maxY = window.innerHeight - floatingBtn.offsetHeight;
-    
-    const finalX = Math.max(0, Math.min(x, maxX));
-    const finalY = Math.max(0, Math.min(y, maxY));
-    
-    floatingBtn.style.left = finalX + 'px';
-    floatingBtn.style.top = finalY + 'px';
-    floatingBtn.style.right = 'auto';
-    floatingBtn.style.bottom = 'auto';
-    
-    e.preventDefault();
-  });
-
-  document.addEventListener('touchend', function() {
-    isDragging = false;
-  });
-}
-
-// Saat pertama load, tampilkan semua (query kosong)
-doSearch();
-
-// ==== Modal Helper ====
-function openInputModal(title, placeholder = '', defaultValue = '') {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const inputEl = document.getElementById('modal-input');
-    const okBtn = document.getElementById('modal-ok');
-    const cancelBtn = document.getElementById('modal-cancel');
-
-    titleEl.textContent = title;
-    inputEl.placeholder = placeholder;
-    inputEl.value = defaultValue;
-    overlay.style.display = 'flex';
-    inputEl.focus();
-
-    function closeModal(value) {
-      overlay.style.display = 'none';
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-      inputEl.removeEventListener('keydown', onEnter);
-      resolve(value);
+      if (msgs.length > currentCount) {
+        const newMsgs = msgs.slice(currentCount);
+        newMsgs.forEach(m => addMessage(m.content, m.role, m.video_url));
+      }
+    } catch (err) {
+      console.warn('Auto refresh error:', err);
     }
+  }, 5000);
 
-    function onOk() {
-      const val = inputEl.value.trim();
-      closeModal(val || null);
-    }
-    function onCancel() { closeModal(null); }
-    function onEnter(e) { if (e.key === 'Enter') onOk(); }
+  // Draggable Floating Review Button
+  const floatingBtn = document.getElementById('floatingReviewBtn');
 
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-    inputEl.addEventListener('keydown', onEnter);
-  });
-}
+  if (floatingBtn) {
+    let isDragging = false;
+    let offsetX, offsetY;
 
-async function openConfirmModal(title, message) {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById('modal-overlay');
-    const modal = overlay.querySelector('.modal');
-    const titleEl = document.getElementById('modal-title');
-    const inputEl = document.getElementById('modal-input');
-    const okBtn = document.getElementById('modal-ok');
-    const cancelBtn = document.getElementById('modal-cancel');
+    floatingBtn.addEventListener('mousedown', function(e) {
+      if (e.target.closest('a')) return;
 
-    inputEl.style.display = 'none'; // sembunyikan input
-    titleEl.textContent = title;
-    modal.insertAdjacentHTML('beforeend', `<p class="modal-msg">${message}</p>`);
-    overlay.style.display = 'flex';
+      isDragging = true;
+      floatingBtn.classList.remove('bounce');
 
-    function cleanup() {
-      const msgEl = modal.querySelector('.modal-msg');
-      if (msgEl) msgEl.remove();
-      inputEl.style.display = '';
-      overlay.style.display = 'none';
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-    }
+      const rect = floatingBtn.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
 
-    function onOk() { cleanup(); resolve(true); }
-    function onCancel() { cleanup(); resolve(false); }
+      e.preventDefault();
+    });
 
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-  });
-}
+    floatingBtn.addEventListener('click', function(e) {
+      if (!isDragging) {
+        window.location.href = '/reviews';
+      }
+    });
 
-function openModal({ 
-  title, 
-  message = '', 
-  icon = '', 
-  placeholder = '', 
-  defaultValue = '', 
-  isConfirm = false 
-}) {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const msgEl = document.getElementById('modal-message');
-    const iconEl = document.getElementById('modal-icon');
-    const inputEl = document.getElementById('modal-input');
-    const okBtn = document.getElementById('modal-ok');
-    const cancelBtn = document.getElementById('modal-cancel');
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+      
+      const maxX = window.innerWidth - floatingBtn.offsetWidth;
+      const maxY = window.innerHeight - floatingBtn.offsetHeight;
+      
+      const finalX = Math.max(0, Math.min(x, maxX));
+      const finalY = Math.max(0, Math.min(y, maxY));
+      
+      floatingBtn.style.left = finalX + 'px';
+      floatingBtn.style.top = finalY + 'px';
+      floatingBtn.style.right = 'auto';
+      floatingBtn.style.bottom = 'auto';
+    });
 
-    // Atur konten
-    titleEl.textContent = title;
-    msgEl.textContent = message;
-    iconEl.src = icon || '';
-    iconEl.style.display = icon ? 'block' : 'none';
-    inputEl.style.display = isConfirm ? 'none' : 'block';
-    inputEl.placeholder = placeholder;
-    inputEl.value = defaultValue;
+    document.addEventListener('mouseup', function() {
+      isDragging = false;
+    });
 
-    overlay.style.display = 'flex';
-    if (!isConfirm) inputEl.focus();
+    // Touch support untuk mobile
+    floatingBtn.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      floatingBtn.classList.remove('bounce');
+      
+      const rect = floatingBtn.getBoundingClientRect();
+      const touch = e.touches[0];
+      offsetX = touch.clientX - rect.left;
+      offsetY = touch.clientY - rect.top;
+    });
 
-    function closeModal(value) {
-      overlay.style.display = 'none';
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-      inputEl.removeEventListener('keydown', onEnter);
-      resolve(value);
-    }
+    document.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      
+      const touch = e.touches[0];
+      const x = touch.clientX - offsetX;
+      const y = touch.clientY - offsetY;
+      
+      const maxX = window.innerWidth - floatingBtn.offsetWidth;
+      const maxY = window.innerHeight - floatingBtn.offsetHeight;
+      
+      const finalX = Math.max(0, Math.min(x, maxX));
+      const finalY = Math.max(0, Math.min(y, maxY));
+      
+      floatingBtn.style.left = finalX + 'px';
+      floatingBtn.style.top = finalY + 'px';
+      floatingBtn.style.right = 'auto';
+      floatingBtn.style.bottom = 'auto';
+      
+      e.preventDefault();
+    });
 
-    function onOk() {
-      const val = isConfirm ? true : inputEl.value.trim();
-      closeModal(val || null);
-    }
-    function onCancel() { closeModal(null); }
-    function onEnter(e) { if (e.key === 'Enter') onOk(); }
+    document.addEventListener('touchend', function() {
+      isDragging = false;
+    });
+  }
 
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-    inputEl.addEventListener('keydown', onEnter);
-  });
-}
+  // Saat pertama load, tampilkan semua
+  doSearch();
 
+  // Modal Helper
+  function openModal({ 
+    title, 
+    message = '', 
+    icon = '', 
+    placeholder = '', 
+    defaultValue = '', 
+    isConfirm = false 
+  }) {
+    return new Promise((resolve) => {
+      const overlay = document.getElementById('modal-overlay');
+      const titleEl = document.getElementById('modal-title');
+      const msgEl = document.getElementById('modal-message');
+      const iconEl = document.getElementById('modal-icon');
+      const inputEl = document.getElementById('modal-input');
+      const okBtn = document.getElementById('modal-ok');
+      const cancelBtn = document.getElementById('modal-cancel');
+
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+      iconEl.src = icon || '';
+      iconEl.style.display = icon ? 'block' : 'none';
+      inputEl.style.display = isConfirm ? 'none' : 'block';
+      inputEl.placeholder = placeholder;
+      inputEl.value = defaultValue;
+
+      overlay.style.display = 'flex';
+      if (!isConfirm) inputEl.focus();
+
+      function closeModal(value) {
+        overlay.style.display = 'none';
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        inputEl.removeEventListener('keydown', onEnter);
+        resolve(value);
+      }
+
+      function onOk() {
+        const val = isConfirm ? true : inputEl.value.trim();
+        closeModal(val || null);
+      }
+      function onCancel() { closeModal(null); }
+      function onEnter(e) { if (e.key === 'Enter') onOk(); }
+
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+      inputEl.addEventListener('keydown', onEnter);
+    });
+  }
 </script>
-<div id="modal-overlay" class="modal-overlay" style="display:none;">
-  <div class="modal">
-    <div class="modal-header">
-      <img id="modal-icon" class="modal-icon" alt="">
-      <h2 id="modal-title">Modal Title</h2>
-    </div>
-    <p id="modal-message" class="modal-message"></p>
-    <input type="text" id="modal-input" class="modal-input" style="display:none;">
-    <div class="modal-actions">
-      <button id="modal-cancel" class="modal-btn cancel">Cancel</button>
-      <button id="modal-ok" class="modal-btn ok">OK</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
