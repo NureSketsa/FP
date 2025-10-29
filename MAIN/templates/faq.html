@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnVid AI - FAQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet">
+    <style>
+        /* Mengambil style dasar dari index.html */
+        @import url('https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montaga', serif;
+            background: linear-gradient(135deg, #112D4E 0%, #1a3f63 100%);
+            color: #F9F7F7;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding-bottom: 60px; /* Ruang untuk footer/konten */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigasi (Identik dengan index.html) */
+        nav { padding: 20px 0; position: relative; z-index: 100; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 600; color: #F9F7F7; display: none; }
+        .nav-links { display: flex; gap: 40px; list-style: none; }
+        .nav-links a { color: #DBE2EF; text-decoration: none; font-size: 16px; transition: color 0.3s ease; }
+        .nav-links a:hover, .nav-links a[href="/faq"] { color: #F9F7F7; font-weight: bold; } /* Menandai link aktif */
+        .nav-buttons { display: flex; gap: 20px; align-items: center; }
+        .register-btn { background: #F9F7F7; color: #112D4E; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; border: 2px solid #F9F7F7; }
+        .register-btn:hover { background: transparent; color: #F9F7F7; }
+        .login-link { color: #DBE2EF; text-decoration: none; transition: color 0.3s ease; }
+        .login-link:hover { color: #F9F7F7; }
+
+        /* Mobile Menu (Identik dengan index.html) */
+        .mobile-menu-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 5px; }
+        .mobile-menu-btn span { width: 25px; height: 3px; background: #F9F7F7; border-radius: 2px; transition: all 0.3s ease; }
+        .mobile-menu-btn.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
+        .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
+        .mobile-menu-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+        .mobile-nav { display: none; position: fixed; top: 70px; left: 0; right: 0; background: rgba(17, 45, 78, 0.98); backdrop-filter: blur(20px); padding: 20px; z-index: 99; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .mobile-nav.active { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .mobile-nav ul { list-style: none; display: flex; flex-direction: column; gap: 20px; }
+        .mobile-nav a { color: #DBE2EF; text-decoration: none; font-size: 18px; display: block; padding: 10px; transition: color 0.3s ease; }
+        .mobile-nav a:hover, .mobile-nav a[href="/faq"] { color: #F9F7F7; font-weight: bold; }
+
+        /* Style untuk Konten (Diambil dari login.html) */
+        .content-wrapper {
+            background: rgba(249, 247, 247, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
+            width: 100%;
+            max-width: 900px; /* Dibuat lebih lebar */
+            margin: 40px auto 0; /* Jarak dari nav */
+            z-index: 10;
+            animation: slideUp 0.8s ease-out;
+            color: #112D4E; /* Teks di dalam kotak jadi gelap */
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .content-wrapper h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #112D4E;
+        }
+
+        /* Styling untuk FAQ Accordion */
+        .faq-item {
+            border-bottom: 1px solid #DBE2EF;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+            font-family: 'Montaga', serif;
+        }
+        
+        .faq-question span {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #112D4E;
+        }
+
+        .faq-icon {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #3F72AF;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+        
+        .faq-answer p {
+            font-size: 1rem;
+            color: #334;
+            line-height: 1.6;
+            padding-bottom: 24px;
+        }
+
+        /* Style saat FAQ aktif (terbuka) */
+        .faq-item.active .faq-answer {
+            max-height: 300px; /* Atur ketinggian maksimum yang cukup */
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo { display: block; font-size: 1.3rem; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: flex; }
+            .content-wrapper { padding: 30px 20px; margin-top: 20px; }
+            .content-wrapper h1 { font-size: 1.8rem; }
+            .faq-question span { font-size: 1rem; }
+            .faq-icon { font-size: 1.5rem; }
+            .faq-answer p { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">LearnVid AI</div>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/features">Features</a></li>
+                    <li><a href="/gallery">Gallery</a></li>
+                    <li><a href="/how-it-works">How it works</a></li>
+                    <li><a href="/faq">FAQ</a></li>
+                </ul>
+                <div class="nav-buttons">
+                    <a href="/register" class="register-btn">Register</a>
+                    <a href="/login" class="login-link">Login</a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/features">Features</a></li>
+            <li><a href="/gallery">Gallery</a></li>
+            <li><a href="/how-it-works">How it works</a></li>
+            <li><a href="/faq">FAQ</a></li>
+        </ul>
+    </div>
+
+    <main class="content-wrapper">
+        <h1>Pertanyaan Umum (FAQ)</h1>
+
+        <div class="faq-container">
+            
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Apa itu LearnVid AI?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>LearnVid AI adalah platform pembelajaran berbasis AI yang dapat mengubah permintaan teks Anda (prompt) menjadi video pembelajaran yang ringkas dan menarik secara otomatis.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Bagaimana cara membuat video?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Setelah login, masuk ke halaman chat. Klik ikon video (🎬) di sebelah kotak chat hingga menyala. Lalu, ketik topik yang Anda inginkan, misalnya "Buatkan video tentang revolusi industri."</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Berapa lama waktu yang dibutuhkan untuk membuat video?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Waktu generasi video bervariasi tergantung kompleksitas topik dan antrean server. Umumnya, proses ini memakan waktu antara 10 hingga 40 detik.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Bisakah saya mengunduh video yang sudah dibuat?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Tentu saja! Setiap video yang berhasil dibuat oleh AI akan disertai dengan tombol "Download Video" tepat di bawahnya.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">
+                    <span>Topik apa saja yang bisa saya buatkan videonya?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Anda bisa membuat video tentang berbagai macam topik, terutama yang bersifat edukatif seperti topik-topik dalam mata pelajaran sekolah (matematika, sains, sejarah) atau penjelasan konsep.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Script untuk Mobile Nav ---
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileNav = document.querySelector('.mobile-nav');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+        document.addEventListener('click', function(event) {
+            const isClickInside = mobileMenuBtn.contains(event.target) || mobileNav.contains(event.target);
+            if (!isClickInside && mobileNav.classList.contains('active')) {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+            }
+        });
+        document.querySelectorAll('.mobile-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+            });
+        });
+
+        // --- Script untuk FAQ Accordion ---
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const button = item.querySelector('.faq-question');
+            
+            button.addEventListener('click', () => {
+                // Tutup semua item lain
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                        otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                // Buka/tutup item yang diklik
+                const isExpanded = item.classList.toggle('active');
+                button.setAttribute('aria-expanded', isExpanded);
+            });
+        });
+    </script>
+</body>
+</html>
