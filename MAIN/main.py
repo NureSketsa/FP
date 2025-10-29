@@ -133,6 +133,14 @@ def current_user_required(request: Request):  # >>> changed
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/faq", response_class=HTMLResponse)
+def faq_page(request: Request):
+    return templates.TemplateResponse("faq.html", {"request": request})
+
+@app.get("/how-it-works", response_class=HTMLResponse)
+def how_it_works_page(request: Request):
+    return templates.TemplateResponse("how-it-works.html", {"request": request})
+
 @app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "message": None})
