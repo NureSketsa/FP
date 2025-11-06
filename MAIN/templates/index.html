@@ -1,662 +1,683 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Montaga", serif;
+        background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
+        color: #f9f7f7;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Navigation */
+      nav {
+        padding: 20px 0;
+        position: relative;
+        z-index: 100;
+      }
+
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #f9f7f7;
+        display: none;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 40px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: #dbe2ef;
+        text-decoration: none;
+        font-size: 16px;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #f9f7f7;
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .register-btn {
+        background: #f9f7f7;
+        color: #112d4e;
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid #f9f7f7;
+      }
+
+      .register-btn:hover {
+        background: transparent;
+        color: #f9f7f7;
+      }
+
+      .login-link {
+        color: #dbe2ef;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .login-link:hover {
+        color: #f9f7f7;
+      }
+
+      /* Mobile Menu */
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: #f9f7f7;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 8px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+      }
+
+      .mobile-nav {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(17, 45, 78, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        z-index: 99;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .mobile-nav.active {
+        display: block;
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
         }
-
-        body {
-            font-family: 'Montaga', serif;
-            background: linear-gradient(135deg, #112D4E 0%, #1a3f63 100%);
-            color: #F9F7F7;
-            overflow-x: hidden;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
+      .mobile-nav ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .mobile-nav a {
+        color: #dbe2ef;
+        text-decoration: none;
+        font-size: 18px;
+        display: block;
+        padding: 10px;
+        transition: color 0.3s ease;
+      }
+
+      .mobile-nav a:hover {
+        color: #f9f7f7;
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 120px 0 80px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .hero h1 {
+        font-family: "Montaga", cursive;
+        font-size: 4.5rem;
+        font-weight: 400;
+        margin-bottom: 30px;
+        background: linear-gradient(45deg, #f9f7f7, #dbe2ef);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        color: #dbe2ef;
+        max-width: 600px;
+        margin: 0 auto 50px;
+        line-height: 1.6;
+      }
+
+      .start-btn {
+        background: #3f72af;
+        color: #f9f7f7;
+        padding: 16px 32px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: 2px solid #3f72af;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .start-btn:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .start-btn:hover:before {
+        left: 100%;
+      }
+
+      .start-btn:hover {
+        background: #2d5a94;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(63, 114, 175, 0.3);
+      }
+
+      .start-btn:active {
+        transform: translateY(0);
+      }
+
+      .start-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Animated Boxes */
+      .animated-section {
+        padding: 60px 0 40px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .boxes-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        white-space: nowrap;
+        width: max-content;
+      }
+
+      .animated-box {
+        min-width: 280px;
+        height: 100px;
+        background: rgba(249, 247, 247, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(219, 226, 239, 0.2);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .animated-box:hover {
+        background: rgba(63, 114, 175, 0.2);
+        border-color: rgba(63, 114, 175, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .box-text {
+        color: #dbe2ef;
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+
+      .box-row-1 {
+        animation: slideLeft 60s linear infinite;
+      }
+
+      .box-row-2 {
+        animation: slideRight 70s linear infinite;
+      }
+
+      .box-row-3 {
+        animation: slideLeft 80s linear infinite;
+      }
+
+      @keyframes slideLeft {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      @keyframes slideRight {
+        0% {
+          transform: translateX(-50%);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      /* Floating elements */
+      .floating-element {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        background: rgba(63, 114, 175, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-element:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .floating-element:nth-child(2) {
+        top: 60%;
+        right: 15%;
+        animation-delay: 2s;
+      }
+
+      .floating-element:nth-child(3) {
+        bottom: 30%;
+        left: 20%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      /* ===== RESPONSIVE STYLES ===== */
+
+      /* Tablets and below */
+      @media (max-width: 1024px) {
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Navigation */
-        nav {
-            padding: 20px 0;
-            position: relative;
-            z-index: 100;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #F9F7F7;
-            display: none;
+          padding: 0 30px;
         }
 
         .nav-links {
-            display: flex;
-            gap: 40px;
-            list-style: none;
+          gap: 30px;
         }
 
         .nav-links a {
-            color: #DBE2EF;
-            text-decoration: none;
-            font-size: 16px;
-            transition: color 0.3s ease;
+          font-size: 15px;
         }
 
-        .nav-links a:hover {
-            color: #F9F7F7;
+        .hero h1 {
+          font-size: 4rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding-bottom: 40px;
+        }
+
+        .container {
+          padding: 0 20px;
+        }
+
+        /* Mobile Navigation */
+        .logo {
+          display: block;
+          font-size: 1.3rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
         }
 
         .nav-buttons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
+          gap: 15px;
         }
 
         .register-btn {
-            background: #F9F7F7;
-            color: #112D4E;
-            padding: 12px 24px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 2px solid #F9F7F7;
-        }
-
-        .register-btn:hover {
-            background: transparent;
-            color: #F9F7F7;
+          padding: 10px 20px;
+          font-size: 14px;
         }
 
         .login-link {
-            color: #DBE2EF;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .login-link:hover {
-            color: #F9F7F7;
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .mobile-menu-btn span {
-            width: 25px;
-            height: 3px;
-            background: #F9F7F7;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu-btn.active span:nth-child(1) {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .mobile-menu-btn.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .mobile-menu-btn.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -7px);
-        }
-
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            top: 70px;
-            left: 0;
-            right: 0;
-            background: rgba(17, 45, 78, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 20px;
-            z-index: 99;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-nav.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .mobile-nav ul {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .mobile-nav a {
-            color: #DBE2EF;
-            text-decoration: none;
-            font-size: 18px;
-            display: block;
-            padding: 10px;
-            transition: color 0.3s ease;
-        }
-
-        .mobile-nav a:hover {
-            color: #F9F7F7;
+          font-size: 14px;
         }
 
         /* Hero Section */
         .hero {
-            text-align: center;
-            padding: 120px 0 80px;
-            position: relative;
-            z-index: 10;
+          padding: 80px 0 60px;
         }
 
         .hero h1 {
-            font-family: 'Montaga', cursive;
-            font-size: 4.5rem;
-            font-weight: 400;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #F9F7F7, #DBE2EF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+          font-size: 3rem;
+          line-height: 1.2;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            color: #DBE2EF;
-            max-width: 600px;
-            margin: 0 auto 50px;
-            line-height: 1.6;
+          font-size: 1rem;
+          padding: 0 10px;
+          margin-bottom: 40px;
         }
 
         .start-btn {
-            background: #3F72AF;
-            color: #F9F7F7;
-            padding: 16px 32px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            border: 2px solid #3F72AF;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .start-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .start-btn:hover:before {
-            left: 100%;
-        }
-
-        .start-btn:hover {
-            background: #2d5a94;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(63, 114, 175, 0.3);
-        }
-
-        .start-btn:active {
-            transform: translateY(0);
-        }
-
-        .start-icon {
-            width: 20px;
-            height: 20px;
+          padding: 14px 28px;
+          font-size: 16px;
         }
 
         /* Animated Boxes */
         .animated-section {
-            padding: 60px 0 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .boxes-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            white-space: nowrap;
-            width: max-content;
+          padding: 40px 0 30px;
         }
 
         .animated-box {
-            min-width: 280px;
-            height: 100px;
-            background: rgba(249, 247, 247, 0.1);
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(219, 226, 239, 0.2);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .animated-box:hover {
-            background: rgba(63, 114, 175, 0.2);
-            border-color: rgba(63, 114, 175, 0.4);
-            transform: translateY(-2px);
+          min-width: 240px;
+          height: 90px;
+          padding: 15px;
         }
 
         .box-text {
-            color: #DBE2EF;
-            font-size: 14px;
-            line-height: 1.4;
-            white-space: normal;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            line-clamp: 3;
-            -webkit-box-orient: vertical;
+          font-size: 13px;
+          line-clamp: 2;
         }
 
+        .boxes-container {
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+
+        /* Floating elements - reduce size */
+        .floating-element {
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        nav {
+          padding: 15px 0;
+        }
+
+        .hero {
+          padding: 60px 0 50px;
+        }
+
+        .hero h1 {
+          font-size: 2.5rem;
+          margin-bottom: 20px;
+        }
+
+        .hero p {
+          font-size: 0.95rem;
+          line-height: 1.5;
+          margin-bottom: 35px;
+        }
+
+        .start-btn {
+          padding: 12px 24px;
+          font-size: 15px;
+        }
+
+        .start-icon {
+          width: 18px;
+          height: 18px;
+        }
+
+        .animated-box {
+          min-width: 220px;
+          height: 85px;
+          padding: 12px;
+        }
+
+        .box-text {
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 0 15px;
+        }
+
+        .logo {
+          font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+          gap: 10px;
+        }
+
+        .register-btn {
+          padding: 8px 16px;
+          font-size: 13px;
+          border-radius: 20px;
+        }
+
+        .login-link {
+          font-size: 13px;
+        }
+
+        .hero {
+          padding: 50px 0 40px;
+        }
+
+        .hero h1 {
+          font-size: 2rem;
+          margin-bottom: 15px;
+        }
+
+        .hero p {
+          font-size: 0.9rem;
+          margin-bottom: 30px;
+        }
+
+        .start-btn {
+          padding: 11px 20px;
+          font-size: 14px;
+          gap: 8px;
+        }
+
+        .start-icon {
+          width: 16px;
+          height: 16px;
+        }
+
+        .animated-section {
+          padding: 30px 0 20px;
+        }
+
+        .animated-box {
+          min-width: 200px;
+          height: 80px;
+          padding: 10px;
+          border-radius: 10px;
+        }
+
+        .box-text {
+          font-size: 11px;
+          line-height: 1.3;
+        }
+
+        .boxes-container {
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        /* Speed up animations on mobile */
         .box-row-1 {
-            animation: slideLeft 60s linear infinite;
+          animation-duration: 50s;
         }
 
         .box-row-2 {
-            animation: slideRight 70s linear infinite;
+          animation-duration: 55s;
         }
 
         .box-row-3 {
-            animation: slideLeft 80s linear infinite;
+          animation-duration: 60s;
         }
 
-        @keyframes slideLeft {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        @keyframes slideRight {
-            0% { transform: translateX(-50%); }
-            100% { transform: translateX(0); }
-        }
-
-        /* Floating elements */
         .floating-element {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: rgba(63, 114, 175, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+          width: 30px;
+          height: 30px;
+        }
+      }
+
+      /* Very small screens */
+      @media (max-width: 360px) {
+        .hero h1 {
+          font-size: 1.8rem;
         }
 
-        .floating-element:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
+        .hero p {
+          font-size: 0.85rem;
         }
 
-        .floating-element:nth-child(2) {
-            top: 60%;
-            right: 15%;
-            animation-delay: 2s;
+        .start-btn {
+          padding: 10px 18px;
+          font-size: 13px;
         }
 
-        .floating-element:nth-child(3) {
-            bottom: 30%;
-            left: 20%;
-            animation-delay: 4s;
+        .animated-box {
+          min-width: 180px;
+          height: 75px;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        .box-text {
+          font-size: 10px;
+        }
+      }
+
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        .hero {
+          padding: 40px 0 30px;
         }
 
-        /* ===== RESPONSIVE STYLES ===== */
-
-        /* Tablets and below */
-        @media (max-width: 1024px) {
-            .container {
-                padding: 0 30px;
-            }
-
-            .nav-links {
-                gap: 30px;
-            }
-
-            .nav-links a {
-                font-size: 15px;
-            }
-
-            .hero h1 {
-                font-size: 4rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
+        .hero h1 {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding-bottom: 40px;
-            }
-
-            .container {
-                padding: 0 20px;
-            }
-
-            /* Mobile Navigation */
-            .logo {
-                display: block;
-                font-size: 1.3rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: flex;
-            }
-
-            .nav-buttons {
-                gap: 15px;
-            }
-
-            .register-btn {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-
-            .login-link {
-                font-size: 14px;
-            }
-
-            /* Hero Section */
-            .hero {
-                padding: 80px 0 60px;
-            }
-
-            .hero h1 {
-                font-size: 3rem;
-                line-height: 1.2;
-            }
-
-            .hero p {
-                font-size: 1rem;
-                padding: 0 10px;
-                margin-bottom: 40px;
-            }
-
-            .start-btn {
-                padding: 14px 28px;
-                font-size: 16px;
-            }
-
-            /* Animated Boxes */
-            .animated-section {
-                padding: 40px 0 30px;
-            }
-
-            .animated-box {
-                min-width: 240px;
-                height: 90px;
-                padding: 15px;
-            }
-
-            .box-text {
-                font-size: 13px;
-                line-clamp: 2;
-            }
-
-            .boxes-container {
-                gap: 15px;
-                margin-bottom: 15px;
-            }
-
-            /* Floating elements - reduce size */
-            .floating-element {
-                width: 40px;
-                height: 40px;
-            }
+        .hero p {
+          margin-bottom: 25px;
         }
 
-        @media (max-width: 600px) {
-            nav {
-                padding: 15px 0;
-            }
-
-            .hero {
-                padding: 60px 0 50px;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-                margin-bottom: 20px;
-            }
-
-            .hero p {
-                font-size: 0.95rem;
-                line-height: 1.5;
-                margin-bottom: 35px;
-            }
-
-            .start-btn {
-                padding: 12px 24px;
-                font-size: 15px;
-            }
-
-            .start-icon {
-                width: 18px;
-                height: 18px;
-            }
-
-            .animated-box {
-                min-width: 220px;
-                height: 85px;
-                padding: 12px;
-            }
-
-            .box-text {
-                font-size: 12px;
-            }
+        .animated-section {
+          padding: 30px 0 20px;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 15px;
-            }
-
-            .logo {
-                font-size: 1.1rem;
-            }
-
-            .nav-buttons {
-                gap: 10px;
-            }
-
-            .register-btn {
-                padding: 8px 16px;
-                font-size: 13px;
-                border-radius: 20px;
-            }
-
-            .login-link {
-                font-size: 13px;
-            }
-
-            .hero {
-                padding: 50px 0 40px;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-                margin-bottom: 15px;
-            }
-
-            .hero p {
-                font-size: 0.9rem;
-                margin-bottom: 30px;
-            }
-
-            .start-btn {
-                padding: 11px 20px;
-                font-size: 14px;
-                gap: 8px;
-            }
-
-            .start-icon {
-                width: 16px;
-                height: 16px;
-            }
-
-            .animated-section {
-                padding: 30px 0 20px;
-            }
-
-            .animated-box {
-                min-width: 200px;
-                height: 80px;
-                padding: 10px;
-                border-radius: 10px;
-            }
-
-            .box-text {
-                font-size: 11px;
-                line-height: 1.3;
-            }
-
-            .boxes-container {
-                gap: 12px;
-                margin-bottom: 12px;
-            }
-
-            /* Speed up animations on mobile */
-            .box-row-1 {
-                animation-duration: 50s;
-            }
-
-            .box-row-2 {
-                animation-duration: 55s;
-            }
-
-            .box-row-3 {
-                animation-duration: 60s;
-            }
-
-            .floating-element {
-                width: 30px;
-                height: 30px;
-            }
+        .animated-box {
+          height: 70px;
         }
 
-        /* Very small screens */
-        @media (max-width: 360px) {
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-
-            .hero p {
-                font-size: 0.85rem;
-            }
-
-            .start-btn {
-                padding: 10px 18px;
-                font-size: 13px;
-            }
-
-            .animated-box {
-                min-width: 180px;
-                height: 75px;
-            }
-
-            .box-text {
-                font-size: 10px;
-            }
+        .floating-element {
+          display: none;
         }
+      }
 
-        /* Landscape mobile */
-        @media (max-height: 600px) and (orientation: landscape) {
-            .hero {
-                padding: 40px 0 30px;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-                margin-bottom: 15px;
-            }
-
-            .hero p {
-                margin-bottom: 25px;
-            }
-
-            .animated-section {
-                padding: 30px 0 20px;
-            }
-
-            .animated-box {
-                height: 70px;
-            }
-
-            .floating-element {
-                display: none;
-            }
+      /* Prevent horizontal scroll on very small screens */
+      @media (max-width: 320px) {
+        .animated-box {
+          min-width: 160px;
         }
-
-        /* Prevent horizontal scroll on very small screens */
-        @media (max-width: 320px) {
-            .animated-box {
-                min-width: 160px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Floating Elements -->
     <div class="floating-element"></div>
     <div class="floating-element"></div>
@@ -664,248 +685,337 @@
 
     <!-- Navigation -->
     <nav>
-        <div class="container">
-            <div class="nav-container">
-                <div class="logo">LearnVid AI</div>
-                <ul class="nav-links">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/features">Features</a></li>
-                    <li><a href="/gallery">Gallery</a></li>
-                    <li><a href="/how-it-works">How it works</a></li>
-                    <li><a href="/faq">FAQ</a></li>
-                </ul>
-                <div class="nav-buttons">
-                    <a href="/register" class="register-btn">Register</a>
-                    <a href="/login" class="login-link">Login</a>
-                </div>
-                <button class="mobile-menu-btn" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
+      <div class="container">
+        <div class="nav-container">
+          <div class="logo">LearnVid AI</div>
+          <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/gallery">Gallery</a></li>
+            <li><a href="/how-it-works">How it works</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/reviews">Review</a></li>
+          </ul>
+          <div class="nav-buttons">
+            <a href="/register" class="register-btn">Register</a>
+            <a href="/login" class="login-link">Login</a>
+          </div>
+          <button class="mobile-menu-btn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
+      </div>
     </nav>
 
     <!-- Mobile Navigation -->
     <div class="mobile-nav">
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/features">Features</a></li>
-            <li><a href="/gallery">Gallery</a></li>
-            <li><a href="/how-it-works">How it works</a></li>
-            <li><a href="/faq">FAQ</a></li>
-        </ul>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/how-it-works">How it works</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/reviews">Review</a></li>
+      </ul>
     </div>
 
     <!-- Hero Section -->
     <section class="hero">
-        <div class="container">
-            <h1>LearnVid AI</h1>
-            <p>From lesson plans to learning videos instantly created with AI. Learning has never been this easy.</p>
-            <a href="/register" class="start-btn">
-                <svg class="start-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-                Start Now
-            </a>
-        </div>
+      <div class="container">
+        <h1>LearnVid AI</h1>
+        <p>
+          From lesson plans to learning videos instantly created with AI.
+          Learning has never been this easy.
+        </p>
+        <a href="/register" class="start-btn">
+          <svg
+            class="start-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Start Now
+        </a>
+      </div>
     </section>
 
     <!-- Animated Boxes Section -->
     <section class="animated-section">
-        <div class="container">
-            <!-- Row 1 - Moving Left -->
-            <div class="boxes-container box-row-1">
-                <div class="animated-box">
-                    <div class="box-text">Create a comprehensive lesson plan for teaching fractions to 4th graders</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Help me understand photosynthesis with an engaging video script</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Generate quiz questions about World War II for high school students</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create an interactive timeline of the American Revolution</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design a fun way to teach multiplication tables to kids</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Explain climate change in simple terms for middle schoolers</div>
-                </div>
-                <!-- Duplicate content for seamless loop -->
-                <div class="animated-box">
-                    <div class="box-text">Create a comprehensive lesson plan for teaching fractions to 4th graders</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Help me understand photosynthesis with an engaging video script</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Generate quiz questions about World War II for high school students</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create an interactive timeline of the American Revolution</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design a fun way to teach multiplication tables to kids</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Explain climate change in simple terms for middle schoolers</div>
-                </div>
+      <div class="container">
+        <!-- Row 1 - Moving Left -->
+        <div class="boxes-container box-row-1">
+          <div class="animated-box">
+            <div class="box-text">
+              Create a comprehensive lesson plan for teaching fractions to 4th
+              graders
             </div>
-
-            <!-- Row 2 - Moving Right -->
-            <div class="boxes-container box-row-2">
-                <div class="animated-box">
-                    <div class="box-text">Write a Python tutorial for absolute beginners step by step</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create flashcards for learning Spanish vocabulary effectively</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Develop a chemistry lab experiment about chemical reactions</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Make geometry fun with real-world application examples</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design a literature analysis worksheet for Romeo and Juliet</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create an engaging presentation about the solar system</div>
-                </div>
-                <!-- Duplicate content for seamless loop -->
-                <div class="animated-box">
-                    <div class="box-text">Write a Python tutorial for absolute beginners step by step</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create flashcards for learning Spanish vocabulary effectively</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Develop a chemistry lab experiment about chemical reactions</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Make geometry fun with real-world application examples</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design a literature analysis worksheet for Romeo and Juliet</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create an engaging presentation about the solar system</div>
-                </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Help me understand photosynthesis with an engaging video script
             </div>
-
-            <!-- Row 3 - Moving Left -->
-            <div class="boxes-container box-row-3">
-                <div class="animated-box">
-                    <div class="box-text">Explain calculus concepts using visual learning techniques</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Generate practice problems for algebra with detailed solutions</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create a biology study guide for cellular respiration</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design interactive exercises for learning English grammar</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Make history come alive with storytelling techniques</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create art projects that teach color theory to students</div>
-                </div>
-                <!-- Duplicate content for seamless loop -->
-                <div class="animated-box">
-                    <div class="box-text">Explain calculus concepts using visual learning techniques</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Generate practice problems for algebra with detailed solutions</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create a biology study guide for cellular respiration</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Design interactive exercises for learning English grammar</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Make history come alive with storytelling techniques</div>
-                </div>
-                <div class="animated-box">
-                    <div class="box-text">Create art projects that teach color theory to students</div>
-                </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Generate quiz questions about World War II for high school
+              students
             </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create an interactive timeline of the American Revolution
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design a fun way to teach multiplication tables to kids
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Explain climate change in simple terms for middle schoolers
+            </div>
+          </div>
+          <!-- Duplicate content for seamless loop -->
+          <div class="animated-box">
+            <div class="box-text">
+              Create a comprehensive lesson plan for teaching fractions to 4th
+              graders
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Help me understand photosynthesis with an engaging video script
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Generate quiz questions about World War II for high school
+              students
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create an interactive timeline of the American Revolution
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design a fun way to teach multiplication tables to kids
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Explain climate change in simple terms for middle schoolers
+            </div>
+          </div>
         </div>
+
+        <!-- Row 2 - Moving Right -->
+        <div class="boxes-container box-row-2">
+          <div class="animated-box">
+            <div class="box-text">
+              Write a Python tutorial for absolute beginners step by step
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create flashcards for learning Spanish vocabulary effectively
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Develop a chemistry lab experiment about chemical reactions
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Make geometry fun with real-world application examples
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design a literature analysis worksheet for Romeo and Juliet
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create an engaging presentation about the solar system
+            </div>
+          </div>
+          <!-- Duplicate content for seamless loop -->
+          <div class="animated-box">
+            <div class="box-text">
+              Write a Python tutorial for absolute beginners step by step
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create flashcards for learning Spanish vocabulary effectively
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Develop a chemistry lab experiment about chemical reactions
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Make geometry fun with real-world application examples
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design a literature analysis worksheet for Romeo and Juliet
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create an engaging presentation about the solar system
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3 - Moving Left -->
+        <div class="boxes-container box-row-3">
+          <div class="animated-box">
+            <div class="box-text">
+              Explain calculus concepts using visual learning techniques
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Generate practice problems for algebra with detailed solutions
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create a biology study guide for cellular respiration
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design interactive exercises for learning English grammar
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Make history come alive with storytelling techniques
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create art projects that teach color theory to students
+            </div>
+          </div>
+          <!-- Duplicate content for seamless loop -->
+          <div class="animated-box">
+            <div class="box-text">
+              Explain calculus concepts using visual learning techniques
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Generate practice problems for algebra with detailed solutions
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create a biology study guide for cellular respiration
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Design interactive exercises for learning English grammar
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Make history come alive with storytelling techniques
+            </div>
+          </div>
+          <div class="animated-box">
+            <div class="box-text">
+              Create art projects that teach color theory to students
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const mobileNav = document.querySelector('.mobile-nav');
+      // Mobile menu toggle
+      const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
+      const mobileNav = document.querySelector(".mobile-nav");
 
-        mobileMenuBtn.addEventListener('click', function() {
-            this.classList.toggle('active');
-            mobileNav.classList.toggle('active');
+      mobileMenuBtn.addEventListener("click", function () {
+        this.classList.toggle("active");
+        mobileNav.classList.toggle("active");
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const isClickInside =
+          mobileMenuBtn.contains(event.target) ||
+          mobileNav.contains(event.target);
+        if (!isClickInside && mobileNav.classList.contains("active")) {
+          mobileMenuBtn.classList.remove("active");
+          mobileNav.classList.remove("active");
+        }
+      });
+
+      // Close mobile menu when clicking on a link
+      document.querySelectorAll(".mobile-nav a").forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenuBtn.classList.remove("active");
+          mobileNav.classList.remove("active");
+        });
+      });
+
+      // Box interactions
+      document.addEventListener("DOMContentLoaded", function () {
+        const boxes = document.querySelectorAll(".animated-box");
+
+        boxes.forEach((box) => {
+          box.addEventListener("mouseenter", function () {
+            this.style.animationPlayState = "paused";
+            const container = this.parentElement;
+            container.style.animationPlayState = "paused";
+          });
+
+          box.addEventListener("mouseleave", function () {
+            this.style.animationPlayState = "running";
+            const container = this.parentElement;
+            container.style.animationPlayState = "running";
+          });
+
+          box.addEventListener("click", function () {
+            this.style.transform = "scale(0.98)";
+            setTimeout(() => {
+              this.style.transform = "";
+            }, 150);
+          });
         });
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const isClickInside = mobileMenuBtn.contains(event.target) || mobileNav.contains(event.target);
-            if (!isClickInside && mobileNav.classList.contains('active')) {
-                mobileMenuBtn.classList.remove('active');
-                mobileNav.classList.remove('active');
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute("href"));
+            if (target) {
+              target.scrollIntoView({
+                behavior: "smooth",
+              });
             }
+          });
         });
-
-        // Close mobile menu when clicking on a link
-        document.querySelectorAll('.mobile-nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenuBtn.classList.remove('active');
-                mobileNav.classList.remove('active');
-            });
-        });
-
-        // Box interactions
-        document.addEventListener('DOMContentLoaded', function() {
-            const boxes = document.querySelectorAll('.animated-box');
-
-            boxes.forEach((box) => {
-                box.addEventListener('mouseenter', function() {
-                    this.style.animationPlayState = 'paused';
-                    const container = this.parentElement;
-                    container.style.animationPlayState = 'paused';
-                });
-
-                box.addEventListener('mouseleave', function() {
-                    this.style.animationPlayState = 'running';
-                    const container = this.parentElement;
-                    container.style.animationPlayState = 'running';
-                });
-
-                box.addEventListener('click', function() {
-                    this.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                });
-            });
-
-            // Smooth scroll for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
