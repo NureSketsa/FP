@@ -47,9 +47,9 @@ class ManIMCodeGenerator:
         self.google_api_key = google_api_key
         self.memory = deque(maxlen=3)
         self.google_chat = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-pro",
             google_api_key=self.google_api_key,
-            temperature=0.7,
+            temperature=0.5,
             max_output_tokens=None,
             timeout=None,
             max_retries=2
@@ -225,9 +225,9 @@ REQUIREMENTS FOR MANIM CODE:
 
 📺 16:9 ASPECT RATIO OPTIMIZATION:
 - Standard Manim resolution is 1920x1080 (16:9)
-- Horizontal safe zone: X positions from -7 to +7 units
-- Vertical safe zone: Y positions from -4 to +4 units
-- NEVER position text beyond X=±6 or Y=±3.5 to prevent cutoff
+- Horizontal safe zone: X positions from -6 to +6 units
+- Vertical safe zone: Y positions from -3.5 to +3.5 units
+- NEVER position text beyond X=±5 or Y=±3 to prevent cutoff
 - Use .scale() to fit longer text instead of extending beyond screen bounds
 - Position titles between Y=2.5 to Y=3.5 for optimal visibility
 - Place main content between Y=-0.5 to Y=2 for best readability

@@ -23,8 +23,8 @@ class LLMClient:
             # Initialize the Google Generative AI model
             self.llm = ChatGoogleGenerativeAI(
                 google_api_key=google_api_key,
-                model="gemini-2.0-flash",
-                temperature=0.7,
+                model="gemini-2.5-pro",
+                temperature=0.5,
                 max_tokens=None,
                 timeout=None,
                 max_retries=2
