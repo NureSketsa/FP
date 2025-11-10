@@ -168,17 +168,22 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
         {"request": request, "username": user.username, "chats": chat_list}
     )
     
+    
 @app.get("/reviews", response_class=HTMLResponse)
-def reviews_page(request: Request, user: User = Depends(current_user_required)):
-    """Tampilkan halaman review"""
-    with Session(engine) as session:
-        all_reviews = session.exec(
-            select(Review).order_by(Review.created_at.desc())
-        ).all()
-    return templates.TemplateResponse(
-        "reviews.html",
-        {"request": request, "username": user.username, "reviews": all_reviews}
-    )
+def login_page(request: Request):
+    return templates.TemplateResponse("reviews.html", {"request": request, "message": None})
+
+# @app.get("/reviews", response_class=HTMLResponse)
+# def reviews_page(request: Request, user: User = Depends(current_user_required)):
+#     """Tampilkan halaman review"""
+#     with Session(engine) as session:
+#         all_reviews = session.exec(
+#             select(Review).order_by(Review.created_at.desc())
+#         ).all()
+#     return templates.TemplateResponse(
+#         "reviews.html",
+#         {"request": request, "username": user.username, "reviews": all_reviews}
+#     )
 
 
 @app.post("/api/reviews")
