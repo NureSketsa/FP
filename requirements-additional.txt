@@ -1,0 +1,15 @@
+uvicorn
+python-dotenv
+langchain_core
+langchain_google_genai
+pycairo
+manim
+supabase
+fastapi
+sqlmodel
+passlib
+itsdangerous
+psycopg2-binary
+jinja2
+python-multipart
+itsdangerous
