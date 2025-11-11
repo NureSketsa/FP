@@ -4,7 +4,6 @@
 # run dari FP
 # minimum python 3.10
 
-# pip install -r requirements.txt
-# pip install -r requirements.txt --upgrade --ignore-installed --no-deps
+#source venv/bin/activate
 uvicorn MAIN.main:app --reload
-#uvicorn MAIN.main:app --reload --host 0.0.0.0 --port 8010
+#uvicorn MAIN.main:app --reload --host 0.0.0.0 --port 8000
