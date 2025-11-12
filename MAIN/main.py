@@ -138,10 +138,6 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/faq", response_class=HTMLResponse)
-def gallery(request: Request):
-    return templates.TemplateResponse("gallery.html", {"request": request})
-
-@app.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 

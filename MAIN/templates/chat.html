@@ -12,11 +12,419 @@
       rel="stylesheet"
       href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
     />
-    <link rel="stylesheet" href="/static/chat.css" />
+    
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap');
+
+      /* Reset */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: 'Montaga', serif;
+        background: #F9F7F7;
+        color: #112D4E;
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      /* CSS untuk Loader (ditambahkan dari file asli Anda) */
+      .loading-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .loader {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f9f7f7;
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        animation: rotation 1s linear infinite;
+      }
+      .video-loading {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 150px;
+      }
+      .video-progress-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(249, 247, 247, 0.2);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .video-progress-fill {
+        width: 100%;
+        height: 100%;
+        background: #f9f7f7;
+        animation: indeterminate-progress 2s infinite linear;
+      }
+      @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      @keyframes indeterminate-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+      /* ---------------------------------- */
+
+      .upload-btn.active {
+        background: rgba(63, 114, 175, 0.15);
+        border: 2px solid #3F72AF;
+        box-shadow: 0 0 10px rgba(63, 114, 175, 0.3);
+        transform: scale(1.05);
+      }
+      .upload-btn.active svg {
+        stroke: #3F72AF;
+      }
+
+      .container { display: flex; height: 100vh; }
+
+      /* Sidebar */
+      .sidebar {
+        width: 260px;
+        background: #112D4E;
+        color: #F9F7F7;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(219, 226, 239, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      /* Mobile Sidebar Toggle */
+      .mobile-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        backdrop-filter: blur(2px);
+      }
+
+      .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1001;
+        background: #112D4E;
+        color: #F9F7F7;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .mobile-sidebar-toggle svg {
+        width: 24px;
+        height: 24px;
+        stroke: #F9F7F7;
+      }
+
+      /* --- SIDEBAR HEADER BARU --- */
+      .sidebar-header { 
+        padding: 20px 16px; 
+        border-bottom: 1px solid rgba(219, 226, 239, 0.1);
+      }
+      .sidebar-logo {
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #F9F7F7;
+        padding-left: 5px;
+      }
+      /* ------------------------------- */
+
+      .sidebar-menu { padding: 8px 12px; flex: 1; overflow-y: auto; }
+
+      /* --- MENU ITEM BARU --- */
+      .menu-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 12px; 
+        margin-bottom: 4px;
+        color: #DBE2EF; border-radius: 6px;
+        cursor: pointer; transition: all 0.2s ease; font-size: 14px;
+        text-decoration: none;
+      }
+      .menu-item:hover {
+        background: rgba(219, 226, 239, 0.1);
+        color: #F9F7F7;
+      }
+      .menu-item.active {
+        background: #3F72AF;
+        color: #F9F7F7;
+      }
+      .menu-item svg { width: 18px; height: 18px; }
+      /* --------------------- */
+
+      .chats-section { margin-top: 15px; } 
+      .chats-title {
+        color: #DBE2EF; font-size: 11px; opacity: .7;
+        text-transform: uppercase; letter-spacing: .5px;
+        margin-bottom: 8px; padding: 0 12px;
+      }
+
+      .chat-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 12px; margin-bottom: 2px; position: relative;
+        color: #DBE2EF; border-radius: 6px; cursor: pointer;
+        transition: all 0.2s ease; font-size: 14px; line-height: 1.4;
+      }
+      .chat-item:hover { background: rgba(219, 226, 239, 0.1); }
+      .chat-item.active { background: #3F72AF; color: #F9F7F7; }
+
+      .chat-title {
+        flex: 1; margin-right: 8px; max-width: 180px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        display: inline-block; vertical-align: middle;
+      }
+
+      .chat-menu { position: relative; }
+      .chat-menu-btn {
+        background: none; border: none; cursor: pointer;
+        font-size: 16px; color: #666; display: inline-flex; align-items: center;
+      }
+      .fi-rr-file-edit { color: #fff; }
+
+      .chat-menu-dropdown {
+        display: none; position: absolute; right: 0; top: 100%;
+        background: #fff; border: 1px solid #ddd; border-radius: 6px;
+        padding: 4px 0; min-width: 120px; z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .chat-menu.open .chat-menu-dropdown { display: block; }
+      .chat-menu-dropdown button {
+        display: block; width: 100%; padding: 8px 12px;
+        background: none; border: none; text-align: left;
+        cursor: pointer; font-size: 14px; color: #112D4E;
+      }
+      .chat-menu-dropdown button:hover { background: #f3f3f3; }
+
+      .sidebar-footer {
+        padding: 12px; border-top: 1px solid rgba(219, 226, 239, 0.1);
+      }
+      .user-info {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: .2s;
+      }
+      .user-info:hover { background: rgba(219, 226, 239, 0.1); }
+      .user-avatar {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: #3F72AF; display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: bold;
+      }
+      .username { color: #DBE2EF; font-size: 14px; }
+
+      /* Main Chat Area */
+      .chat-main { flex: 1; display: flex; flex-direction: column; background: #F9F7F7; }
+      .chat-header {
+        padding: 12px 16px; background: #F9F7F7;
+        border-bottom: 1px solid rgba(17, 45, 78, 0.1);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .chat-header .chat-title {
+        font-family: 'Montaga', cursive; font-size: 1.1rem; color: #112D4E;
+        max-width: none; white-space: normal; overflow: visible; text-overflow: clip;
+      }
+      .chat-actions { display: flex; gap: 8px; }
+      .action-btn {
+        padding: 6px 12px; background: transparent;
+        border: 1px solid rgba(17, 45, 78, 0.2);
+        border-radius: 6px; color: #3F72AF; cursor: pointer; transition: .2s; font-size: 12px;
+        text-decoration: none;
+      }
+      .action-btn:hover { background: rgba(63, 114, 175, 0.1); color: #112D4E; }
+
+      .chat-container { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; background: #F9F7F7; }
+
+      .welcome-screen {
+        flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+        text-align: center; padding: 40px;
+      }
+      .welcome-screen.hidden { display: none; }
+      .welcome-title { font-family: 'Montaga', cursive; font-size: 2.5rem; color: #112D4E; margin-bottom: 15px; }
+      .welcome-subtitle { color: #3F72AF; font-size: 1.2rem; opacity: .9; }
+
+      .chat-messages { flex: 1; padding: 20px; display: none; overflow-y: auto; }
+
+      .message {
+        margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px;
+        max-width: 800px; margin-left: auto; margin-right: auto;
+      }
+      .message.user { flex-direction: row-reverse; }
+
+      .message-avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;
+      }
+      .message.ai .message-avatar { background: #3F72AF; color: #F9F7F7; }
+      .message.user .message-avatar { background: #DBE2EF; color: #112D4E; }
+
+      .message-content {
+        max-width: 70%; padding: 16px 20px; border-radius: 18px; font-size: 14px; line-height: 1.5; position: relative;
+      }
+      .message.ai .message-content { background: #3F72AF; color: #F9F7F7; border-bottom-left-radius: 6px; }
+      .message.user .message-content { background: #DBE2EF; color: #112D4E; border-bottom-right-radius: 6px; }
+
+      /* Input Area */
+      .input-area { padding: 20px; background: #F9F7F7; }
+      .input-container {
+        max-width: 800px; margin: 0 auto; position: relative;
+        background: #F9F7F7; border-radius: 24px; border: 2px solid #DBE2EF;
+        display: flex; align-items: flex-end; min-height: 52px; transition: .3s;
+      }
+      .input-container:focus-within { border-color: #3F72AF; box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1); }
+
+      .upload-btn {
+        padding: 12px; margin: 4px;
+        background: transparent; border: none; cursor: pointer; color: #3F72AF;
+        display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: .2s; position: relative;
+      }
+      .upload-btn:hover { background: rgba(63, 114, 175, 0.1); color: #112D4E; }
+      .upload-btn svg { width: 20px; height: 20px; }
+
+      .message-input {
+        flex: 1; padding: 12px 16px; min-height: 24px; max-height: 120px;
+        border: none; background: transparent; outline: none; resize: none;
+        font-family: 'Montaga', serif; font-size: 15px; color: #112D4E; line-height: 1.5;
+      }
+      .message-input::placeholder { color: #3F72AF; opacity: .7; }
+
+      .send-button {
+        padding: 12px; margin: 4px; background: transparent; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: .2s;
+      }
+      .send-button:disabled { opacity: .4; cursor: not-allowed; }
+      .send-button:not(:disabled):hover { background: rgba(63, 114, 175, 0.1); }
+      .send-button svg { width: 20px; height: 20px; color: #3F72AF; }
+
+      .file-input { display: none; }
+
+      /* Floating Review Button (dihapus dari chat.html agar tidak duplikat) */
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        display: flex;
+        justify-content: center; align-items: center;
+        z-index: 999; backdrop-filter: blur(2px);
+        animation: fadeIn 0.25s ease;
+      }
+      .modal {
+        background: #f9f7f7; color: #112d4e; border-radius: 10px;
+        padding: 24px; width: 90%; max-width: 300px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease;
+      }
+      .modal h2 { margin-top: 0; font-size: 1.2rem; font-weight: bold; }
+      .modal-input {
+        width: 100%; margin-top: 10px; padding: 10px 12px;
+        border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 15px;
+      }
+      .modal-input:focus { border-color: #3f72af; box-shadow: 0 0 0 2px rgba(63,114,175,0.2); }
+      .modal-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 10px; }
+      .modal-btn { padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+      .modal-btn.cancel { background: #ddd; color: #333; }
+      .modal-btn.ok { background: #3f72af; color: white; }
+      .modal-btn.ok:hover { background: #2b5691; }
+      .modal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+      .modal-message { margin: 8px 0 16px 0; font-size: 0.95rem; color: #2b3a55; text-align: left; }
+      .modal-icon { width: 20px; height: 20px; }
+      .chat-delete { color: #d11a2a; font-weight: 600; }
+      .chat-delete:hover { background: #ffe5e5 !important; color: #a00; }
+      @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+      @keyframes slideUp { from {transform:translateY(15px);opacity:0;} to {transform:translateY(0);opacity:1;} }
+
+      /* ===== RESPONSIVE STYLES ===== */
+      @media (max-width: 1024px) {
+        .sidebar { width: 240px; }
+        .chat-title { max-width: 140px; }
+        .message-content { max-width: 75%; }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed; left: 0; top: 0; height: 100vh;
+          z-index: 999; transform: translateX(-100%); width: 280px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        /* Padding atas untuk beri ruang hamburger menu */
+        .sidebar-header { padding-top: 60px; }
+        .sidebar-logo { display: none; } /* Sembunyikan logo di dlm sidebar mobile */
+
+        .mobile-sidebar-overlay { display: none; }
+        .mobile-sidebar-overlay.active { display: block; }
+        .mobile-sidebar-toggle { display: block; }
+        .chat-main { width: 100%; }
+        .chat-header { padding: 12px 60px 12px 65px; } /* Disesuaikan dengan padding responsif sebelumnya */
+        .chat-header .chat-title { font-size: 1rem; }
+        .action-btn { padding: 5px 10px; font-size: 11px; }
+        .welcome-title { font-size: 2rem; }
+        .welcome-subtitle { font-size: 1rem; }
+        .chat-messages { padding: 16px 12px; }
+        .message { gap: 8px; }
+        .message-content { max-width: 80%; padding: 12px 16px; font-size: 13px; }
+        .input-area { padding: 16px 12px; }
+        .input-container { border-radius: 20px; }
+        .message-input { font-size: 14px; padding: 10px 12px; }
+        .modal { padding: 20px; max-width: 280px; }
+        .modal h2 { font-size: 1.1rem; }
+      }
+
+      @media (max-width: 600px) {
+        .sidebar { width: 260px; }
+        .chat-header { padding: 10px 55px 10px 65px; }
+        .welcome-screen { padding: 30px 20px; }
+        .welcome-title { font-size: 1.8rem; }
+        .welcome-subtitle { font-size: 0.95rem; }
+        .message-avatar { width: 28px; height: 28px; font-size: 11px; }
+        .message-content { padding: 10px 14px; font-size: 13px; max-width: 85%; }
+        .upload-btn, .send-button { padding: 10px; }
+        .upload-btn svg, .send-button svg { width: 18px; height: 18px; }
+      }
+
+      @media (max-width: 480px) {
+        .sidebar { width: 240px; }
+        .mobile-sidebar-toggle { top: 12px; left: 12px; padding: 8px; }
+        .mobile-sidebar-toggle svg { width: 20px; height: 20px; }
+        .chat-header { padding: 8px 50px 8px 55px; }
+        .chat-header .chat-title { font-size: 0.95rem; }
+        .action-btn { padding: 4px 8px; font-size: 10px; }
+        .welcome-screen { padding: 20px 15px; }
+        .welcome-title { font-size: 1.5rem; margin-bottom: 10px; }
+        .welcome-subtitle { font-size: 0.9rem; }
+        .chat-messages { padding: 12px 10px; }
+        .message { margin-bottom: 16px; }
+        .message-avatar { width: 26px; height: 26px; font-size: 10px; }
+        .message-content { padding: 10px 12px; font-size: 12px; border-radius: 14px; max-width: 88%; }
+        .input-area { padding: 12px 10px; }
+        .input-container { min-height: 48px; }
+        .message-input { font-size: 13px; padding: 8px 10px; }
+        .upload-btn, .send-button { padding: 8px; margin: 3px; }
+        .upload-btn svg, .send-button svg { width: 16px; height: 16px; }
+        .chat-item { font-size: 13px; padding: 7px 10px; }
+        .username { font-size: 13px; }
+        .modal { padding: 18px; max-width: 260px; }
+        .modal h2 { font-size: 1rem; }
+        .modal-input { font-size: 14px; padding: 8px 10px; }
+        .modal-btn { padding: 6px 12px; font-size: 13px; }
+      }
+
+      @media (max-width: 360px) {
+        .sidebar { width: 220px; }
+        .welcome-title { font-size: 1.3rem; }
+        .message-content { max-width: 90%; }
+      }
+
+      @media (max-height: 600px) and (orientation: landscape) {
+        .welcome-screen { padding: 20px 15px; }
+        .welcome-title { font-size: 1.5rem; margin-bottom: 8px; }
+        .welcome-subtitle { font-size: 0.9rem; }
+        .chat-messages { padding: 10px; }
+        .message { margin-bottom: 12px; }
+        .input-area { padding: 10px; }
+      }
+    </style>
   </head>
   <body>
     <div class="container">
-      <!-- Mobile Sidebar Toggle -->
       <button
         class="mobile-sidebar-toggle"
         id="mobileSidebarToggle"
@@ -32,98 +440,58 @@
         </svg>
       </button>
 
-      <!-- Mobile Sidebar Overlay -->
       <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
 
-      <!-- Sidebar -->
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <button class="new-chat-btn" id="new-chat-btn">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            New chat
-          </button>
+            <div class="sidebar-logo">LearnVid AI</div>
         </div>
 
         <div class="sidebar-menu">
-          <div class="menu-item search-row">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-              />
-            </svg>
-            <input
-              id="chat-search"
-              class="search-input"
-              type="text"
-              placeholder="Search chats..."
-              autocomplete="off"
-            />
-            <button
-              id="chat-search-clear"
-              class="search-clear"
-              aria-label="Clear"
-            >
-              ✕
-            </button>
-          </div>
+            <a href="/chat" class="menu-item active"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20v-6M6 20v-4M18 20v-2"/>
+                    <path d="M12 14V4"/>
+                    <path d="M6 16V4"/>
+                    <path d="M18 18V4"/>
+                    <path d="M3 4h18"/>
+                </svg>
+                New Chat
+            </a>
+            
+            <a href="/gallery" class="menu-item"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                Saved Videos
+            </a>
 
-          <div class="menu-item">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            Library
-          </div>
-
-          <div class="chats-section" id="chats-section">
-            <div class="chats-title">Your Chats</div>
-            {% if chats and chats|length > 0 %} {% for c in chats %}
-            <div
-              class="chat-item{% if loop.first %} active{% endif %}"
-              data-chat-id="{{ c.id }}"
-            >
-              <span class="chat-title">{{ c.title }}</span>
-              <div class="chat-menu">
-                <button class="chat-menu-btn" title="Options">
-                  <i class="fi fi-rr-file-edit"></i>
-                </button>
-                <div class="chat-menu-dropdown">
-                  <button class="chat-rename">Rename</button>
-                  <button class="chat-delete">Delete</button>
-                </div>
-              </div>
+            <div class="chats-section" id="chats-section">
+                <div class="chats-title">Chats</div>
+                {% if chats and chats|length > 0 %}
+                    {% for c in chats %}
+                    <div class="chat-item {% if loop.first and not request.args.get('id') %}active{% elif c.id|string == request.args.get('id') %}active{% endif %}" data-chat-id="{{ c.id }}">
+                        <span class="chat-title">{{ c.title }}</span>
+                        <div class="chat-menu">
+                            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+                            <div class="chat-menu-dropdown">
+                                <button class="chat-rename">Rename</button>
+                                <button class="chat-delete">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div id="empty-state" class="chat-item empty">No chats yet</div>
+                {% endif %}
             </div>
-            {% endfor %} {% else %}
-            <div id="empty-state" class="chat-item empty">No chats yet</div>
-            {% endif %}
-          </div>
         </div>
 
         <div class="sidebar-footer">
-          <div class="user-info">
-            <div class="user-avatar">U</div>
-            <div class="username">{{username}}</div>
-          </div>
+            <div class="user-info">
+                <div class="user-avatar">U</div>
+                <div class="username">{{username}}</div>
+            </div>
         </div>
       </div>
-
-      <!-- Main Chat Area -->
       <div class="chat-main">
         <div class="chat-header">
           <div class="chat-title">LearnVid AI</div>
@@ -133,19 +501,15 @@
         </div>
 
         <div class="chat-container">
-          <!-- Welcome Screen -->
           <div class="welcome-screen" id="welcome-screen">
             <h1 class="welcome-title">Welcome, {{username}}!</h1>
             <p class="welcome-subtitle">What should we learn today?</p>
           </div>
 
-          <!-- Chat Messages -->
           <div class="chat-messages" id="chat-messages">
-            <!-- Messages will be dynamically added here -->
-          </div>
+            </div>
         </div>
 
-        <!-- Input Area -->
         <div class="input-area">
           <div class="input-container">
             <div class="upload-btn" id="upload-btn" title="Buat Video">
@@ -183,7 +547,6 @@
       </div>
     </div>
 
-    <!-- Hidden file inputs -->
     <input type="file" id="image-upload" class="file-input" accept="image/*" />
     <input
       type="file"
@@ -193,7 +556,6 @@
     />
     <input type="file" id="video-upload" class="file-input" accept="video/*" />
 
-    <!-- Modal -->
     <div id="modal-overlay" class="modal-overlay" style="display: none">
       <div class="modal">
         <div class="modal-header">
@@ -218,34 +580,39 @@
       // ====== User context dari Jinja ======
       const CURRENT_USERNAME = "{{ username }}";
 
-      // ====== Elemen DOM ======
-      const messageInput = document.getElementById("message-input");
-      const sendButton = document.getElementById("send-button");
-      const chatMessages = document.getElementById("chat-messages");
-      const welcomeScreen = document.getElementById("welcome-screen");
-      const newChatBtn = document.getElementById("new-chat-btn");
-      const uploadBtn = document.getElementById("upload-btn");
+      // ====== Elemen DOM (Sidebar) ======
       const chatsSection = document.querySelector(".chats-section");
       const sidebar = document.getElementById("sidebar");
-      const mobileSidebarToggle = document.getElementById(
-        "mobileSidebarToggle"
-      );
+      const mobileSidebarToggle = document.getElementById("mobileSidebarToggle");
       const mobileSidebarOverlay = document.getElementById(
         "mobileSidebarOverlay"
       );
 
-      // File inputs (opsional)
-      const imageUpload = document.getElementById("image-upload");
-      const documentUpload = document.getElementById("document-upload");
-      const videoUpload = document.getElementById("video-upload");
-
+      // ====== Elemen DOM (Chat) ======
+      const messageInput = document.getElementById("message-input");
+      const sendButton = document.getElementById("send-button");
+      const chatMessages = document.getElementById("chat-messages");
+      const welcomeScreen = document.getElementById("welcome-screen");
+      const uploadBtn = document.getElementById("upload-btn");
+      
       // ====== State ======
-      let chatStarted = false;
+      let videoMode = false;
+      
+      // Logika untuk menentukan activeChatId dari URL atau dari item pertama
       let activeChatId = (() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlChatId = urlParams.get('id');
+        if (urlChatId) {
+            const activeItem = document.querySelector(`.chat-item[data-chat-id="${urlChatId}"]`);
+            if (activeItem) {
+                return urlChatId;
+            }
+        }
+        // Jika tidak ada di URL atau tidak valid, ambil yang pertama
         const firstActive = document.querySelector(".chat-item.active");
         return firstActive ? firstActive.dataset.chatId || null : null;
       })();
-      let videoMode = false;
+
 
       // ====== Mobile Sidebar Toggle ======
       if (mobileSidebarToggle) {
@@ -262,7 +629,6 @@
         });
       }
 
-      // Close sidebar when clicking a chat item on mobile
       function closeMobileSidebar() {
         if (window.innerWidth <= 768) {
           sidebar.classList.remove("open");
@@ -270,6 +636,20 @@
         }
       }
 
+      function escapeHtml(str = "") {
+        return str.replace(
+          /[&<>"']/g,
+          (s) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[s])
+        );
+      }
+      
       // === Popup Helper ===
       function showPopup(message, type = "info") {
         const popup = document.createElement("div");
@@ -311,45 +691,24 @@
 
       // ====== Loading Animation Functions ======
       function showLoadingMessage(type = 'thinking') {
-        // Remove any existing loading indicator first
         removeLoadingMessage();
-        
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'message ai';
         loadingDiv.id = 'loading-indicator';
-        
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
         avatar.textContent = 'AI';
-        
         const content = document.createElement('div');
         content.className = 'message-content loading-content';
-        
         if (type === 'thinking') {
-          content.innerHTML = `
-            <div class="loader"></div>
-            <span class="loading-text">Thinking...</span>
-          `;
+          content.innerHTML = `<div class="loader"></div><span class="loading-text">Thinking...</span>`;
         } else if (type === 'video') {
-          content.innerHTML = `
-            <div class="loader"></div>
-            <div class="video-loading">
-              <span class="loading-text">🎬 Generating video...</span>
-              <div class="video-progress-bar">
-                <div class="video-progress-fill"></div>
-              </div>
-            </div>
-          `;
+          content.innerHTML = `<div class="loader"></div><div class="video-loading"><span class="loading-text">🎬 Generating video...</span><div class="video-progress-bar"><div class="video-progress-fill"></div></div></div>`;
         }
-        
         loadingDiv.appendChild(avatar);
         loadingDiv.appendChild(content);
         chatMessages.appendChild(loadingDiv);
-        
-        chatMessages.scrollTo({
-          top: chatMessages.scrollHeight,
-          behavior: 'smooth'
-        });
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
       }
 
       function removeLoadingMessage() {
@@ -361,7 +720,6 @@
       function showChatUI() {
         welcomeScreen.classList.add("hidden");
         chatMessages.style.display = "block";
-        chatStarted = true;
       }
 
       function resetInput() {
@@ -373,14 +731,12 @@
       function addMessage(text, sender, videoUrl = null) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${sender}`;
-
         const avatar = document.createElement("div");
         avatar.className = "message-avatar";
         avatar.textContent = sender === "ai" ? "AI" : "U";
-
         const content = document.createElement("div");
         content.className = "message-content";
-        content.innerHTML = text;
+        content.innerHTML = text; // Aman karena output AI di-escape di server / atau di-render sebagai markdown
 
         if (videoUrl) {
           const videoContainer = document.createElement("div");
@@ -388,48 +744,42 @@
           videoContainer.style.flexDirection = "column";
           videoContainer.style.alignItems = "flex-start";
           videoContainer.style.marginTop = "10px";
-
           const video = document.createElement("video");
           video.controls = true;
           video.src = videoUrl;
           video.style.maxWidth = "100%";
           video.style.borderRadius = "10px";
-
-          const fileName =
-            videoUrl.split("/").pop() || `EduGen_${Date.now()}.mp4`;
-
+          const fileName = videoUrl.split("/").pop() || `EduGen_${Date.now()}.mp4`;
           const downloadBtn = document.createElement("button");
           downloadBtn.textContent = "⬇️ Download Video";
-          downloadBtn.style.marginTop = "6px";
-          downloadBtn.style.fontSize = "13px";
-          downloadBtn.style.color = "#DBE2EF";
-          downloadBtn.style.background = "#112D4E";
-          downloadBtn.style.padding = "6px 10px";
-          downloadBtn.style.border = "none";
-          downloadBtn.style.borderRadius = "6px";
-          downloadBtn.style.cursor = "pointer";
-          downloadBtn.style.fontWeight = "bold";
-
+          Object.assign(downloadBtn.style, {
+            marginTop: "6px",
+            fontSize: "13px",
+            color: "#DBE2EF",
+            background: "#112D4E",
+            padding: "6px 10px",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold"
+          });
           downloadBtn.onclick = async () => {
             try {
               const response = await fetch(videoUrl);
               const blob = await response.blob();
               const blobUrl = URL.createObjectURL(blob);
-
               const a = document.createElement("a");
               a.href = blobUrl;
               a.download = fileName;
               document.body.appendChild(a);
               a.click();
               a.remove();
-
               URL.revokeObjectURL(blobUrl);
             } catch (err) {
               alert("❌ Gagal mengunduh video.");
               console.error("Download error:", err);
             }
           };
-
           videoContainer.appendChild(video);
           videoContainer.appendChild(downloadBtn);
           content.appendChild(videoContainer);
@@ -437,7 +787,6 @@
 
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(content);
-
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTo({
           top: chatMessages.scrollHeight,
@@ -462,20 +811,6 @@
         if (node) node.classList.add("active");
       }
 
-      function escapeHtml(str = "") {
-        return str.replace(
-          /[&<>"']/g,
-          (s) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            }[s])
-        );
-      }
-
       // ====== API calls ======
       async function createChat(title) {
         const res = await fetch("/api/chats", {
@@ -495,119 +830,32 @@
         );
         if (!res.ok) throw new Error("Failed to load messages");
         const data = await res.json();
-
         setTimeout(() => {
           chatMessages.scrollTo({
             top: chatMessages.scrollHeight,
             behavior: "smooth",
           });
         }, 200);
-
         return data;
-      }
-
-      async function refreshMessages(chatId) {
-        try {
-          const msgs = await loadMessages(chatId);
-          chatMessages.innerHTML = "";
-          msgs.forEach((m) => addMessage(m.content, m.role, m.video_url));
-        } catch (e) {
-          console.warn("refreshMessages error:", e);
-        }
       }
 
       async function postMessage(chatId, content) {
         const res = await fetch(`/api/chats/${chatId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content }),
+          // Disesuaikan dengan API Anda
+          body: JSON.stringify({ content: content, username: CURRENT_USERNAME }),
         });
         if (!res.ok) throw new Error("Failed to send message");
         return res.json();
       }
 
-      // ====== Event handlers ======
+      // ====== Event handlers (Chat) ======
       messageInput.addEventListener("input", function () {
         this.style.height = "auto";
         this.style.height = Math.min(this.scrollHeight, 120) + "px";
         sendButton.disabled = !this.value.trim();
       });
-
-      // New chat
-      if (newChatBtn) {
-        newChatBtn.addEventListener("click", async function (e) {
-          e.preventDefault();
-          try {
-            const title = await openModal({
-              title: "💬 New Chat",
-              placeholder: "Enter chat title...",
-              defaultValue: "New chat",
-            });
-            if (title === null) return;
-
-            const chat = await createChat(
-              (title || "New chat").trim() || "New chat"
-            );
-            activeChatId = chat.id;
-
-            ensureNotEmptyState();
-            document
-              .querySelectorAll(".chat-item")
-              .forEach((i) => i.classList.remove("active"));
-
-            const node = document.createElement("div");
-            node.className = "chat-item active";
-            node.dataset.chatId = chat.id;
-            node.innerHTML = `
-          <span class="chat-title">${escapeHtml(chat.title)}</span>
-          <div class="chat-menu">
-            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-            <div class="chat-menu-dropdown">
-              <button class="chat-rename">Rename</button>
-              <button class="chat-delete">Delete</button>
-            </div>
-          </div>
-        `;
-
-            chatsSection.appendChild(node);
-            chatMessages.innerHTML = "";
-            showChatUI();
-            closeMobileSidebar();
-          } catch (err) {
-            console.error(err);
-            alert("Failed to create chat");
-          }
-        });
-      }
-
-      // Delegasi klik chat-item
-      if (chatsSection) {
-        chatsSection.addEventListener("click", async function (e) {
-          const target = e.target.closest(".chat-item");
-          if (!target || target.classList.contains("empty")) return;
-
-          try {
-            const chatId = target.dataset.chatId;
-            if (!chatId) return;
-
-            document
-              .querySelectorAll(".chat-item")
-              .forEach((i) => i.classList.remove("active"));
-            target.classList.add("active");
-            activeChatId = chatId;
-
-            const msgs = await loadMessages(chatId);
-            ensureNotEmptyState();
-            chatMessages.innerHTML = "";
-            showChatUI();
-            msgs.forEach((m) => addMessage(m.content, m.role, m.video_url));
-            closeMobileSidebar();
-          } catch (err) {
-            console.error(err);
-            alert("Failed to load messages");
-          }
-        });
-      }
 
       // Kirim pesan
       async function sendMessage() {
@@ -616,33 +864,29 @@
 
         try {
           if (!activeChatId) {
+            // Jika ini chat pertama, buat dulu
             const chat = await createChat("New chat");
             activeChatId = chat.id;
-
             ensureNotEmptyState();
             const node = document.createElement("div");
             node.className = "chat-item active";
             node.dataset.chatId = chat.id;
             node.innerHTML = `
-          <span class="chat-title">${chat.title}</span>
-          <div class="chat-menu">
-            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-            <div class="chat-menu-dropdown">
-              <button class="chat-rename">Rename</button>
-              <button class="chat-delete">Delete</button>
-            </div>
-          </div>
-        `;
+              <span class="chat-title">${escapeHtml(chat.title)}</span>
+              <div class="chat-menu">...</div>
+            `;
             chatsSection.appendChild(node);
             setActiveChatItemById(chat.id);
+            // Update URL tanpa reload
+            history.pushState(null, '', `/chat?id=${chat.id}`);
           }
 
           showChatUI();
           addMessage(message, "user");
+          const currentChatId = activeChatId; // Simpan ID chat saat ini
           resetInput();
           sendButton.disabled = true;
-
-          // Show loading animation based on mode
+          
           if (videoMode) {
             showLoadingMessage('video');
           } else {
@@ -652,7 +896,7 @@
           let data;
           if (videoMode) {
             const res = await fetch(
-              `/api/chats/${activeChatId}/generate_video`,
+              `/api/chats/${currentChatId}/generate_video`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -664,7 +908,7 @@
             removeLoadingMessage();
             addMessage(data.message, "ai", data.video_url);
           } else {
-            data = await postMessage(activeChatId, message);
+            data = await postMessage(currentChatId, message);
             removeLoadingMessage();
             addMessage(
               data.ai_message.content,
@@ -672,10 +916,19 @@
               data.ai_message.video_url
             );
           }
+          
+          // Rename chat item jika ini pesan pertama
+          if (data.new_title) {
+              const chatItem = document.querySelector(`.chat-item[data-chat-id="${currentChatId}"] .chat-title`);
+              if (chatItem) {
+                  chatItem.textContent = data.new_title;
+              }
+          }
+
         } catch (err) {
           removeLoadingMessage();
           console.error(err);
-          alert("Failed to send message");
+          addMessage("❌ Maaf, terjadi kesalahan. Coba lagi nanti.", "ai");
         } finally {
           sendButton.disabled = false;
         }
@@ -695,15 +948,13 @@
 
       // Auto-load pesan untuk chat yang sudah active
       (async function initAutoLoadActive() {
-        const firstActive = document.querySelector(".chat-item.active");
-        if (firstActive && firstActive.dataset.chatId) {
+        if (activeChatId) {
           try {
-            const msgs = await loadMessages(firstActive.dataset.chatId);
+            const msgs = await loadMessages(activeChatId);
             ensureNotEmptyState();
             chatMessages.innerHTML = "";
             showChatUI();
             msgs.forEach((m) => addMessage(m.content, m.role, m.video_url));
-            activeChatId = firstActive.dataset.chatId;
             setTimeout(() => {
               chatMessages.scrollTo({
                 top: chatMessages.scrollHeight,
@@ -712,9 +963,74 @@
             }, 300);
           } catch (e) {
             console.warn("No initial messages loaded:", e);
+            welcomeScreen.classList.remove("hidden"); // Tampilkan welcome screen jika gagal load
           }
+        } else {
+            // Tidak ada chat aktif, pastikan welcome screen terlihat
+            welcomeScreen.classList.remove("hidden");
+            chatMessages.style.display = "none";
         }
       })();
+      
+      
+      // ====== Event Handlers (Sidebar) ======
+
+      // Klik chat-item
+      if (chatsSection) {
+        chatsSection.addEventListener("click", async function (e) {
+          const target = e.target.closest(".chat-item");
+          if (!target || target.classList.contains("empty") || e.target.closest('.chat-menu-btn')) {
+              return;
+          }
+
+          try {
+            const chatId = target.dataset.chatId;
+            if (!chatId || chatId === activeChatId) return; // Jangan reload jika chat sudah aktif
+
+            document
+              .querySelectorAll(".chat-item")
+              .forEach((i) => i.classList.remove("active"));
+            target.classList.add("active");
+            activeChatId = chatId;
+            
+            // Update URL
+            history.pushState(null, '', `/chat?id=${chatId}`);
+
+            const msgs = await loadMessages(chatId);
+            ensureNotEmptyState();
+            chatMessages.innerHTML = "";
+            showChatUI();
+            msgs.forEach((m) => addMessage(m.content, m.role, m.video_url));
+            closeMobileSidebar();
+          } catch (err) {
+            console.error(err);
+            alert("Failed to load messages");
+          }
+        });
+      }
+      
+      // Tombol "New Chat" di sidebar
+      const sidebarNewChat = document.querySelector('.sidebar-menu .menu-item[href="/chat"]');
+      if (sidebarNewChat) {
+          sidebarNewChat.addEventListener('click', (e) => {
+              e.preventDefault();
+              
+              // Hapus status aktif dari semua item
+              document.querySelectorAll(".chat-item").forEach((i) => i.classList.remove("active"));
+              activeChatId = null;
+              
+              // Reset tampilan
+              chatMessages.innerHTML = "";
+              chatMessages.style.display = "none";
+              welcomeScreen.classList.remove("hidden");
+              resetInput();
+              
+              // Update URL
+              history.pushState(null, '', '/chat');
+              closeMobileSidebar();
+          });
+      }
+
 
       // Chat menu: toggle, rename, delete
       function closeAllChatMenus(except) {
@@ -799,7 +1115,7 @@
           const deletingActive = item.classList.contains("active");
           item.remove();
 
-          if (!document.querySelector(".chat-item")) {
+          if (!document.querySelector(".chat-item[data-chat-id]")) {
             const placeholder = document.createElement("div");
             placeholder.id = "empty-state";
             placeholder.className = "chat-item empty";
@@ -808,24 +1124,19 @@
           }
 
           if (deletingActive) {
+            // Jika chat yang aktif dihapus, reset ke welcome screen
             chatMessages.innerHTML = "";
             chatMessages.style.display = "none";
             welcomeScreen.classList.remove("hidden");
             activeChatId = null;
+            history.pushState(null, '', '/chat');
 
+            // Opsional: aktifkan chat pertama jika ada
             const first = document.querySelector(".chat-item[data-chat-id]");
             if (first) {
-              first.classList.add("active");
-              activeChatId = first.dataset.chatId;
-              try {
-                const msgs = await loadMessages(activeChatId);
-                chatMessages.innerHTML = "";
-                showChatUI();
-                msgs.forEach((m) => addMessage(m.content, m.role));
-              } catch {}
+                 first.click(); // Simulasikan klik untuk memuat chat pertama
             }
           }
-
           closeAllChatMenus(null);
         } catch (err) {
           console.error(err);
@@ -833,90 +1144,8 @@
         }
       });
 
-      // Search chats
-      const chatSearchInput = document.getElementById("chat-search");
-      const chatSearchClear = document.getElementById("chat-search-clear");
-
-      function renderChatList(chats) {
-        const container = document.getElementById("chats-section");
-        if (!container) return;
-
-        const titleHtml = '<div class="chats-title">Your Chats</div>';
-        let listHtml = "";
-        if (chats.length === 0) {
-          listHtml =
-            '<div id="empty-state" class="chat-item empty">No chats yet</div>';
-        } else {
-          listHtml = chats
-            .map(
-              (c) => `
-        <div class="chat-item${
-          activeChatId && String(activeChatId) === String(c.id) ? " active" : ""
-        }" data-chat-id="${c.id}">
-          <span class="chat-title">${escapeHtml(c.title)}</span>
-          <div class="chat-menu">
-            <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
-            <div class="chat-menu-dropdown">
-              <button class="chat-rename">Rename</button>
-              <button class="chat-delete">Delete</button>
-            </div>
-          </div>
-        </div>
-      `
-            )
-            .join("");
-        }
-        container.innerHTML = titleHtml + listHtml;
-      }
-
-      function debounce(fn, ms = 250) {
-        let t;
-        return (...args) => {
-          clearTimeout(t);
-          t = setTimeout(() => fn(...args), ms);
-        };
-      }
-
-      async function fetchSearchResults(query) {
-        const url = "/api/chats/search?q=" + encodeURIComponent(query || "");
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Search failed");
-        return res.json();
-      }
-
-      const doSearch = debounce(async () => {
-        try {
-          const q = chatSearchInput.value.trim();
-          chatSearchClear.classList.toggle("show", q.length > 0);
-
-          const result = await fetchSearchResults(q);
-          renderChatList(result);
-        } catch (e) {
-          console.error(e);
-        }
-      }, 300);
-
-      if (chatSearchInput) {
-        chatSearchInput.addEventListener("input", doSearch);
-        chatSearchInput.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            chatSearchInput.value = "";
-            doSearch();
-            chatSearchInput.blur();
-          }
-        });
-      }
-      if (chatSearchClear) {
-        chatSearchClear.addEventListener("click", () => {
-          chatSearchInput.value = "";
-          chatSearchInput.focus();
-          doSearch();
-        });
-      }
-
       // Toggle Mode: Buat Video
       const uploadBtnEl = document.getElementById("upload-btn");
-
       if (uploadBtnEl) {
         uploadBtnEl.addEventListener("click", () => {
           videoMode = !videoMode;
@@ -935,112 +1164,6 @@
           }
         });
       }
-
-      // Global polling untuk update pesan baru
-      setInterval(async () => {
-        try {
-          if (!activeChatId) return;
-
-          const msgs = await loadMessages(activeChatId);
-          const currentMsgs = Array.from(document.querySelectorAll(".message"));
-          const currentCount = currentMsgs.length;
-
-          if (msgs.length > currentCount) {
-            const newMsgs = msgs.slice(currentCount);
-            newMsgs.forEach((m) => addMessage(m.content, m.role, m.video_url));
-          }
-        } catch (err) {
-          console.warn("Auto refresh error:", err);
-        }
-      }, 5000);
-
-      // Draggable Floating Review Button
-      const floatingBtn = document.getElementById("floatingReviewBtn");
-
-      if (floatingBtn) {
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        floatingBtn.addEventListener("mousedown", function (e) {
-          if (e.target.closest("a")) return;
-
-          isDragging = true;
-          floatingBtn.classList.remove("bounce");
-
-          const rect = floatingBtn.getBoundingClientRect();
-          offsetX = e.clientX - rect.left;
-          offsetY = e.clientY - rect.top;
-
-          e.preventDefault();
-        });
-
-        floatingBtn.addEventListener("click", function (e) {
-          if (!isDragging) {
-            window.location.href = "/reviews";
-          }
-        });
-
-        document.addEventListener("mousemove", function (e) {
-          if (!isDragging) return;
-
-          const x = e.clientX - offsetX;
-          const y = e.clientY - offsetY;
-
-          const maxX = window.innerWidth - floatingBtn.offsetWidth;
-          const maxY = window.innerHeight - floatingBtn.offsetHeight;
-
-          const finalX = Math.max(0, Math.min(x, maxX));
-          const finalY = Math.max(0, Math.min(y, maxY));
-
-          floatingBtn.style.left = finalX + "px";
-          floatingBtn.style.top = finalY + "px";
-          floatingBtn.style.right = "auto";
-          floatingBtn.style.bottom = "auto";
-        });
-
-        document.addEventListener("mouseup", function () {
-          isDragging = false;
-        });
-
-        // Touch support untuk mobile
-        floatingBtn.addEventListener("touchstart", function (e) {
-          isDragging = true;
-          floatingBtn.classList.remove("bounce");
-
-          const rect = floatingBtn.getBoundingClientRect();
-          const touch = e.touches[0];
-          offsetX = touch.clientX - rect.left;
-          offsetY = touch.clientY - rect.top;
-        });
-
-        document.addEventListener("touchmove", function (e) {
-          if (!isDragging) return;
-
-          const touch = e.touches[0];
-          const x = touch.clientX - offsetX;
-          const y = touch.clientY - offsetY;
-
-          const maxX = window.innerWidth - floatingBtn.offsetWidth;
-          const maxY = window.innerHeight - floatingBtn.offsetHeight;
-
-          const finalX = Math.max(0, Math.min(x, maxX));
-          const finalY = Math.max(0, Math.min(y, maxY));
-
-          floatingBtn.style.left = finalX + "px";
-          floatingBtn.style.top = finalY + "px";
-          floatingBtn.style.right = "auto";
-          floatingBtn.style.bottom = "auto";
-
-          e.preventDefault();
-        });
-
-        document.addEventListener("touchend", function () {
-          isDragging = false;
-        });
-      }
-
-      // Saat pertama load, tampilkan semua
-      doSearch();
 
       // Modal Helper
       function openModal({
