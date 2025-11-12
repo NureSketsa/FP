@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnVid AI - Saved Videos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap');
+
+  /* Reset */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Montaga', serif;
+    background: #F9F7F7;
+    color: #112D4E;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .container { display: flex; height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: #112D4E;
+    color: #F9F7F7;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(219, 226, 239, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  /* Mobile Sidebar Toggle */
+  .mobile-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    backdrop-filter: blur(2px);
+  }
+
+  .mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #112D4E;
+    color: #F9F7F7;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: #F9F7F7;
+  }
+
+  /* --- PERUBAHAN SIDEBAR HEADER --- */
+  .sidebar-header { 
+    padding: 20px 16px; 
+    border-bottom: 1px solid rgba(219, 226, 239, 0.1);
+  }
+  .sidebar-logo {
+    font-size: 1.25rem; /* Ukuran "LearnVid AI" */
+    font-weight: 500;
+    color: #F9F7F7;
+    padding-left: 5px;
+  }
+  /* ------------------------------- */
+
+  .sidebar-menu { padding: 8px 12px; flex: 1; overflow-y: auto; }
+
+  .menu-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; /* Dibuat sedikit lebih besar */ 
+    margin-bottom: 4px; /* Jarak antar menu */
+    color: #DBE2EF; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s ease; font-size: 14px;
+    text-decoration: none; /* Ditambahkan untuk link */
+  }
+  .menu-item:hover {
+    background: rgba(219, 226, 239, 0.1);
+    color: #F9F7F7;
+  }
+  .menu-item.active { /* Style untuk link aktif */
+    background: #3F72AF;
+    color: #F9F7F7;
+  }
+  .menu-item svg { width: 18px; height: 18px; } /* Icon sedikit lebih besar */
+
+  .chats-section { margin-top: 15px; } /* Didekatkan */
+  .chats-title {
+    color: #DBE2EF; font-size: 11px; opacity: .7;
+    text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 8px; padding: 0 12px;
+  }
+
+  .chat-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; margin-bottom: 2px; position: relative;
+    color: #DBE2EF; border-radius: 6px; cursor: pointer;
+    transition: all 0.2s ease; font-size: 14px; line-height: 1.4;
+  }
+  .chat-item:hover { background: rgba(219, 226, 239, 0.1); }
+  .chat-item.active { background: #3F72AF; color: #F9F7F7; }
+
+  .chat-title {
+    flex: 1; margin-right: 8px; max-width: 180px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: inline-block; vertical-align: middle;
+  }
+
+  /* ... Style .chat-menu, .sidebar-footer, .user-info, dll tetap sama ... */
+  .chat-menu { position: relative; }
+  .chat-menu-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 16px; color: #666; display: inline-flex; align-items: center;
+  }
+  .fi-rr-file-edit { color: #fff; }
+  .chat-menu-dropdown {
+    display: none; position: absolute; right: 0; top: 100%;
+    background: #fff; border: 1px solid #ddd; border-radius: 6px;
+    padding: 4px 0; min-width: 120px; z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .chat-menu.open .chat-menu-dropdown { display: block; }
+  .chat-menu-dropdown button {
+    display: block; width: 100%; padding: 8px 12px;
+    background: none; border: none; text-align: left;
+    cursor: pointer; font-size: 14px; color: #112D4E;
+  }
+  .chat-menu-dropdown button:hover { background: #f3f3f3; }
+  .sidebar-footer {
+    padding: 12px; border-top: 1px solid rgba(219, 226, 239, 0.1);
+  }
+  .user-info {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: .2s;
+  }
+  .user-info:hover { background: rgba(219, 226, 239, 0.1); }
+  .user-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #3F72AF; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: bold;
+  }
+  .username { color: #DBE2EF; font-size: 14px; }
+  /* ------------------------------------------------------------------ */
+
+
+  /* Main Area */
+  .chat-main { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    background: #F9F7F7; /* Latar belakang main content */
+  }
+
+  /* Floating Review Button (dari chat.html) */
+  .floating-review-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(63, 114, 175, 0.4);
+    transition: all 0.3s ease;
+    border: 3px solid #F9F7F7;
+    text-decoration: none;
+  }
+  .floating-review-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(63, 114, 175, 0.6);
+  }
+  .floating-review-btn:active { cursor: grabbing; }
+  .floating-review-btn svg { width: 28px; height: 28px; color: #F9F7F7; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .floating-review-btn.bounce { animation: bounce 2s infinite; }
+
+  /* Modal (dari chat.html, diperlukan untuk sidebar) */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    display: none; /* Diubah dari flex */
+    justify-content: center; align-items: center;
+    z-index: 999; backdrop-filter: blur(2px);
+    animation: fadeIn 0.25s ease;
+  }
+  .modal {
+    background: #f9f7f7; color: #112d4e; border-radius: 10px;
+    padding: 24px; width: 90%; max-width: 300px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  .modal h2 { margin-top: 0; font-size: 1.2rem; font-weight: bold; }
+  .modal-input {
+    width: 100%; margin-top: 10px; padding: 10px 12px;
+    border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 15px;
+  }
+  .modal-input:focus { border-color: #3f72af; box-shadow: 0 0 0 2px rgba(63,114,175,0.2); }
+  .modal-actions { display: flex; justify-content: flex-end; margin-top: 18px; gap: 10px; }
+  .modal-btn { padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .modal-btn.cancel { background: #ddd; color: #333; }
+  .modal-btn.ok { background: #3f72af; color: white; }
+  .modal-btn.ok:hover { background: #2b5691; }
+  .modal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .modal-message { margin: 8px 0 16px 0; font-size: 0.95rem; color: #2b3a55; text-align: left; }
+  .modal-icon { width: 20px; height: 20px; }
+  .chat-delete { color: #d11a2a; font-weight: 600; }
+  .chat-delete:hover { background: #ffe5e5 !important; color: #a00; }
+  @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+  @keyframes slideUp { from {transform:translateY(15px);opacity:0;} to {transform:translateY(0);opacity:1;} }
+  
+
+  /* ==============================================
+    KODE BARU: STYLE UNTUK GALLERY
+  ==============================================
+  */
+
+  .gallery-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px;
+      /* Background dari Figma (biru sangat muda) */
+      background: #EBF1F8; 
+      color: #112D4E;
+  }
+
+  .gallery-title {
+      font-size: 2.5rem;
+      font-weight: 500;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #112D4E;
+  }
+
+  .gallery-grid {
+      display: grid;
+      /* 3 kolom seperti di Figma */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+  }
+
+  .video-card {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+      color: #112D4E;
+      border-radius: 12px; /* Ditambahkan agar border-radius konsisten */
+  }
+  
+  .video-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(17, 45, 78, 0.1);
+  }
+
+  .video-thumbnail {
+      position: relative;
+      /* Kotak hitam dari Figma */
+      background: #222; 
+      border-radius: 12px;
+      /* Aspek rasio 16:9 */
+      padding-top: 56.25%; 
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Border biru dari Figma */
+      border: 3px solid transparent;
+      transition: border-color 0.2s ease;
+  }
+
+  /* Style untuk border biru (aktif) */
+  .video-card.active .video-thumbnail,
+  .video-card:hover .video-thumbnail {
+      border-color: #3F72AF; 
+  }
+
+  .video-thumbnail .play-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      fill: rgba(255, 255, 255, 0.8);
+      transition: fill 0.2s ease;
+  }
+
+  .video-card:hover .play-icon {
+      fill: rgba(255, 255, 255, 1);
+  }
+  
+  /* ===== AKHIR STYLE GALLERY ===== */
+
+
+  /* ===== RESPONSIVE STYLES (Update) ===== */
+
+  /* Tablets and below */
+  @media (max-width: 1024px) {
+    .sidebar { width: 240px; }
+    .chat-title { max-width: 140px; }
+    
+    /* Responsive Gallery */
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+    .gallery-container { padding: 25px; }
+  }
+
+  @media (max-width: 768px) {
+    /* Mobile sidebar */
+    .sidebar {
+      position: fixed; left: 0; top: 0; height: 100vh;
+      z-index: 999; transform: translateX(-100%); width: 280px;
+    }
+    .sidebar.open { transform: translateX(0); }
+    /* Padding atas untuk beri ruang hamburger menu */
+    .sidebar-header { padding-top: 60px; }
+    .sidebar-logo { display: none; } /* Sembunyikan logo di dlm sidebar mobile */
+
+    .mobile-sidebar-overlay { display: none; }
+    .mobile-sidebar-overlay.active { display: block; }
+    .mobile-sidebar-toggle { display: block; }
+
+    .chat-main { width: 100%; }
+
+    .floating-review-btn { width: 50px; height: 50px; bottom: 20px; right: 20px; }
+    .floating-review-btn svg { width: 24px; height: 24px; }
+    
+    .modal { padding: 20px; max-width: 280px; }
+    .modal h2 { font-size: 1.1rem; }
+
+    /* Responsive Gallery */
+    .gallery-container { padding: 20px; }
+    .gallery-title { font-size: 2rem; margin-top: 10px; }
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .sidebar { width: 260px; }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar { width: 240px; }
+    .mobile-sidebar-toggle { top: 12px; left: 12px; padding: 8px; }
+    .mobile-sidebar-toggle svg { width: 20px; height: 20px; }
+
+    .floating-review-btn { width: 45px; height: 45px; bottom: 15px; right: 15px; }
+    .floating-review-btn svg { width: 20px; height: 20px; }
+    
+    .chat-item { font-size: 13px; padding: 7px 10px; }
+    .username { font-size: 13px; }
+    
+    .modal { padding: 18px; max-width: 260px; }
+    /* ... (style modal lain) ... */
+
+    /* Responsive Gallery */
+    .gallery-grid {
+        grid-template-columns: 1fr; /* Single column */
+        gap: 20px;
+    }
+    .gallery-container { padding: 15px; }
+    .gallery-title { font-size: 1.8rem; }
+  }
+
+  @media (max-width: 360px) {
+    .sidebar { width: 220px; }
+  }
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+            </svg>
+        </button>
+
+        <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">LearnVid AI</div>
+            </div>
+
+            <div class="sidebar-menu">
+                <a href="/chat" class="menu-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20v-6M6 20v-4M18 20v-2"/>
+                        <path d="M12 14V4"/>
+                        <path d="M6 16V4"/>
+                        <path d="M18 18V4"/>
+                        <path d="M3 4h18"/>
+                    </svg>
+                    New Chat
+                </a>
+                
+                <a href="/gallery" class="menu-item active"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Saved Videos
+                </a>
+
+                <div class="chats-section" id="chats-section">
+                    <div class="chats-title">Chats</div>
+                    {% if chats and chats|length > 0 %}
+                        {% for c in chats %}
+                        <div class="chat-item" data-chat-id="{{ c.id }}">
+                            <span class="chat-title">{{ c.title }}</span>
+                            <div class="chat-menu">
+                                <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
+                                <div class="chat-menu-dropdown">
+                                    <button class="chat-rename">Rename</button>
+                                    <button class="chat-delete">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div id="empty-state" class="chat-item empty">No chats yet</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">U</div>
+                    <div class="username">{{username}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-main">
+            <div class="gallery-container">
+                <h1 class="gallery-title">Saved Videos</h1>
+                
+                <div class="gallery-grid" id="gallery-grid">
+                    {% for i in range(12) %}
+                    <a href="/video/{{ i }}" class="video-card {% if i == 3 %}active{% endif %}"> <div class="video-thumbnail">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            </div>
+                    </a>
+                    {% endfor %}
+
+                    </div>
+            </div>
+        </div>
+        </div>
+
+    <a href="/reviews" class="floating-review-btn bounce" id="floatingReviewBtn" title="Leave a Review">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+    </a>
+
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <img id="modal-icon" class="modal-icon" alt="">
+                <h2 id="modal-title">Modal Title</h2>
+            </div>
+            <p id="modal-message" class="modal-message"></p>
+            <input type="text" id="modal-input" class="modal-input" style="display:none;">
+            <div class="modal-actions">
+                <button id="modal-cancel" class="modal-btn cancel">Cancel</button>
+                <button id="modal-ok" class="modal-btn ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+  // ====== User context dari Jinja ======
+  const CURRENT_USERNAME = "{{ username }}";
+
+  // ====== Elemen DOM (Sidebar) ======
+  const chatsSection   = document.querySelector('.chats-section');
+  const sidebar        = document.getElementById('sidebar');
+  const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+  const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
+
+  // ====== State ======
+  let activeChatId = null; // Tidak ada chat yang aktif di halaman gallery
+
+  // ====== Mobile Sidebar Toggle ======
+  if (mobileSidebarToggle) {
+    mobileSidebarToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      mobileSidebarOverlay.classList.toggle('active');
+    });
+  }
+
+  if (mobileSidebarOverlay) {
+    mobileSidebarOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      mobileSidebarOverlay.classList.remove('active');
+    });
+  }
+
+  // Close sidebar when clicking a chat item on mobile
+  function closeMobileSidebar() {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('open');
+      mobileSidebarOverlay.classList.remove('active');
+    }
+  }
+
+  function escapeHtml(str=''){
+    return str.replace(/[&<>"']/g, s => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+  }
+
+  // ====== Event handlers (Sidebar) ======
+
+  // Delegasi klik chat-item (arahkan ke halaman chat)
+  if (chatsSection) {
+    chatsSection.addEventListener('click', async function (e) {
+      // Cek apakah klik pada chat item, bukan pada tombol menu
+      const target = e.target.closest('.chat-item');
+      if (!target || target.classList.contains('empty') || e.target.closest('.chat-menu-btn')) {
+          return;
+      }
+      
+      const chatId = target.dataset.chatId;
+      if (!chatId) return;
+
+      // Arahkan ke halaman chat dengan ID chat yang spesifik
+      // (Anda mungkin perlu menyesuaikan URL ini)
+      window.location.href = `/chat?id=${chatId}`;
+    });
+  }
+
+  // Chat menu: toggle, rename, delete (Fungsionalitas sidebar)
+  function closeAllChatMenus(except) {
+    document.querySelectorAll('.chat-menu').forEach(m => {
+      if (m !== except) m.classList.remove('open');
+    });
+  }
+
+  chatsSection.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chat-menu-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    const menu = btn.closest('.chat-menu');
+    const isOpen = menu.classList.contains('open');
+    closeAllChatMenus(menu);
+    if (!isOpen) menu.classList.add('open');
+  });
+
+  document.addEventListener('click', () => closeAllChatMenus(null));
+
+  // Handler RENAME
+  chatsSection.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.chat-rename');
+    if (!btn) return;
+    
+    e.stopPropagation();
+    const item = btn.closest('.chat-item');
+    const chatId = item?.dataset?.chatId;
+    if (!chatId) return;
+
+    const titleSpan = item.querySelector('.chat-title');
+    const currentTitle = titleSpan?.textContent?.trim() || 'Untitled';
+
+    const newTitle = await openModal({
+      title: '✏️ Rename Chat',
+      placeholder: 'Enter new title...',
+      defaultValue: currentTitle
+    });
+    if (newTitle === null) return;
+    const cleaned = (newTitle || '').trim();
+    if (!cleaned || cleaned === currentTitle) return;
+
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: cleaned })
+      });
+      if (!res.ok) throw new Error('Rename failed');
+      const data = await res.json();
+
+      titleSpan.textContent = data.title;
+      closeAllChatMenus(null);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to rename chat');
+    }
+  });
+
+  // Handler DELETE
+  chatsSection.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.chat-delete');
+    if (!btn) return;
+
+    e.stopPropagation();
+    const item = btn.closest('.chat-item');
+    const chatId = item?.dataset?.chatId;
+    if (!chatId) return;
+
+    const confirmDelete = await openModal({
+      title: 'Delete Chat',
+      message: 'This action cannot be undone!',
+      icon: 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png',
+      isConfirm: true
+    });
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+
+      item.remove();
+
+      if (!document.querySelector('.chat-item[data-chat-id]')) {
+        const placeholder = document.createElement('div');
+        placeholder.id = 'empty-state';
+        placeholder.className = 'chat-item empty';
+        placeholder.textContent = 'No chats yet';
+        chatsSection.appendChild(placeholder);
+      }
+      closeAllChatMenus(null);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete chat');
+    }
+  });
+
+
+  // Draggable Floating Review Button (Global)
+  const floatingBtn = document.getElementById('floatingReviewBtn');
+  if (floatingBtn) {
+    // (Kode draggable sama seperti di chat.html, Anda bisa copy-paste di sini)
+    // ...
+  }
+
+  // Modal Helper (Diperlukan untuk sidebar)
+  function openModal({ 
+    title, message = '', icon = '', placeholder = '', 
+    defaultValue = '', isConfirm = false 
+  }) {
+    return new Promise((resolve) => {
+      const overlay = document.getElementById('modal-overlay');
+      const titleEl = document.getElementById('modal-title');
+      // ... (sisa kode modal sama seperti di chat.html) ...
+      
+      const msgEl = document.getElementById('modal-message');
+      const iconEl = document.getElementById('modal-icon');
+      const inputEl = document.getElementById('modal-input');
+      const okBtn = document.getElementById('modal-ok');
+      const cancelBtn = document.getElementById('modal-cancel');
+
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+      iconEl.src = icon || '';
+      iconEl.style.display = icon ? 'block' : 'none';
+      inputEl.style.display = isConfirm ? 'none' : 'block';
+      inputEl.placeholder = placeholder;
+      inputEl.value = defaultValue;
+
+      overlay.style.display = 'flex'; // Tampilkan modal
+      if (!isConfirm) inputEl.focus();
+
+      function closeModal(value) {
+        overlay.style.display = 'none'; // Sembunyikan modal
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        inputEl.removeEventListener('keydown', onEnter);
+        resolve(value);
+      }
+
+      function onOk() {
+        const val = isConfirm ? true : inputEl.value.trim();
+        closeModal(val || null);
+      }
+      function onCancel() { closeModal(null); }
+      function onEnter(e) { if (e.key === 'Enter') onOk(); }
+
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+      inputEl.addEventListener('keydown', onEnter);
+    });
+  }
+
+</script>
+</body>
+</html>
