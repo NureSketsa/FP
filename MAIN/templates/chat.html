@@ -9,8 +9,7 @@
       rel="stylesheet"
     />
     <link
-      rel="stylesheet"
-      href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
+      rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     />
     
     <style>
@@ -469,6 +468,7 @@
                 {% if chats and chats|length > 0 %}
                     {% for c in chats %}
                     <div class="chat-item {% if loop.first and not request.query_params.get('id') %}active{% elif c.id|string == request.query_params.get('id') %}active{% endif %}" data-chat-id="{{ c.id }}">
+                      <span class="chat-title">{{ c.title }}</span>
                         <div class="chat-menu">
                             <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
                             <div class="chat-menu-dropdown">
