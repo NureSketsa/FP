@@ -141,6 +141,10 @@ def home(request: Request):
 def faq_page(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
+@app.get("/gallery", response_class=HTMLResponse)
+def faq_page(request: Request):
+    return templates.TemplateResponse("gallery.html", {"request": request})
+
 @app.get("/how-it-works", response_class=HTMLResponse)
 def how_it_works_page(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
