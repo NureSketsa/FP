@@ -285,6 +285,17 @@
       transition: border-color 0.2s ease;
   }
 
+  .video-thumbnail video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    border-radius: 12px;
+}
+
   /* Style untuk border biru (aktif) */
   .video-card.active .video-thumbnail,
   .video-card:hover .video-thumbnail {
@@ -421,13 +432,17 @@
                     </svg>
                     Saved Videos
                 </a>
-
+                
                 <div class="chats-section" id="chats-section">
                     <div class="chats-title">Chats</div>
                     {% if chats and chats|length > 0 %}
                         {% for c in chats %}
-                        <div class="chat-item" data-chat-id="{{ c.id }}">
-                            <span class="chat-title">{{ c.title }}</span>
+                        <div class="chat-item 
+                            {% if loop.first and not request.query_params.get('id') %}active
+                            {% elif c.id|string == request.query_params.get('id') %}active
+                            {% endif %}
+                        " data-chat-id="{{ c.id }}">
+                          <span class="chat-title">{{ c.title }}</span>
                             <div class="chat-menu">
                                 <button class="chat-menu-btn" title="Options"><i class="fi fi-rr-file-edit"></i></button>
                                 <div class="chat-menu-dropdown">
@@ -455,17 +470,7 @@
             <div class="gallery-container">
                 <h1 class="gallery-title">Saved Videos</h1>
                 
-                <div class="gallery-grid" id="gallery-grid">
-                    {% for i in range(12) %}
-                    <a href="/video/{{ i }}" class="video-card {% if i == 3 %}active{% endif %}"> <div class="video-thumbnail">
-                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            </div>
-                    </a>
-                    {% endfor %}
-
-                    </div>
+              <div class="gallery-grid" id="gallery-grid"></div>
             </div>
         </div>
         </div>
@@ -699,6 +704,64 @@
     });
   }
 
+async function loadGalleryVideos() {
+    const grid = document.getElementById("gallery-grid");
+    grid.innerHTML = "<p style='color:white;'>Loading...</p>";
+
+    try {
+        const res = await fetch("/api/gallery/videos");
+        const videos = await res.json();
+
+        if (videos.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="color:#DBE2EF; text-align:center; padding:20px;">
+                    No videos yet.
+                </div>`;
+            return;
+        }
+
+        grid.innerHTML = "";
+
+        videos.forEach(v => {
+            const videoUrl = v.video_url || v.url || v.path || v.file_path;
+
+            if (!videoUrl) {
+                console.warn("Video field not found for item:", v);
+                return;
+            }
+
+            const card = document.createElement("a");
+            card.className = "video-card";
+            card.href = videoUrl;
+            card.target = "_blank";
+
+            card.innerHTML = `
+                <div class="video-thumbnail">
+                    <video src="${videoUrl}" muted playsinline></video>
+                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+            `;
+
+            const vid = card.querySelector("video");
+            vid.addEventListener("mouseover", () => vid.play());
+            vid.addEventListener("mouseout", () => {
+                vid.pause();
+                vid.currentTime = 0;
+            });
+
+            grid.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p style="color:red;">Failed to load videos.</p>`;
+    }
+}
+
+// ⬅️ PANGGIL DI LUAR, BUKAN DI DALAM FUNGSI
+loadGalleryVideos();
 </script>
 </body>
 </html>

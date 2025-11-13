@@ -141,10 +141,6 @@ def home(request: Request):
 def faq_page(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
-@app.get("/gallery", response_class=HTMLResponse)
-def faq_page(request: Request):
-    return templates.TemplateResponse("gallery.html", {"request": request})
-
 @app.get("/how-it-works", response_class=HTMLResponse)
 def how_it_works_page(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
@@ -162,6 +158,24 @@ def logout():
     resp = RedirectResponse(url="/", status_code=303)   # >>> changed
     clear_session(resp)
     return resp
+
+@app.get("/gallery", response_class=HTMLResponse)
+def gallery_page(request: Request, user: User = Depends(current_user_required)):
+    with Session(engine) as session:
+        chat_list = session.exec(
+            select(ChatFolder)
+            .where(ChatFolder.user_id == user.id)
+            .order_by(ChatFolder.id.desc())
+        ).all()
+
+    return templates.TemplateResponse(
+        "gallery.html",
+        {
+            "request": request,
+            "username": user.username,
+            "chats": chat_list
+        }
+    )
 
 @app.get("/chat", response_class=HTMLResponse)
 def chat_page(request: Request, user: User = Depends(current_user_required)):  # >>> changed
@@ -181,17 +195,31 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
 def login_page(request: Request):
     return templates.TemplateResponse("reviews.html", {"request": request, "message": None})
 
-# @app.get("/reviews", response_class=HTMLResponse)
-# def reviews_page(request: Request, user: User = Depends(current_user_required)):
-#     """Tampilkan halaman review"""
-#     with Session(engine) as session:
-#         all_reviews = session.exec(
-#             select(Review).order_by(Review.created_at.desc())
-#         ).all()
-#     return templates.TemplateResponse(
-#         "reviews.html",
-#         {"request": request, "username": user.username, "reviews": all_reviews}
-#     )
+@app.get("/api/gallery/videos")
+def api_gallery_videos(user: User = Depends(current_user_required)):
+    with Session(engine) as session:
+        # Ambil semua chat folder milik user
+        chat_ids = session.exec(
+            select(ChatFolder.id).where(ChatFolder.user_id == user.id)
+        ).all()
+
+        # Ambil semua message yang punya video_url
+        videos = session.exec(
+            select(Message)
+            .where(Message.chat_folder_id.in_(chat_ids))
+            .where(Message.video_url.is_not(None))
+            .order_by(Message.timestamp.desc())
+        ).all()
+
+    return [
+        {
+            "id": v.id,
+            "video_url": v.video_url,
+            "content": v.content,
+            "timestamp": v.timestamp.isoformat()
+        }
+        for v in videos
+    ]
 
 
 @app.post("/api/reviews")
