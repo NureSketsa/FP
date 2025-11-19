@@ -335,17 +335,35 @@
 
       @media (max-width: 768px) {
         .sidebar {
-          position: fixed; left: 0; top: 0; height: 100vh;
-          z-index: 999; transform: translateX(-100%); width: 280px;
+          position: fixed;
+          left: 0;
+          top: 0;
+          height: 100vh;
+          z-index: 999;
+          transform: translateX(-100%);
+          width: 280px;
         }
-        .sidebar.open { transform: translateX(0); }
-        /* Padding atas untuk beri ruang hamburger menu */
-        .sidebar-header { padding-top: 60px; }
-        .sidebar-logo { display: none; } /* Sembunyikan logo di dlm sidebar mobile */
 
-        .mobile-sidebar-overlay { display: none; }
-        .mobile-sidebar-overlay.active { display: block; }
-        .mobile-sidebar-toggle { display: block; }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .sidebar.open .sidebar-logo {
+          pointer-events: none;
+          padding-left: 60px;
+        }
+
+        .mobile-sidebar-overlay {
+          display: none;
+        }
+
+        .mobile-sidebar-overlay.active {
+          display: block;
+        }
+
+        .mobile-sidebar-toggle {
+          display: block;
+        }
         .chat-main { width: 100%; }
         .chat-header { padding: 12px 60px 12px 65px; } /* Disesuaikan dengan padding responsif sebelumnya */
         .chat-header .chat-title { font-size: 1rem; }

@@ -698,30 +698,308 @@
       }
 
       /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .video-info {
-          padding: 15px;
-        }
+      @media (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
 
-        .video-title {
-          font-size: 0.9rem;
-          margin-bottom: 10px;
-        }
+  .gallery-title {
+    font-size: 2.2rem;
+  }
+}
 
-        .video-action-btn {
-          width: 32px;
-          height: 32px;
-        }
+@media (max-width: 768px) {
+  /* Mobile sidebar */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    width: 280px;
+  }
 
-        .video-action-btn svg {
-          width: 16px;
-          height: 16px;
-        }
+  .sidebar.open {
+    transform: translateX(0);
+  }
 
-        .fullscreen-title {
-          font-size: 1.2rem;
-        }
-      }
+  .sidebar.open .sidebar-logo {
+    pointer-events: none;
+    padding-left: 60px;
+  }
+
+  .mobile-sidebar-overlay {
+    display: none;
+  }
+
+  .mobile-sidebar-overlay.active {
+    display: block;
+  }
+
+  .mobile-sidebar-toggle {
+    display: block;
+  }
+
+  .chat-main {
+    width: 100%;
+  }
+
+  .gallery-container {
+    padding: 20px 15px;
+  }
+
+  .gallery-title {
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .video-title {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .video-actions {
+    bottom: 10px;
+    left: 10px;
+    gap: 8px;
+  }
+
+  .video-action-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .video-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .fullscreen-content {
+    width: 95%;
+    height: 85vh;
+  }
+
+  .fullscreen-title {
+    font-size: 1.2rem;
+  }
+
+  .carousel-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .carousel-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .floating-review-btn {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .floating-review-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 260px;
+  }
+
+  .gallery-container {
+    padding: 18px 12px;
+  }
+
+  .gallery-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .video-title {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .video-actions {
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .fullscreen-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 15px;
+  }
+
+  .fullscreen-title {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .close-fullscreen-btn {
+    top: -45px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .mobile-sidebar-toggle {
+    top: 12px;
+    left: 12px;
+    padding: 8px;
+  }
+
+  .mobile-sidebar-toggle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .gallery-container {
+    padding: 15px 10px;
+  }
+
+  .gallery-title {
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+
+  .gallery-grid {
+    gap: 12px;
+  }
+
+  .video-title {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  .video-actions {
+    bottom: 8px;
+    left: 8px;
+    gap: 6px;
+  }
+
+  .video-action-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .video-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .fullscreen-content {
+    width: 98%;
+    height: 90vh;
+  }
+
+  .fullscreen-title {
+    font-size: 1rem;
+  }
+
+  .carousel-controls {
+    gap: 10px;
+  }
+
+  .carousel-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .carousel-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .floating-review-btn {
+    width: 45px;
+    height: 45px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .floating-review-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .menu-item {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .menu-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .chat-item {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  .username {
+    font-size: 13px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .gallery-title {
+    font-size: 1.3rem;
+  }
+
+  .video-title {
+    font-size: 0.75rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .gallery-container {
+    padding: 15px;
+  }
+
+  .gallery-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .fullscreen-content {
+    height: 95vh;
+  }
+
+  .fullscreen-controls {
+    margin-top: 10px;
+  }
+}
     </style>
   </head>
   <body>
