@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>LearnVid AI - Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet" />
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css'>
@@ -17,7 +17,7 @@
         font-family: 'Montaga', serif;
         background: #F9F7F7;
         color: #112D4E;
-        height: 100vh;
+        height: 100dvh;
         overflow: hidden;
       }
       
@@ -69,7 +69,7 @@
         stroke: #3F72AF;
       }
 
-      .container { display: flex; height: 100vh; }
+      .container { display: flex; height: 100dvh; }
 
       /* Sidebar */
       .sidebar {
@@ -258,7 +258,11 @@
       .message.user .message-content { background: #DBE2EF; color: #112D4E; border-bottom-right-radius: 6px; }
 
       /* Input Area */
-      .input-area { padding: 20px; background: #F9F7F7; }
+      .input-area { 
+          padding: 20px; 
+          background: #F9F7F7;
+          padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      }
       .input-container {
         max-width: 800px; margin: 0 auto; position: relative;
         background: #F9F7F7; border-radius: 24px; border: 2px solid #DBE2EF;
@@ -338,10 +342,11 @@
           position: fixed;
           left: 0;
           top: 0;
-          height: 100vh;
+          height: 100dvh;
           z-index: 999;
           transform: translateX(-100%);
           width: 280px;
+          padding-bottom: env(safe-area-inset-bottom);
         }
 
         .sidebar.open {
@@ -351,6 +356,10 @@
         .sidebar.open .sidebar-logo {
           pointer-events: none;
           padding-left: 60px;
+        }
+
+        .sidebar-footer {
+          padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
         }
 
         .mobile-sidebar-overlay {
