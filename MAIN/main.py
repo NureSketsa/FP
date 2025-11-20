@@ -414,24 +414,24 @@ def generate_video_for_topic(topic: str) -> Optional[str]:
     Mengembalikan URL video hasil upload ke Supabase.
     """
     try:
-        print(f"[EduGen] Generating educational video for topic: {topic}")
+        print(f"[learnvidai] Generating educational video for topic: {topic}")
 
         # Jalankan fungsi utama secara langsung
         video_path, response = generate_educational_video(topic)
 
         # Ambil URL dari hasil upload (Supabase)
         video_url = response.get("video_path")
-        print(f"[EduGen] Video URL: {video_url}")
+        print(f"[learnvidai] Video URL: {video_url}")
 
         # Pastikan hasil valid
         if video_url and "supabase.co" in video_url:
             return video_url
         else:
-            print("[EduGen] No Supabase URL found in response.")
+            print("[learnvidai] No Supabase URL found in response.")
             return None
 
     except Exception as e:
-        print(f"[EduGen ERROR] {e}")
+        print(f"[learnvidai ERROR] {e}")
         return None
     
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -441,7 +441,10 @@ def chat_with_gemini(user_message: str) -> str:
     Mode chat biasa menggunakan Gemini.
     """
     model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
-    prompt = f"Kamu adalah asisten pembelajaran sains yang ramah. Jawab dengan jelas dan singkat.\n\n{user_message}"
+
+    prompt = f"""
+    Kamu adalah asisten pembelajaran sains yang ramah. Jawab dengan jelas dan singkat.\n\n{user_message}
+    """
     response = model.invoke(prompt)
     return response.content
 

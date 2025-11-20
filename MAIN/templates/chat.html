@@ -597,6 +597,7 @@
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
       // ====== User context dari Jinja ======
       const CURRENT_USERNAME = "{{ username }}";
@@ -932,7 +933,8 @@
             data = await postMessage(currentChatId, message);
             removeLoadingMessage();
             addMessage(
-              data.ai_message.content,
+              // data.ai_message.content,
+              marked.parse(data.ai_message.content),
               "ai",
               data.ai_message.video_url
             );

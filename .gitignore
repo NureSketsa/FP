@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .env
 MAIN\__pycache__
+trial_media/images/*
+trial_media/texts/*
+trial_media/videos/*
