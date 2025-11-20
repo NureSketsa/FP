@@ -717,25 +717,88 @@
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'message ai';
         loadingDiv.id = 'loading-indicator';
+        
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
         avatar.textContent = 'AI';
+        
         const content = document.createElement('div');
         content.className = 'message-content loading-content';
+        
         if (type === 'thinking') {
           content.innerHTML = `<div class="loader"></div><span class="loading-text">Thinking...</span>`;
         } else if (type === 'video') {
-          content.innerHTML = `<div class="loader"></div><div class="video-loading"><span class="loading-text">🎬 Generating video...</span><div class="video-progress-bar"><div class="video-progress-fill"></div></div></div>`;
+          content.innerHTML = `
+            <div class="loader"></div>
+            <div class="video-loading">
+              <div class="status-list"></div>
+            </div>
+          `;
         }
+        
         loadingDiv.appendChild(avatar);
         loadingDiv.appendChild(content);
         chatMessages.appendChild(loadingDiv);
         chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
       }
 
+      function addStatusToLoading(text, isComplete = false, isError = false) {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+          const statusList = loadingIndicator.querySelector('.status-list');
+          
+          if (statusList) {
+            const statusItem = document.createElement('div');
+            statusItem.className = `status-item ${isComplete ? 'complete' : isError ? 'error' : 'current'}`;
+            
+            let icon = '⏳';
+            if (isComplete) icon = '✅';
+            if (isError) icon = '❌';
+            
+            statusItem.innerHTML = `
+              <span class="status-icon">${icon}</span>
+              <span class="status-text">${text}</span>
+            `;
+            statusList.appendChild(statusItem);
+            
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+          }
+        }
+      }
+
+      function markLastStatusComplete() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+          const statusList = loadingIndicator.querySelector('.status-list');
+          if (statusList) {
+            const currentItems = statusList.querySelectorAll('.status-item.current');
+            if (currentItems.length > 0) {
+              const lastItem = currentItems[currentItems.length - 1];
+              lastItem.classList.remove('current');
+              lastItem.classList.add('complete');
+              const icon = lastItem.querySelector('.status-icon');
+              if (icon) icon.textContent = '✅';
+            }
+          }
+        }
+      }
+
+
+
+      function updateLoadingProgress(text, progress) {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+          const loadingText = loadingIndicator.querySelector('.loading-text');
+          const progressFill = loadingIndicator.querySelector('.video-progress-fill');
+          
+          if (loadingText) loadingText.textContent = text;
+          if (progressFill) progressFill.style.width = `${progress}%`;
+        }
+      }
+
       function removeLoadingMessage() {
-        const loading = document.getElementById('loading-indicator');
-        if (loading) loading.remove();
+        const existing = document.getElementById('loading-indicator');
+        if (existing) existing.remove();
       }
 
       // ====== Helpers UI ======
@@ -753,12 +816,21 @@
       function addMessage(text, sender, videoUrl = null) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${sender}`;
+        
         const avatar = document.createElement("div");
         avatar.className = "message-avatar";
         avatar.textContent = sender === "ai" ? "AI" : "U";
+        
         const content = document.createElement("div");
         content.className = "message-content";
-        content.innerHTML = text; // Aman karena output AI di-escape di server / atau di-render sebagai markdown
+        
+        if (sender === "ai") {
+          // Convert Markdown to HTML for AI
+          content.innerHTML = marked.parse(text);
+        } else {
+          // Keep User text plain (safer and cleaner)
+          content.textContent = text; 
+        }
 
         if (videoUrl) {
           const videoContainer = document.createElement("div");
@@ -766,11 +838,13 @@
           videoContainer.style.flexDirection = "column";
           videoContainer.style.alignItems = "flex-start";
           videoContainer.style.marginTop = "10px";
+          
           const video = document.createElement("video");
           video.controls = true;
           video.src = videoUrl;
           video.style.maxWidth = "100%";
           video.style.borderRadius = "10px";
+          
           const fileName = videoUrl.split("/").pop() || `EduGen_${Date.now()}.mp4`;
           const downloadBtn = document.createElement("button");
           downloadBtn.textContent = "⬇️ Download Video";
@@ -785,6 +859,7 @@
             cursor: "pointer",
             fontWeight: "bold"
           });
+          
           downloadBtn.onclick = async () => {
             try {
               const response = await fetch(videoUrl);
@@ -802,6 +877,7 @@
               console.error("Download error:", err);
             }
           };
+          
           videoContainer.appendChild(video);
           videoContainer.appendChild(downloadBtn);
           content.appendChild(videoContainer);
@@ -917,18 +993,60 @@
 
           let data;
           if (videoMode) {
-            const res = await fetch(
-              `/api/chats/${currentChatId}/generate_video`,
-              {
+
+            showLoadingMessage('video');
+            addStatusToLoading('[ LEARNVIDAI INITIATE ]', false);
+            
+            try {
+              const res = await fetch(`/api/chats/${currentChatId}/generate_video`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ topic: message }),
+              });
+              
+              if (!res.ok) throw new Error("Gagal membuat video");
+              
+              const reader = res.body.getReader();
+              const decoder = new TextDecoder();
+              
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                  if (line.startsWith('data: ')) {
+                    const data = JSON.parse(line.slice(6));
+                    
+                    if (data.status === 'completed') {
+                      // Mark last status complete and remove loading
+                      markLastStatusComplete();
+                      setTimeout(() => {
+                        removeLoadingMessage();
+                        addMessage(data.message, "ai", data.video_url);
+                      }, 500);
+                    } else if (data.status === 'error') {
+                      // Don't remove stack on error, just mark as failed
+                      markLastStatusComplete();
+                      addStatusToLoading(data.message, false, true); // Pass true for isError
+                      // Keep the error visible, don't auto-remove
+                    } else {
+                      // Mark previous status as complete, add new status
+                      markLastStatusComplete();
+                      addStatusToLoading(data.message, false);
+                    }
+                  }
+                }
               }
-            );
-            if (!res.ok) throw new Error("Gagal membuat video");
-            data = await res.json();
-            removeLoadingMessage();
-            addMessage(data.message, "ai", data.video_url);
+              
+            } catch (error) {
+              // Keep stack and add error at the end
+              markLastStatusComplete();
+              addStatusToLoading(`❌ Error: ${error.message}`, false);
+            }
+
           } else {
             data = await postMessage(currentChatId, message);
             removeLoadingMessage();
@@ -1054,12 +1172,23 @@
           });
       }
 
+      function updateMessage(messageId, content) {
+        const msgElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (msgElement) {
+          msgElement.querySelector('.message-content').textContent = content;
+        }
+      }
 
       // Chat menu: toggle, rename, delete
       function closeAllChatMenus(except) {
         document.querySelectorAll(".chat-menu").forEach((m) => {
           if (m !== except) m.classList.remove("open");
         });
+      }
+
+      function removeMessage(messageId) {
+        const msgElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (msgElement) msgElement.remove();
       }
 
       chatsSection.addEventListener("click", (e) => {

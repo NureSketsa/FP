@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from contextlib import asynccontextmanager
 from MAIN.AI.app import generate_educational_video
+from MAIN.AI.app import generate_video_for_topic_with_progress
 
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
@@ -16,6 +17,9 @@ from sqlalchemy import func
 
 from pathlib import Path
 from dotenv import load_dotenv
+
+from fastapi.responses import StreamingResponse
+import json
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -492,10 +496,9 @@ def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(
 from fastapi import APIRouter
 
 @app.post("/api/chats/{chat_id}/generate_video")
-def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
+async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
     """
-    Endpoint dipanggil oleh tombol "Buat Video"
-    Body JSON: {"topic": "Hukum Newton 1"}
+    Endpoint with SSE streaming for progress updates
     """
     topic = (payload.get("topic") or "").strip()
     if not topic:
@@ -506,37 +509,47 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         if not chat or chat.user_id != user.id:
             raise HTTPException(status_code=404, detail="Chat not found")
         
-        # 💬 Simpan pesan user agar masuk ke database
+        # Save user message
         user_msg = Message(chat_folder_id=chat.id, role=True, content=topic)
         session.add(user_msg)
         session.commit()
-        session.refresh(user_msg)
+
+    async def generate_with_progress():
+        """Generator function that yields progress updates"""
+        try:
+            # Send initial status
+            yield f"data: {json.dumps({'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'})}\n\n"
+            
+            # Generate video with progress callback
+            video_url = None
+            has_error = False
+            
+            for progress in generate_video_for_topic_with_progress(topic):
+                yield f"data: {json.dumps(progress)}\n\n"
+                if progress.get('status') == 'completed':
+                    video_url = progress.get('video_url')
+                if progress.get('status') == 'error':
+                    has_error = True
+            
+            # Only save final message if no error occurred
+            if not has_error and video_url:
+                with Session(engine) as session:
+                    ai_msg = Message(
+                        chat_folder_id=chat_id,
+                        role=False,
+                        content=f"✅ Video tentang '{topic}' berhasil dibuat!",
+                        video_url=video_url
+                    )
+                    session.add(ai_msg)
+                    session.commit()
+                    session.refresh(ai_msg)
+                    
+                    yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
         
-        
-        # Simpan placeholder message
-        ai_msg_processing = Message(chat_folder_id=chat.id, role=False, content=f"🎬 Generating video tentang '{topic}'...")
-        session.add(ai_msg_processing)
-        session.commit()
+        except Exception as e:
+            yield f"data: {json.dumps({'status': 'error', 'message': f'❌ Error: {str(e)}'})}\n\n"
 
-        # Jalankan generator video
-        video_url = generate_video_for_topic(topic)
-
-        ai_msg_done = Message(
-            chat_folder_id=chat.id,
-            role=False,
-            content=f"✅ Video tentang '{topic}' berhasil dibuat!" if video_url else "❌ Maaf, video gagal dibuat.",
-            video_url=video_url
-        )
-        session.add(ai_msg_done)
-        session.commit()
-        session.refresh(ai_msg_done)
-
-    return {
-        "ok": True,
-        "topic": topic,
-        "message": ai_msg_done.content,
-        "video_url": ai_msg_done.video_url
-    }        
+    return StreamingResponse(generate_with_progress(), media_type="text/event-stream")
 
 class RenameChatIn(BaseModel):
     title: str

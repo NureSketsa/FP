@@ -146,6 +146,42 @@ def generate_educational_video(
 
     return video_path, ai_response
 
+def generate_video_for_topic_with_progress(topic: str):
+    """
+    Modified version that yields progress updates
+    """
+    try:
+        yield {"status": "generating_content", "message": "📝 Membuat konten edukatif..."}
+        
+        # Generate educational content
+        api_key = os.getenv("GOOGLE_API_KEY")
+        video_generator = ScienceVideoGenerator(google_api_key=api_key)
+        prompt = f"Create an educational animation about {topic}"
+        video_plan = video_generator.generate_complete_video_plan(prompt)
+        
+        yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        
+        # Generate Manim code
+        manim_generator = ManIMCodeGenerator(google_api_key=api_key)
+        manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
+        
+        yield {"status": "rendering", "message": "🎬 Merender video..."}
+        
+        # Render video
+        video_path, response = generate_educational_video(topic)
+        
+        yield {"status": "uploading", "message": "☁️ Mengupload ke cloud..."}
+        
+        video_url = response.get("video_path")
+        
+        if video_url and "supabase.co" in video_url:
+            yield {"status": "completed", "message": "✅ Video berhasil dibuat!", "video_url": video_url}
+        else:
+            yield {"status": "error", "message": "❌ Upload gagal"}
+            
+    except Exception as e:
+        yield {"status": "error", "message": f"❌ Error: {str(e)}"}
+
 import sys
 # Example usage
 if __name__ == "__main__":

@@ -286,6 +286,7 @@ body {
   font-size: 12px;
   text-decoration: none;
 }
+
 .action-btn:hover {
   background: rgba(63, 114, 175, 0.1);
   color: #112d4e;
