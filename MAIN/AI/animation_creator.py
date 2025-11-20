@@ -24,10 +24,10 @@ class LLMClient:
             self.llm = ChatGoogleGenerativeAI(
                 google_api_key=google_api_key,
                 model="gemini-2.5-flash",
-                temperature=0.5,
+                temperature=0.2,
                 max_tokens=None,
                 timeout=None,
-                max_retries=2
+                max_retries=4
             )
             
         except Exception as e:
