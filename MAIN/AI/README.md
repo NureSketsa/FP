@@ -37,7 +37,7 @@ streamlit run app.py
 ```
 
 
-# 🧬 EduGen 🎬
+# 🧬 LEARNVIDAI 🎬
 ### AI-Powered Science Education Video Generator
 
 <p align="center">
@@ -65,8 +65,8 @@ streamlit run app.py
 ## 🏗️ System Architecture
 
 <div align="center">
-  <img src="assets/dia2.jpeg" alt="EduGen System Design Diagram 1" width="400"/>
-  <img src="assets/dia1.jpeg" alt="EduGen System Design Diagram 2" width="400"/>
+  <img src="assets/dia2.jpeg" alt="LEARNVIDAI System Design Diagram 1" width="400"/>
+  <img src="assets/dia1.jpeg" alt="LEARNVIDAI System Design Diagram 2" width="400"/>
  
 </div>
 
@@ -116,8 +116,8 @@ User Input → Content Generator → Manim Code Generator → Animation Renderer
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/EduGen.git
-   cd EduGen
+   git clone https://github.com/your-username/LEARNVIDAI.git
+   cd LEARNVIDAI
    ```
 
 2. **Install Python dependencies**
@@ -181,7 +181,7 @@ video_path = create_animation_from_code(manim_code)
 ## 📁 Project Structure
 
 ```
-EduGen/
+LEARNVIDAI/
 ├── script_generator.py          # Stage 1: Educational content generation
 ├── manim_code_generator.py      # Stage 2: Manim code generation
 ├── animation_creator.py         # Animation rendering

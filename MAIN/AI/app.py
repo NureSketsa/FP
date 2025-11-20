@@ -1,5 +1,5 @@
 """
-Simple EduGen function - Generate educational videos with a single function call
+Simple LEARNVIDAI function - Generate educational videos with a single function call
 """
 
 
@@ -82,7 +82,7 @@ def generate_educational_video(
     unique_output.mkdir(parents=True, exist_ok=True)
 
     print(f"\n{'='*60}")
-    print(f"🎓 EduGen - Educational Video Generator")
+    print(f"🎓 LEARNVIDAI - Educational Video Generator")
     print(f"{'='*60}")
     print(f"Topic: {topic}")
     print(f"Output folder: {unique_output}")
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     domain = sys.argv[3] if len(sys.argv) > 3 else "auto-detect"
     output_dir = sys.argv[4] if len(sys.argv) > 4 else "output"
 
-    print(f"🚀 Running EduGen for topic: {topic}")
+    print(f"🚀 Running LEARNVIDAI for topic: {topic}")
     video_path, response = generate_educational_video(topic, complexity, domain, output_dir)
 
     print("\n📊 Results:")
