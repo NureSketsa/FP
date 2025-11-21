@@ -372,6 +372,194 @@ REQUIREMENTS FOR MANIM CODE:
 - TOP (use UP*3 instead)
 - BOTTOM (use DOWN*3 instead)
 
+==========================================================
+POSITIONING SUMMARY:
+==========================================================
+🎯 MANDATORY POSITION ALLOCATION ALGORITHM:
+
+BEFORE placing any Text or visual object, execute this algorithm:
+
+Step 1: Determine content type
+  - Title/Header → allocate to Y=2.5 to 3.5
+  - Main content → allocate to Y=-1.5 to 1.5
+  - Footer/Summary → allocate to Y=-2.5 to -1.6
+
+Step 2: Check horizontal space
+  - IF text length > 80 chars → use Y=0 (center, max horizontal space)
+  - IF diagram + text → diagram LEFT (X=-4 to -1), text RIGHT (X=1 to 4)
+  - IF single element → center horizontally (X=-2 to 2)
+
+Step 3: Verify no overlap
+  - Check registry of used positions
+  - IF position occupied → shift by ±0.8 units (vertical) or ±2 units (horizontal)
+  - Re-check until free position found
+
+Step 4: Validate screen bounds
+  - Text top < Y=3.5
+  - Text bottom > Y=-3.5
+  - Text left > X=-6
+  - Text right < X=6
+  - IF violation detected → scale text down: .scale(0.8) or reduce font_size
+
+Step 5: Register position
+  - Add coordinates to mental registry
+  - Format: "object_name: (X, Y, width, height)"
+
+EXAMPLE EXECUTION:
+title = Text("Introduction", font_size=48)
+→ Type: Title → Y target = 3.0
+→ Check registry: empty
+→ Apply: .shift(UP*3)
+→ Bounds check: Y=3.0 ✓, width=4.2 → X∈[-2.1, 2.1] ✓
+→ Register: "title: (0, 3, 4.2, 0.6)"
+
+⚠️ CRITICAL SCREEN BOUNDS VALIDATION RULE:
+
+FOR EVERY Text, MathTex, or visual object you generate:
+
+1. IMMEDIATELY after creating the object, mentally calculate its bounding box:
+   - Width: estimate character_count × 0.05 × font_size_factor
+   - Height: estimate font_size × 0.03
+   
+2. BEFORE applying .shift(), verify final position:
+   - final_x = base_x + shift_x
+   - final_y = base_y + shift_y
+   - object_left = final_x - (width/2)
+   - object_right = final_x + (width/2)  
+   - object_top = final_y + (height/2)
+   - object_bottom = final_y - (height/2)
+
+3. VALIDATE bounds:
+   - IF object_left < -6 OR object_right > 6 → SCALE DOWN or SPLIT TEXT
+   - IF object_top > 3.5 OR object_bottom < -3.5 → REDUCE shift amount
+
+4. AUTO-FIX out of bounds:
+```python
+   # WRONG - will be cut off:
+   title = Text("Very Long Title Text Here", font_size=48).shift(UP*3)
+   
+   # CORRECT - auto-scaled to fit:
+   title = Text("Very Long Title Text Here", font_size=36).shift(UP*2.8).scale(0.9)
+```
+
+ABSOLUTE RULE: If you're uncertain whether an object fits, ALWAYS scale down rather than risk cutoff.
+
+🚫 REAL-TIME OVERLAP PREVENTION CHECKLIST:
+
+AFTER writing each self.play() or self.add() statement, execute this checklist:
+
+□ Have I used this Y-coordinate already in this scene?
+  → IF YES → Add ±0.8 to Y or use different zone
+  
+□ Is there existing content at this position?
+  → IF YES → Remove old content first: self.play(FadeOut(old_object))
+  
+□ Am I placing multiple objects simultaneously?
+  → IF YES → Use distinct Y positions: UP*2, UP*0.5, DOWN*1, DOWN*2.5
+  
+□ Does this object need to coexist with others?
+  → IF YES → Use next_to(): new_obj.next_to(existing_obj, DOWN, buff=0.5)
+
+□ Have I cleared the scene since the last major section?
+  → IF NO and >3 objects visible → Add: self.play(FadeOut(*self.mobjects))
+
+MANDATORY SPACING RULES:
+- Minimum vertical gap between Text objects: 0.5 units
+- Minimum horizontal gap when side-by-side: 1.0 units
+- After placing 4+ objects: MUST clear scene before adding more
+
+EXAMPLE - PREVENTING OVERLAP:
+```python
+# ❌ WRONG - All at same position:
+title = Text("Title").shift(UP*2)
+subtitle = Text("Subtitle").shift(UP*2)  # OVERLAP!
+
+# ✅ CORRECT - Different positions:
+title = Text("Title").shift(UP*2.5)
+subtitle = Text("Subtitle").shift(UP*1.2)  # Gap of 1.3 units
+
+# ✅ CORRECT - Using next_to():
+title = Text("Title").shift(UP*2.5)
+subtitle = Text("Subtitle").next_to(title, DOWN, buff=0.5)  # Auto-positioned
+
+# ✅ CORRECT - Clear between sections:
+self.play(FadeOut(*self.mobjects))  # Clear everything
+new_title = Text("New Section").shift(UP*2.5)  # Safe to reuse positions
+```
+
+📍 POSITION DEBUGGING ANNOTATIONS (MANDATORY):
+
+FOR EVERY object you create, add a comment showing its allocated position:
+```python
+# Position: Y=3.0, X=0, Zone=TITLE, Safe=✓
+title = Text("Introduction to Calculus", font_size=44).shift(UP*3)
+
+# Position: Y=1.5, X=-3, Zone=CONTENT_LEFT, Safe=✓  
+diagram = Circle(radius=1).shift(UP*1.5 + LEFT*3)
+
+# Position: Y=1.5, X=3, Zone=CONTENT_RIGHT, Safe=✓
+explanation = Text("A circle represents unity", font_size=20).shift(UP*1.5 + RIGHT*3)
+
+# Position: Y=-2.0, X=0, Zone=FOOTER, Safe=✓
+summary = Text("Key takeaway: Circles are round", font_size=18).shift(DOWN*2)
+```
+
+This helps you (and humans reviewing the code) verify no overlaps and all positions are within bounds.
+
+FORMAT: # Position: Y={y_coord}, X={x_coord}, Zone={zone_name}, Safe={✓ or ⚠️}
+- Use ✓ if within bounds
+- Use ⚠️ if close to boundary (±0.3 units from limit)
+
+🆘 EMERGENCY POSITION RECOVERY STRATEGY:
+
+IF you realize you've created an overlap or out-of-bounds situation:
+
+IMMEDIATE ACTIONS:
+1. STOP generating further objects in that area
+2. Apply one of these fixes:
+
+FIX A - Scale Down:
+```python
+# If text is too wide:
+long_text = Text("Very long explanation here...", font_size=24)
+if long_text.get_width() > 10:  # Would extend beyond screen
+    long_text.scale(10 / long_text.get_width())  # Scale to fit
+```
+
+FIX B - Split Text:
+```python
+# If text is too long, split into multiple lines:
+# WRONG:
+text = Text("This is a very long single line that will go off screen", font_size=20)
+
+# CORRECT:
+text = Text("This is a very long single line\\nthat will go off screen", font_size=20)
+# OR use VGroup:
+line1 = Text("This is a very long single line", font_size=20).shift(UP*0.3)
+line2 = Text("that will go off screen", font_size=20).shift(DOWN*0.3)
+text_group = VGroup(line1, line2)
+```
+
+FIX C - Relocate:
+```python
+# If position is already occupied, shift to free space:
+# Check: title already at UP*2.5
+# Solution: Use UP*1.2 instead
+subtitle = Text("Subtitle").shift(UP*1.2)  # Different Y coordinate
+```
+
+FIX D - Clear and Reset:
+```python
+# If too many objects causing clutter:
+self.play(FadeOut(*self.mobjects))  # Clear everything
+self.wait(0.3)
+# Now safe to reuse any positions
+```
+
+PRIORITY ORDER: Try FIX A → FIX B → FIX C → FIX D
+
+==========================================================
+
 📚 PROFESSIONAL MANIM EXAMPLES GALLERY:
 Study these high-quality examples for code patterns and techniques:
 
@@ -1906,8 +2094,34 @@ Use these animation techniques:
 - Color changes for categorization: obj.animate.set_color(new_color)
 
 ⚠️ FINAL VALIDATION CHECKLIST:
-- [ ] No overlapping text or visual elements
-- [ ] All positions within 16:9 safe viewing area
+OVERLAP VALIDATION:
+- [ ] No two Text objects share same Y coordinate (±0.3 tolerance)
+- [ ] All simultaneously visible objects have ≥0.5 unit separation
+- [ ] Maximum 5 objects visible at any time (or clear some first)
+- [ ] Used self.play(FadeOut(*self.mobjects)) between major sections
+
+SCREEN BOUNDS VALIDATION:  
+- [ ] All text objects: -6 < X < 6 and -3.5 < Y < 3.5
+- [ ] Title positions: 2.5 ≤ Y ≤ 3.2 (not 3.5, leave margin)
+- [ ] Footer positions: -3.2 ≤ Y ≤ -1.8 (not -3.5, leave margin)
+- [ ] Long text scaled to fit: font_size reduced or .scale() applied
+- [ ] No font_size > 52 (usually too large)
+- [ ] No font_size < 16 (usually too small/unreadable)
+
+POSITION DIVERSITY VALIDATION:
+- [ ] Used at least 5 different Y coordinates across the scene
+- [ ] Not all objects centered (X=0) - used LEFT/RIGHT sides
+- [ ] Diagrams and text placed side-by-side when possible
+- [ ] Vertical distribution: objects spread across Y=-2 to Y=2 range
+
+SYNTAX VALIDATION:
+- [ ] Every Text() line has matching parentheses
+- [ ] No commas before method calls: Text("x").shift() NOT Text("x",.shift()
+- [ ] All .shift() statements complete: .shift(UP*2) NOT .shift(UP*2
+- [ ] Only valid colors used: [RED, BLUE, GREEN, YELLOW, WHITE, BLACK, GRAY, PURPLE, ORANGE]
+- [ ] Only valid positions: [UP, DOWN, LEFT, RIGHT, ORIGIN] with multipliers
+
+OTHER VALIDATION:
 - [ ] Scene timing matches educational step duration
 - [ ] Minimum 3-second hold time for complex concepts
 - [ ] Progressive complexity maintained throughout
@@ -1916,6 +2130,8 @@ Use these animation techniques:
 - [ ] Consistent animation patterns and visual metaphors
 - [ ] Clear scene transitions with adequate buffering
 - [ ] Comprehensive step-by-step conceptual breakdown
+
+IF ANY CHECKBOX IS UNCHECKED: Review and fix before proceeding.
 """)
         
         return ''.join(prompt_parts)
@@ -2566,6 +2782,26 @@ Use these animation techniques:
             8. Use proper method chaining without syntax errors
             9. Ensure all parentheses are balanced
             10. Use consistent 4-space indentation throughout
+
+            🧠 MANDATORY COGNITIVE PRE-CHECK BEFORE GENERATING EACH LINE:
+
+            BEFORE writing ANY line that creates or positions a Manim object, you MUST mentally execute:
+
+            1. POSITION CHECK: "What coordinates will this object occupy?"
+        
+            2. CONFLICT CHECK: "Is any existing object already at these coordinates?"
+            3. BOUNDS CHECK: "Is this position within X∈[-6, 6], Y∈[-3.5, 3.5]?"
+            4. VISIBILITY CHECK: "Will this object be fully visible without cutoff?"
+
+            IF any check fails → STOP → Choose alternative position → Re-check
+
+            MENTAL POSITION REGISTRY (track in your working memory):
+            - Title zone (Y=2.5 to 3.5): [occupied positions list]
+            - Content zone (Y=-1.5 to 1.5): [occupied positions list]  
+            - Footer zone (Y=-2.5 to -1.6): [occupied positions list]
+
+            Update this registry after EVERY object placement.
+
             '''
         )
 
