@@ -7,11 +7,11 @@ __pycache__/
 *.pyc
 .env
 MAIN\__pycache__
-MAIN/trial_media/images/*
-MAIN/trial_media/texts/*
-MAIN/trial_media/videos/*
-MAIN/trial_media/Tex/*
 trial_media/images/*
 trial_media/texts/*
 trial_media/videos/*
 trial_media/Tex/*
+MAIN\trial_media\images\*
+MAIN\trial_media\texts\*
+MAIN\trial_media\videos\*
+MAIN\trial_media\Tex\*
