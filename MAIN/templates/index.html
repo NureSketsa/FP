@@ -8,6 +8,12 @@
       href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="icon"
+      href="../trial_media/images/logo.svg"
+      type="image/svg+xml"
+    />
+
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
 
@@ -60,7 +66,24 @@
         color: #dbe2ef;
         text-decoration: none;
         font-size: 16px;
-        transition: color 0.3s ease;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #f9f7f7;
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after,
+      .nav-links a[href="/"]::after {
+        width: 100%;
       }
 
       .nav-links a:hover {
@@ -175,8 +198,10 @@
         transition: color 0.3s ease;
       }
 
-      .mobile-nav a:hover {
+      .mobile-nav a:hover,
+      .mobile-nav a[href="/"] {
         color: #f9f7f7;
+        font-weight: bold;
       }
 
       /* Hero Section */

@@ -1,525 +1,604 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LearnVid AI - Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montaga&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.lordicon.com/lordicon.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LearnVid AI - Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="../trial_media/images/logo.svg"
+      type="image/svg+xml"
+    />
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      font-family: 'Montaga', serif;
-      background: linear-gradient(135deg, #112D4E 0%, #1a3f63 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-      position: relative;
-      padding: 20px;
-    }
-
-    .bg-animations {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-
-    .floating-symbol {
-      position: absolute;
-      font-family: 'Montaga', serif;
-      font-weight: bold;
-      opacity: 0;
-      will-change: transform, opacity;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
-    }
-
-    @keyframes floatRandom {
-      0% { opacity: 0; transform: translate(var(--xStart), var(--yStart)) scale(var(--scaleStart)) rotate(var(--rotateStart)); }
-      15% { opacity: var(--maxOpacity); }
-      50% { transform: translate(var(--xMid), var(--yMid)) scale(var(--scaleMid)) rotate(var(--rotateMid)); }
-      85% { opacity: var(--maxOpacity); }
-      100% { opacity: 0; transform: translate(var(--xEnd), var(--yEnd)) scale(var(--scaleEnd)) rotate(var(--rotateEnd)); }
-    }
-
-    .register-container {
-      background: rgba(249, 247, 247, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 40px;
-      box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      position: relative;
-      z-index: 10;
-      animation: slideUp 0.8s ease-out;
-      margin-top: 60px;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .icon-container {
-      position: absolute;
-      top: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 100px;
-      background: #3F72AF;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
-    }
-
-    .register-title {
-      color: #112D4E;
-      font-size: 1.8rem;
-      margin: 20px 0 30px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .form-label {
-      display: block;
-      color: #112D4E;
-      font-size: 14px;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
-    .required { color: #e74c3c; }
-
-    .form-input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 2px solid #DBE2EF;
-      border-radius: 12px;
-      font-family: 'Montaga', serif;
-      font-size: 14px;
-      background: #F9F7F7;
-      color: #112D4E;
-      transition: all 0.3s ease;
-      outline: none;
-    }
-
-    .form-input:focus {
-      border-color: #3F72AF;
-      box-shadow: 0 0 0 3px rgba(63,114,175,.1);
-      transform: translateY(-2px);
-    }
-
-    .register-btn {
-      width: 100%;
-      background: #3F72AF;
-      color: #F9F7F7;
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: 0.3s;
-      font-family: 'Montaga', serif;
-    }
-
-    .register-btn:hover {
-      background: #2d5a94;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(63,114,175,0.3);
-    }
-
-    .register-btn:active {
-      transform: translateY(0);
-    }
-
-    .login-link-container {
-      margin-top: 25px;
-      font-size: 14px;
-      color: #112D4E;
-    }
-
-    .login-link {
-      color: #3F72AF;
-      font-weight: 500;
-      text-decoration: none;
-    }
-
-    .login-link:hover {
-      color: #2d5a94;
-      text-decoration: underline;
-    }
-
-    .error-text { 
-      display:block; 
-      margin-top:6px; 
-      font-size:.9rem; 
-      color:#ff6b6b; 
-      min-height:1.1em; 
-    }
-    
-    .form-input.error { 
-      border:2px solid #ff6b6b !important; 
-      box-shadow:0 0 0 3px rgba(255,107,107,.15); 
-    }
-    
-    .form-input.success { 
-      border:2px solid #27ae60 !important; 
-      box-shadow:0 0 0 3px rgba(39,174,96,.12); 
-    }
-    
-    .alert-banner{
-      background:#ffe3e6; 
-      color:#b00020; 
-      border:1px solid #ffb3bd;
-      padding:10px 14px; 
-      border-radius:10px; 
-      margin-bottom:16px; 
-      font-weight:600;
-      font-size: 14px;
-    }
-
-    /* ===== RESPONSIVE STYLES ===== */
-    
-    /* Tablets (portrait) */
-    @media (max-width: 768px) {
       body {
-        padding: 15px;
+        font-family: "Montaga", serif;
+        background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        position: relative;
+        padding: 20px;
+      }
+
+      .bg-animations {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .floating-symbol {
+        position: absolute;
+        font-family: "Montaga", serif;
+        font-weight: bold;
+        opacity: 0;
+        will-change: transform, opacity;
+        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+      }
+
+      @keyframes floatRandom {
+        0% {
+          opacity: 0;
+          transform: translate(var(--xStart), var(--yStart))
+            scale(var(--scaleStart)) rotate(var(--rotateStart));
+        }
+        15% {
+          opacity: var(--maxOpacity);
+        }
+        50% {
+          transform: translate(var(--xMid), var(--yMid)) scale(var(--scaleMid))
+            rotate(var(--rotateMid));
+        }
+        85% {
+          opacity: var(--maxOpacity);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--xEnd), var(--yEnd)) scale(var(--scaleEnd))
+            rotate(var(--rotateEnd));
+        }
       }
 
       .register-container {
-        padding: 35px 30px;
-        margin-top: 50px;
-        border-radius: 20px;
+        background: rgba(249, 247, 247, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(17, 45, 78, 0.3);
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        animation: slideUp 0.8s ease-out;
+        margin-top: 60px;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .icon-container {
-        width: 90px;
-        height: 90px;
-        top: -45px;
-      }
-
-      .icon-container lord-icon {
-        width: 70px !important;
-        height: 70px !important;
-      }
-
-      .register-title {
-        font-size: 1.6rem;
-        margin: 15px 0 25px;
-      }
-
-      .form-label {
-        font-size: 13px;
-      }
-
-      .form-input {
-        padding: 13px 14px;
-        font-size: 14px;
-      }
-
-      .register-btn {
-        padding: 15px;
-        font-size: 15px;
-      }
-
-      .login-link-container {
-        font-size: 13px;
-      }
-    }
-
-    /* Mobile devices */
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-
-      .register-container {
-        padding: 30px 20px;
-        margin-top: 40px;
-        border-radius: 18px;
-        max-width: 100%;
-      }
-
-      .icon-container {
-        width: 80px;
-        height: 80px;
-        top: -40px;
-      }
-
-      .icon-container lord-icon {
-        width: 60px !important;
-        height: 60px !important;
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 100px;
+        background: #3f72af;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
       }
 
       .register-title {
-        font-size: 1.4rem;
-        margin: 10px 0 20px;
+        color: #112d4e;
+        font-size: 1.8rem;
+        margin: 20px 0 30px;
       }
 
       .form-group {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        text-align: left;
       }
 
       .form-label {
-        font-size: 12px;
-        margin-bottom: 5px;
+        display: block;
+        color: #112d4e;
+        font-size: 14px;
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+
+      .required {
+        color: #e74c3c;
       }
 
       .form-input {
-        padding: 12px;
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #dbe2ef;
+        border-radius: 12px;
+        font-family: "Montaga", serif;
         font-size: 14px;
-        border-radius: 10px;
+        background: #f9f7f7;
+        color: #112d4e;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .form-input:focus {
+        border-color: #3f72af;
+        box-shadow: 0 0 0 3px rgba(63, 114, 175, 0.1);
+        transform: translateY(-2px);
       }
 
       .register-btn {
-        padding: 14px;
-        font-size: 15px;
-        border-radius: 10px;
+        width: 100%;
+        background: #3f72af;
+        color: #f9f7f7;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+        font-family: "Montaga", serif;
+      }
+
+      .register-btn:hover {
+        background: #2d5a94;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(63, 114, 175, 0.3);
+      }
+
+      .register-btn:active {
+        transform: translateY(0);
       }
 
       .login-link-container {
-        margin-top: 20px;
-        font-size: 12px;
+        margin-top: 25px;
+        font-size: 14px;
+        color: #112d4e;
+      }
+
+      .login-link {
+        color: #3f72af;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      .login-link:hover {
+        color: #2d5a94;
+        text-decoration: underline;
+      }
+
+      .error-text {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.9rem;
+        color: #ff6b6b;
+        min-height: 1.1em;
+      }
+
+      .form-input.error {
+        border: 2px solid #ff6b6b !important;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+      }
+
+      .form-input.success {
+        border: 2px solid #27ae60 !important;
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
       }
 
       .alert-banner {
-        padding: 8px 12px;
-        font-size: 12px;
-        border-radius: 8px;
-      }
-
-      /* Reduce animation complexity on mobile */
-      .floating-symbol {
-        display: none;
-      }
-    }
-
-    /* Small mobile devices */
-    @media (max-width: 360px) {
-      .register-container {
-        padding: 25px 15px;
-      }
-
-      .register-title {
-        font-size: 1.3rem;
-      }
-
-      .form-input {
-        padding: 11px;
-        font-size: 13px;
-      }
-
-      .register-btn {
-        padding: 13px;
+        background: #ffe3e6;
+        color: #b00020;
+        border: 1px solid #ffb3bd;
+        padding: 10px 14px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        font-weight: 600;
         font-size: 14px;
       }
-    }
 
-    /* Landscape mobile */
-    @media (max-height: 600px) and (orientation: landscape) {
-      body {
-        padding: 10px;
+      /* ===== RESPONSIVE STYLES ===== */
+
+      /* Tablets (portrait) */
+      @media (max-width: 768px) {
+        body {
+          padding: 15px;
+        }
+
+        .register-container {
+          padding: 35px 30px;
+          margin-top: 50px;
+          border-radius: 20px;
+        }
+
+        .icon-container {
+          width: 90px;
+          height: 90px;
+          top: -45px;
+        }
+
+        .icon-container lord-icon {
+          width: 70px !important;
+          height: 70px !important;
+        }
+
+        .register-title {
+          font-size: 1.6rem;
+          margin: 15px 0 25px;
+        }
+
+        .form-label {
+          font-size: 13px;
+        }
+
+        .form-input {
+          padding: 13px 14px;
+          font-size: 14px;
+        }
+
+        .register-btn {
+          padding: 15px;
+          font-size: 15px;
+        }
+
+        .login-link-container {
+          font-size: 13px;
+        }
       }
 
-      .register-container {
-        margin-top: 30px;
-        padding: 25px 20px;
+      /* Mobile devices */
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+
+        .register-container {
+          padding: 30px 20px;
+          margin-top: 40px;
+          border-radius: 18px;
+          max-width: 100%;
+        }
+
+        .icon-container {
+          width: 80px;
+          height: 80px;
+          top: -40px;
+        }
+
+        .icon-container lord-icon {
+          width: 60px !important;
+          height: 60px !important;
+        }
+
+        .register-title {
+          font-size: 1.4rem;
+          margin: 10px 0 20px;
+        }
+
+        .form-group {
+          margin-bottom: 16px;
+        }
+
+        .form-label {
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+
+        .form-input {
+          padding: 12px;
+          font-size: 14px;
+          border-radius: 10px;
+        }
+
+        .register-btn {
+          padding: 14px;
+          font-size: 15px;
+          border-radius: 10px;
+        }
+
+        .login-link-container {
+          margin-top: 20px;
+          font-size: 12px;
+        }
+
+        .alert-banner {
+          padding: 8px 12px;
+          font-size: 12px;
+          border-radius: 8px;
+        }
+
+        /* Reduce animation complexity on mobile */
+        .floating-symbol {
+          display: none;
+        }
       }
 
-      .icon-container {
-        width: 70px;
-        height: 70px;
-        top: -35px;
+      /* Small mobile devices */
+      @media (max-width: 360px) {
+        .register-container {
+          padding: 25px 15px;
+        }
+
+        .register-title {
+          font-size: 1.3rem;
+        }
+
+        .form-input {
+          padding: 11px;
+          font-size: 13px;
+        }
+
+        .register-btn {
+          padding: 13px;
+          font-size: 14px;
+        }
       }
 
-      .icon-container lord-icon {
-        width: 50px !important;
-        height: 50px !important;
+      /* Landscape mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        body {
+          padding: 10px;
+        }
+
+        .register-container {
+          margin-top: 30px;
+          padding: 25px 20px;
+        }
+
+        .icon-container {
+          width: 70px;
+          height: 70px;
+          top: -35px;
+        }
+
+        .icon-container lord-icon {
+          width: 50px !important;
+          height: 50px !important;
+        }
+
+        .register-title {
+          font-size: 1.3rem;
+          margin: 10px 0 15px;
+        }
+
+        .form-group {
+          margin-bottom: 12px;
+        }
+
+        .form-input {
+          padding: 10px 12px;
+        }
+
+        .register-btn {
+          padding: 12px;
+          margin-top: 8px;
+        }
+
+        .login-link-container {
+          margin-top: 15px;
+        }
       }
+    </style>
+  </head>
+  <body>
+    <div class="bg-animations"></div>
 
-      .register-title {
-        font-size: 1.3rem;
-        margin: 10px 0 15px;
-      }
+    <div class="register-container">
+      <!-- Banner error dari server (opsional, kalau server kirim message) -->
+      {% if message %}
+      <div class="alert-banner" role="alert">{{ message }}</div>
+      {% endif %}
 
-      .form-group {
-        margin-bottom: 12px;
-      }
+      <!-- Banner error dari client (akun tidak ada) -->
+      <div
+        id="clientBanner"
+        class="alert-banner"
+        role="alert"
+        style="display: none"
+      ></div>
 
-      .form-input {
-        padding: 10px 12px;
-      }
-
-      .register-btn {
-        padding: 12px;
-        margin-top: 8px;
-      }
-
-      .login-link-container {
-        margin-top: 15px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-animations"></div>
-
-  <div class="register-container">
-    <!-- Banner error dari server (opsional, kalau server kirim message) -->
-    {% if message %}
-    <div class="alert-banner" role="alert">{{ message }}</div>
-    {% endif %}
-
-    <!-- Banner error dari client (akun tidak ada) -->
-    <div id="clientBanner" class="alert-banner" role="alert" style="display:none"></div>
-
-    <div class="icon-container">
-      <lord-icon
-        src="https://cdn.lordicon.com/urswgamh.json"
-        trigger="loop"
-        delay="500"
-        stroke="bold"
-        colors="primary:#f9f7f7,secondary:#f9f7f7"
-        style="width:80px;height:80px">
-      </lord-icon>
-    </div>
-
-    <h1 class="register-title">Login</h1>
-
-    <form id="loginForm" method="POST" action="/login" novalidate>
-      <!-- USERNAME/EMAIL -->
-      <div class="form-group">
-        <label class="form-label" for="usernameEmail"><span class="required">*</span> Username/Email</label>
-        <input
-          id="usernameEmail"
-          name="username_or_email"
-          type="text"
-          class="form-input"
-          placeholder="Enter your username or email"
-        />
+      <div class="icon-container">
+        <lord-icon
+          src="https://cdn.lordicon.com/urswgamh.json"
+          trigger="loop"
+          delay="500"
+          stroke="bold"
+          colors="primary:#f9f7f7,secondary:#f9f7f7"
+          style="width: 80px; height: 80px"
+        >
+        </lord-icon>
       </div>
 
-      <!-- PASSWORD -->
-      <div class="form-group">
-        <label class="form-label" for="password"><span class="required">*</span> Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          class="form-input"
-          placeholder="Enter your password"
-          maxlength="128"
-        />
+      <h1 class="register-title">Login</h1>
+
+      <form id="loginForm" method="POST" action="/login" novalidate>
+        <!-- USERNAME/EMAIL -->
+        <div class="form-group">
+          <label class="form-label" for="usernameEmail"
+            ><span class="required">*</span> Username/Email</label
+          >
+          <input
+            id="usernameEmail"
+            name="username_or_email"
+            type="text"
+            class="form-input"
+            placeholder="Enter your username or email"
+          />
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="form-group">
+          <label class="form-label" for="password"
+            ><span class="required">*</span> Password</label
+          >
+          <input
+            id="password"
+            name="password"
+            type="password"
+            class="form-input"
+            placeholder="Enter your password"
+            maxlength="128"
+          />
+        </div>
+
+        <button type="submit" class="register-btn" id="loginBtn">Login</button>
+      </form>
+
+      <div class="login-link-container">
+        don't have an account?
+        <a href="/register" class="login-link">Register</a>
       </div>
-
-      <button type="submit" class="register-btn" id="loginBtn">Login</button>
-    </form>
-
-    <div class="login-link-container">
-      don't have an account? <a href="/register" class="login-link">Register</a>
     </div>
-  </div>
 
-  <script>
-  // ===== background animation =====
-  const container = document.querySelector('.bg-animations');
-  const symbols = ['π','∑','√','∞','△','∫','α','β','θ','μ','∇','≠','≤','≥','∪','∩','∅','±','×','÷','²','³','∠','⊥','∥','φ','ψ','ω'];
-  const colors = ['rgba(255,255,255,0.3)','rgba(173,216,230,0.35)','rgba(144,238,144,0.35)','rgba(255,182,193,0.35)','rgba(221,160,221,0.35)'];
-  
-  function spawnSymbol(){
-    const el = document.createElement('div');
-    el.className = 'floating-symbol';
-    el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-    el.style.fontSize = (1+Math.random()*2.5)+'rem';
-    el.style.color = colors[Math.floor(Math.random()*colors.length)];
-    const startX = Math.random()*100, startY = 100+Math.random()*20;
-    const driftX = startX + (Math.random()*40 - 20);
-    const driftY = startY - (30 + Math.random()*60);
-    const endX  = driftX + (Math.random()*40 - 20);
-    const endY  = driftY - (30 + Math.random()*40);
-    el.style.setProperty('--xStart', startX+'vw');
-    el.style.setProperty('--yStart', startY+'vh');
-    el.style.setProperty('--xMid', driftX+'vw');
-    el.style.setProperty('--yMid', driftY+'vh');
-    el.style.setProperty('--xEnd', endX+'vw');
-    el.style.setProperty('--yEnd', endY+'vh');
-    el.style.setProperty('--rotateStart', (Math.random()*60-30)+'deg');
-    el.style.setProperty('--rotateMid', (Math.random()*80-40)+'deg');
-    el.style.setProperty('--rotateEnd', (Math.random()*120-60)+'deg');
-    el.style.setProperty('--scaleStart', 0.5+Math.random()*0.3);
-    el.style.setProperty('--scaleMid', 1+Math.random()*0.2);
-    el.style.setProperty('--scaleEnd', 1.2+Math.random()*0.3);
-    el.style.setProperty('--maxOpacity', 0.6+Math.random()*0.3);
-    const duration = (5+Math.random()*6)+'s';
-    el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
-    el.style.zIndex = Math.random()<0.3?1:2;
-    container.appendChild(el);
-    setTimeout(()=>el.remove(), parseFloat(duration)*1000);
-  }
-  
-  // Only run animation on larger screens for better performance
-  if (window.innerWidth > 480) {
-    setInterval(()=>{ 
-      for(let i=0,n=1+Math.floor(Math.random()*3);i<n;i++) spawnSymbol(); 
-    }, 700);
-  }
+    <script>
+      // ===== background animation =====
+      const container = document.querySelector(".bg-animations");
+      const symbols = [
+        "π",
+        "∑",
+        "√",
+        "∞",
+        "△",
+        "∫",
+        "α",
+        "β",
+        "θ",
+        "μ",
+        "∇",
+        "≠",
+        "≤",
+        "≥",
+        "∪",
+        "∩",
+        "∅",
+        "±",
+        "×",
+        "÷",
+        "²",
+        "³",
+        "∠",
+        "⊥",
+        "∥",
+        "φ",
+        "ψ",
+        "ω",
+      ];
+      const colors = [
+        "rgba(255,255,255,0.3)",
+        "rgba(173,216,230,0.35)",
+        "rgba(144,238,144,0.35)",
+        "rgba(255,182,193,0.35)",
+        "rgba(221,160,221,0.35)",
+      ];
 
-  // ====== Login check ======
-  const form = document.getElementById('loginForm');
-  const unameOrEmail = document.getElementById('usernameEmail');
-  const password = document.getElementById('password');
-  const clientBanner = document.getElementById('clientBanner');
+      function spawnSymbol() {
+        const el = document.createElement("div");
+        el.className = "floating-symbol";
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        const startX = Math.random() * 100,
+          startY = 100 + Math.random() * 20;
+        const driftX = startX + (Math.random() * 40 - 20);
+        const driftY = startY - (30 + Math.random() * 60);
+        const endX = driftX + (Math.random() * 40 - 20);
+        const endY = driftY - (30 + Math.random() * 40);
+        el.style.setProperty("--xStart", startX + "vw");
+        el.style.setProperty("--yStart", startY + "vh");
+        el.style.setProperty("--xMid", driftX + "vw");
+        el.style.setProperty("--yMid", driftY + "vh");
+        el.style.setProperty("--xEnd", endX + "vw");
+        el.style.setProperty("--yEnd", endY + "vh");
+        el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
+        el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
+        el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
+        el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
+        el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
+        el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
+        el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
+        const duration = 5 + Math.random() * 6 + "s";
+        el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
+        el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), parseFloat(duration) * 1000);
+      }
 
-  function showClientError(msg) {
-    clientBanner.textContent = msg;
-    clientBanner.style.display = 'block';
-  }
-  
-  function hideClientError() {
-    clientBanner.textContent = '';
-    clientBanner.style.display = 'none';
-  }
+      // Only run animation on larger screens for better performance
+      if (window.innerWidth > 480) {
+        setInterval(() => {
+          for (let i = 0, n = 1 + Math.floor(Math.random() * 3); i < n; i++)
+            spawnSymbol();
+        }, 700);
+      }
 
-  // Sembunyikan banner kalau user mulai mengetik
-  [unameOrEmail, password].forEach(i => i.addEventListener('input', hideClientError));
+      // ====== Login check ======
+      const form = document.getElementById("loginForm");
+      const unameOrEmail = document.getElementById("usernameEmail");
+      const password = document.getElementById("password");
+      const clientBanner = document.getElementById("clientBanner");
 
-  // Validasi: wajib isi dua-duanya
-  form.addEventListener('submit', function (e) {
-    hideClientError();
-    const userFilled = unameOrEmail.value.trim() !== "";
-    const passFilled = password.value.trim() !== "";
+      function showClientError(msg) {
+        clientBanner.textContent = msg;
+        clientBanner.style.display = "block";
+      }
 
-    if (!userFilled && !passFilled) {
-      e.preventDefault();
-      showClientError("Please fill in your username/email and password.");
-    } 
-    else if (!userFilled) {
-      e.preventDefault();
-      showClientError("Please enter your username or email.");
-    } 
-    else if (!passFilled) {
-      e.preventDefault();
-      showClientError("Please enter your password.");
-    }
-  });
-</script>
-</body>
+      function hideClientError() {
+        clientBanner.textContent = "";
+        clientBanner.style.display = "none";
+      }
+
+      // Sembunyikan banner kalau user mulai mengetik
+      [unameOrEmail, password].forEach((i) =>
+        i.addEventListener("input", hideClientError)
+      );
+
+      // Validasi: wajib isi dua-duanya
+      form.addEventListener("submit", function (e) {
+        hideClientError();
+        const userFilled = unameOrEmail.value.trim() !== "";
+        const passFilled = password.value.trim() !== "";
+
+        if (!userFilled && !passFilled) {
+          e.preventDefault();
+          showClientError("Please fill in your username/email and password.");
+        } else if (!userFilled) {
+          e.preventDefault();
+          showClientError("Please enter your username or email.");
+        } else if (!passFilled) {
+          e.preventDefault();
+          showClientError("Please enter your password.");
+        }
+      });
+    </script>
+  </body>
 </html>

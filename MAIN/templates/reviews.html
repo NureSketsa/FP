@@ -8,6 +8,11 @@
       href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="icon"
+      href="../trial_media/images/logo.svg"
+      type="image/svg+xml"
+    />
     <script src="https://cdn.lordicon.com/lordicon.js"></script>
     <style>
       * {
@@ -38,11 +43,11 @@
         align-items: center;
         gap: 8px;
         padding: 12px 20px;
-        background: linear-gradient(135deg, #3F72AF 0%, #2d5a94 100%);
+        background: linear-gradient(135deg, #3f72af 0%, #2d5a94 100%);
         border: none;
         border-radius: 12px;
-        color: #F9F7F7;
-        font-family: 'Montaga', serif;
+        color: #f9f7f7;
+        font-family: "Montaga", serif;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
@@ -415,7 +420,7 @@
         display: block;
         text-align: right;
         font-size: 12px;
-        color: #3F72AF;
+        color: #3f72af;
         margin-top: 4px;
         opacity: 0.8;
       }
@@ -428,7 +433,8 @@
           max-width: 800px;
         }
 
-        th, td {
+        th,
+        td {
           padding: 14px 12px;
         }
       }
@@ -511,7 +517,8 @@
           font-size: 13px;
         }
 
-        th, td {
+        th,
+        td {
           padding: 12px 10px;
         }
 
@@ -738,7 +745,8 @@
           font-size: 11px;
         }
 
-        th, td {
+        th,
+        td {
           padding: 8px 6px;
         }
 
@@ -811,355 +819,480 @@
     </style>
   </head>
   <body>
-  <!-- Back to Chat Button -->
-  <a href="/" class="back-to-chat">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M19 12H5M12 19l-7-7 7-7" />
-    </svg>
-    Back to Home
-  </a>
+    <!-- Back to Chat Button -->
+    <a href="/" class="back-to-chat">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
 
-  <div class="bg-animations"></div>
+    <div class="bg-animations"></div>
 
-  <div class="main-container">
-    <!-- Review Form -->
-    <div class="review-form-container">
-      <div class="icon-container">
-        <lord-icon src="https://cdn.lordicon.com/cvwrvyjv.json" trigger="loop" delay="500" state="hover-wink"
-          colors="primary:#dbe2ef,secondary:#dbe2ef" style="width: 70px; height: 70px">
-        </lord-icon>
-      </div>
-
-      <h1 class="review-title">Leave a Review</h1>
-
-      <form id="reviewForm" novalidate>
-        <div class="form-group">
-          <label class="form-label" for="nama"><span class="required">*</span> Nama
-            <span style="font-size:12px; color:#3F72AF;">(Max 50 characters)</span></label>
-          <input id="nama" name="nama" type="text" class="form-input" placeholder="Enter your name" maxlength="50"
-            required />
-          <small class="char-counter" id="namaCounter">0/50</small>
+    <div class="main-container">
+      <!-- Review Form -->
+      <div class="review-form-container">
+        <div class="icon-container">
+          <lord-icon
+            src="https://cdn.lordicon.com/cvwrvyjv.json"
+            trigger="loop"
+            delay="500"
+            state="hover-wink"
+            colors="primary:#dbe2ef,secondary:#dbe2ef"
+            style="width: 70px; height: 70px"
+          >
+          </lord-icon>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="nrp"><span class="required">*</span> NRP
-            <span style="font-size:12px; color:#3F72AF;">(Max 20 characters)</span></label>
-          <input id="nrp" name="nrp" type="text" class="form-input" placeholder="Enter your NRP" maxlength="20"
-            required />
-          <small class="char-counter" id="nrpCounter">0/20</small>
-        </div>
+        <h1 class="review-title">Leave a Review</h1>
 
-        <div class="form-group">
-          <label class="form-label" for="kelompok"><span class="required">*</span> Kelompok
-            <span style="font-size:12px; color:#3F72AF;">(Max 10 characters)</span></label>
-          <input id="kelompok" name="kelompok" type="text" class="form-input" placeholder="Enter your group"
-            maxlength="10" required />
-          <small class="char-counter" id="kelompokCounter">0/10</small>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label"><span class="required">*</span> Rate our Website</label>
-          <div class="star-rating">
-            <span class="star" data-rating="1">★</span>
-            <span class="star" data-rating="2">★</span>
-            <span class="star" data-rating="3">★</span>
-            <span class="star" data-rating="4">★</span>
-            <span class="star" data-rating="5">★</span>
+        <form id="reviewForm" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="nama"
+              ><span class="required">*</span> Nama
+              <span style="font-size: 12px; color: #3f72af"
+                >(Max 50 characters)</span
+              ></label
+            >
+            <input
+              id="nama"
+              name="nama"
+              type="text"
+              class="form-input"
+              placeholder="Enter your name"
+              maxlength="50"
+              required
+            />
+            <small class="char-counter" id="namaCounter">0/50</small>
           </div>
-          <input type="hidden" id="rating" name="rating" value="0" required />
-        </div>
 
-        <div class="form-group">
-          <label class="form-label" for="review"><span class="required">*</span> Review
-            <span style="font-size:12px; color:#3F72AF;">(Max 500 characters)</span></label>
-          <textarea id="review" name="review" class="form-input" placeholder="Write your review here..." maxlength="500"
-            required></textarea>
-          <small class="char-counter" id="reviewCounter">0/500</small>
-        </div>
+          <div class="form-group">
+            <label class="form-label" for="email"
+              ><span class="required">*</span> Email
+              <span style="font-size: 12px; color: #3f72af"
+                >(Max 20 characters)</span
+              ></label
+            >
+            <input
+              id="email"
+              name="email"
+              type="text"
+              class="form-input"
+              placeholder="Enter your email"
+              maxlength="20"
+              required
+            />
+            <small class="char-counter" id="emailCounter">0/20</small>
+          </div>
 
-        <button type="submit" class="submit-btn">Send Review</button>
-      </form>
-    </div>
+          <div class="form-group">
+            <label class="form-label" for="Instansi"
+              ><span class="required">*</span> instansi
+              <span style="font-size: 12px; color: #3f72af"
+                >(Max 30 characters)</span
+              ></label
+            >
+            <input
+              id="instansi"
+              name="instansi"
+              type="text"
+              class="form-input"
+              placeholder="Enter your agency"
+              maxlength="30"
+              required
+            />
+            <small class="char-counter" id="instansiCounter">0/10</small>
+          </div>
 
-    <!-- Reviews Table -->
-    <div class="reviews-container">
-      <h2 class="reviews-title">Other People Reviews</h2>
+          <div class="form-group">
+            <label class="form-label"
+              ><span class="required">*</span> Rate our Website</label
+            >
+            <div class="star-rating">
+              <span class="star" data-rating="1">★</span>
+              <span class="star" data-rating="2">★</span>
+              <span class="star" data-rating="3">★</span>
+              <span class="star" data-rating="4">★</span>
+              <span class="star" data-rating="5">★</span>
+            </div>
+            <input type="hidden" id="rating" name="rating" value="0" required />
+          </div>
 
-      <div class="table-controls">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, NRP, or review..." />
-        <select id="sortSelect" class="sort-select">
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest Rating</option>
-          <option value="lowest">Lowest Rating</option>
-          <option value="name">Name (A-Z)</option>
-        </select>
+          <div class="form-group">
+            <label class="form-label" for="review"
+              ><span class="required">*</span> Review
+              <span style="font-size: 12px; color: #3f72af"
+                >(Max 500 characters)</span
+              ></label
+            >
+            <textarea
+              id="review"
+              name="review"
+              class="form-input"
+              placeholder="Write your review here..."
+              maxlength="500"
+              required
+            ></textarea>
+            <small class="char-counter" id="reviewCounter">0/500</small>
+          </div>
+
+          <button type="submit" class="submit-btn">Send Review</button>
+        </form>
       </div>
 
-      <div class="reviews-table-wrapper">
-        <table id="reviewsTable">
-          <thead>
-            <tr>
-              <th>Nama</th>
-              <th>NRP</th>
-              <th>Kelompok</th>
-              <th>Rating</th>
-              <th>Review</th>
-            </tr>
-          </thead>
-          <tbody id="reviewsBody">
-            <!-- Filled dynamically -->
-          </tbody>
-        </table>
+      <!-- Reviews Table -->
+      <div class="reviews-container">
+        <h2 class="reviews-title">Other People Reviews</h2>
+
+        <div class="table-controls">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-box"
+            placeholder="🔍 Search by name, email, or review..."
+          />
+          <select id="sortSelect" class="sort-select">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="highest">Highest Rating</option>
+            <option value="lowest">Lowest Rating</option>
+            <option value="name">Name (A-Z)</option>
+          </select>
+        </div>
+
+        <div class="reviews-table-wrapper">
+          <table id="reviewsTable">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>email</th>
+                <th>instansi</th>
+                <th>Rating</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsBody">
+              <!-- Filled dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
       </div>
-
-      <div class="pagination" id="pagination"></div>
     </div>
-  </div>
 
-  <script>
-    // Background animation
-    const container = document.querySelector(".bg-animations");
-    const symbols = [
-      "π", "∑", "√", "∞", "△", "∫", "α", "β", "θ", "μ", "∇", "≠", "≤", "≥",
-      "∪", "∩", "∅", "±", "×", "÷", "²", "³", "∠", "⊥", "∥", "φ", "ψ", "ω"
-    ];
-    const colors = [
-      "rgba(255,255,255,0.3)",
-      "rgba(173,216,230,0.35)",
-      "rgba(144,238,144,0.35)",
-      "rgba(255,182,193,0.35)",
-      "rgba(221,160,221,0.35)"
-    ];
+    <script>
+      // Background animation
+      const container = document.querySelector(".bg-animations");
+      const symbols = [
+        "π",
+        "∑",
+        "√",
+        "∞",
+        "△",
+        "∫",
+        "α",
+        "β",
+        "θ",
+        "μ",
+        "∇",
+        "≠",
+        "≤",
+        "≥",
+        "∪",
+        "∩",
+        "∅",
+        "±",
+        "×",
+        "÷",
+        "²",
+        "³",
+        "∠",
+        "⊥",
+        "∥",
+        "φ",
+        "ψ",
+        "ω",
+      ];
+      const colors = [
+        "rgba(255,255,255,0.3)",
+        "rgba(173,216,230,0.35)",
+        "rgba(144,238,144,0.35)",
+        "rgba(255,182,193,0.35)",
+        "rgba(221,160,221,0.35)",
+      ];
 
-    function spawnSymbol() {
-      const el = document.createElement("div");
-      el.className = "floating-symbol";
-      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
-      el.style.color = colors[Math.floor(Math.random() * colors.length)];
-      const startX = Math.random() * 100,
-        startY = 100 + Math.random() * 20;
-      const driftX = startX + (Math.random() * 40 - 20);
-      const driftY = startY - (30 + Math.random() * 60);
-      const endX = driftX + (Math.random() * 40 - 20);
-      const endY = driftY - (30 + Math.random() * 40);
-      el.style.setProperty("--xStart", startX + "vw");
-      el.style.setProperty("--yStart", startY + "vh");
-      el.style.setProperty("--xMid", driftX + "vw");
-      el.style.setProperty("--yMid", driftY + "vh");
-      el.style.setProperty("--xEnd", endX + "vw");
-      el.style.setProperty("--yEnd", endY + "vh");
-      el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
-      el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
-      el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
-      el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
-      el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
-      el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
-      el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
-      const duration = 5 + Math.random() * 6 + "s";
-      el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
-      el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
-      container.appendChild(el);
-      setTimeout(() => el.remove(), parseFloat(duration) * 1000);
-    }
+      function spawnSymbol() {
+        const el = document.createElement("div");
+        el.className = "floating-symbol";
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.fontSize = 1 + Math.random() * 2.5 + "rem";
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        const startX = Math.random() * 100,
+          startY = 100 + Math.random() * 20;
+        const driftX = startX + (Math.random() * 40 - 20);
+        const driftY = startY - (30 + Math.random() * 60);
+        const endX = driftX + (Math.random() * 40 - 20);
+        const endY = driftY - (30 + Math.random() * 40);
+        el.style.setProperty("--xStart", startX + "vw");
+        el.style.setProperty("--yStart", startY + "vh");
+        el.style.setProperty("--xMid", driftX + "vw");
+        el.style.setProperty("--yMid", driftY + "vh");
+        el.style.setProperty("--xEnd", endX + "vw");
+        el.style.setProperty("--yEnd", endY + "vh");
+        el.style.setProperty("--rotateStart", Math.random() * 60 - 30 + "deg");
+        el.style.setProperty("--rotateMid", Math.random() * 80 - 40 + "deg");
+        el.style.setProperty("--rotateEnd", Math.random() * 120 - 60 + "deg");
+        el.style.setProperty("--scaleStart", 0.5 + Math.random() * 0.3);
+        el.style.setProperty("--scaleMid", 1 + Math.random() * 0.2);
+        el.style.setProperty("--scaleEnd", 1.2 + Math.random() * 0.3);
+        el.style.setProperty("--maxOpacity", 0.6 + Math.random() * 0.3);
+        const duration = 5 + Math.random() * 6 + "s";
+        el.style.animation = `floatRandom ${duration} ease-in-out forwards`;
+        el.style.zIndex = Math.random() < 0.3 ? 1 : 2;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), parseFloat(duration) * 1000);
+      }
 
-    // Only run animation on larger screens
-    if (window.innerWidth > 768) {
-      setInterval(() => {
-        for (let i = 0, n = 1 + Math.floor(Math.random() * 3); i < n; i++)
-          spawnSymbol();
-      }, 700);
-    }
+      // Only run animation on larger screens
+      if (window.innerWidth > 768) {
+        setInterval(() => {
+          for (let i = 0, n = 1 + Math.floor(Math.random() * 3); i < n; i++)
+            spawnSymbol();
+        }, 700);
+      }
 
-    // Star rating functionality
-    const stars = document.querySelectorAll(".star");
-    const ratingInput = document.getElementById("rating");
-    let currentRating = 0;
+      // Star rating functionality
+      const stars = document.querySelectorAll(".star");
+      const ratingInput = document.getElementById("rating");
+      let currentRating = 0;
 
-    stars.forEach((star) => {
-      star.addEventListener("click", function () {
-        currentRating = parseInt(this.dataset.rating);
-        ratingInput.value = currentRating;
-        updateStars(currentRating);
-      });
-
-      star.addEventListener("mouseenter", function () {
-        updateStars(parseInt(this.dataset.rating));
-      });
-    });
-
-    document
-      .querySelector(".star-rating")
-      .addEventListener("mouseleave", function () {
-        updateStars(currentRating);
-      });
-
-    function updateStars(rating) {
       stars.forEach((star) => {
-        const starRating = parseInt(star.dataset.rating);
-        if (starRating <= rating) {
-          star.classList.add("active");
-        } else {
-          star.classList.remove("active");
+        star.addEventListener("click", function () {
+          currentRating = parseInt(this.dataset.rating);
+          ratingInput.value = currentRating;
+          updateStars(currentRating);
+        });
+
+        star.addEventListener("mouseenter", function () {
+          updateStars(parseInt(this.dataset.rating));
+        });
+      });
+
+      document
+        .querySelector(".star-rating")
+        .addEventListener("mouseleave", function () {
+          updateStars(currentRating);
+        });
+
+      function updateStars(rating) {
+        stars.forEach((star) => {
+          const starRating = parseInt(star.dataset.rating);
+          if (starRating <= rating) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      // Char Counter
+      function setupCharCounter(id, counter, max) {
+        const input = document.getElementById(id),
+          label = document.getElementById(counter);
+        input.addEventListener("input", () => {
+          const len = input.value.length;
+          label.textContent = `${len}/${max}`;
+        });
+      }
+      setupCharCounter("nama", "namaCounter", 50);
+      setupCharCounter("email", "emailCounter", 20);
+      setupCharCounter("instansi", "instansiCounter", 10);
+      setupCharCounter("review", "reviewCounter", 500);
+
+      // Review Logic
+      let reviews = [];
+      let filteredReviews = [];
+      let currentPage = 1;
+      const itemsPerPage = 10;
+
+      async function fetchReviews() {
+        try {
+          const res = await fetch("/api/reviews");
+          if (!res.ok) throw new Error("Failed to fetch reviews");
+          reviews = await res.json();
+          filteredReviews = [...reviews];
+          renderReviews();
+        } catch (err) {
+          console.error(err);
+          alert("Gagal memuat review dari server!");
         }
-      });
-    }
+      }
 
-    // Char Counter
-    function setupCharCounter(id, counter, max) {
-      const input = document.getElementById(id), label = document.getElementById(counter);
-      input.addEventListener("input", () => {
-        const len = input.value.length;
-        label.textContent = `${len}/${max}`;
-      });
-    }
-    setupCharCounter("nama", "namaCounter", 50);
-    setupCharCounter("nrp", "nrpCounter", 20);
-    setupCharCounter("kelompok", "kelompokCounter", 10);
-    setupCharCounter("review", "reviewCounter", 500);
-
-    // Review Logic
-    let reviews = [];
-    let filteredReviews = [];
-    let currentPage = 1;
-    const itemsPerPage = 10;
-
-    async function fetchReviews() {
-      try {
-        const res = await fetch("/api/reviews");
-        if (!res.ok) throw new Error("Failed to fetch reviews");
-        reviews = await res.json();
-        filteredReviews = [...reviews];
+      function filterReviews(term) {
+        const q = term.toLowerCase();
+        filteredReviews = reviews.filter(
+          (r) =>
+            r.nama.toLowerCase().includes(q) ||
+            r.email.toLowerCase().includes(q) ||
+            r.instansi.toLowerCase().includes(q) ||
+            r.review.toLowerCase().includes(q)
+        );
+        currentPage = 1;
         renderReviews();
-      } catch (err) {
-        console.error(err);
-        alert("Gagal memuat review dari server!");
       }
-    }
 
-    function filterReviews(term) {
-      const q = term.toLowerCase();
-      filteredReviews = reviews.filter(r =>
-        r.nama.toLowerCase().includes(q) ||
-        r.nrp.toLowerCase().includes(q) ||
-        r.kelompok.toLowerCase().includes(q) ||
-        r.review.toLowerCase().includes(q)
-      );
-      currentPage = 1;
-      renderReviews();
-    }
-
-    function sortReviews(type) {
-      switch (type) {
-        case "newest":
-          filteredReviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-          break;
-        case "oldest":
-          filteredReviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-          break;
-        case "highest": filteredReviews.sort((a,b)=>b.rating-a.rating); break;
-        case "lowest": filteredReviews.sort((a,b)=>a.rating-b.rating); break;
-        case "name": filteredReviews.sort((a,b)=>a.nama.localeCompare(b.nama)); break;
+      function sortReviews(type) {
+        switch (type) {
+          case "newest":
+            filteredReviews.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+            break;
+          case "oldest":
+            filteredReviews.sort(
+              (a, b) => new Date(a.created_at) - new Date(b.created_at)
+            );
+            break;
+          case "highest":
+            filteredReviews.sort((a, b) => b.rating - a.rating);
+            break;
+          case "lowest":
+            filteredReviews.sort((a, b) => a.rating - b.rating);
+            break;
+          case "name":
+            filteredReviews.sort((a, b) => a.nama.localeCompare(b.nama));
+            break;
+        }
+        currentPage = 1;
+        renderReviews();
       }
-      currentPage = 1;
-      renderReviews();
-    }
 
-    function renderPagination() {
-      const total = Math.ceil(filteredReviews.length / itemsPerPage);
-      const el = document.getElementById("pagination");
-      if (total <= 1) { el.innerHTML = ""; return; }
-      let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===1?"disabled":""}>← Prev</button>`;
-      for (let i=1;i<=total;i++) {
-        html += `<button class="page-btn ${i===currentPage?"active":""}" onclick="changePage(${i})">${i}</button>`;
+      function renderPagination() {
+        const total = Math.ceil(filteredReviews.length / itemsPerPage);
+        const el = document.getElementById("pagination");
+        if (total <= 1) {
+          el.innerHTML = "";
+          return;
+        }
+        let html = `<button class="page-btn" onclick="changePage(${
+          currentPage - 1
+        })" ${currentPage === 1 ? "disabled" : ""}>← Prev</button>`;
+        for (let i = 1; i <= total; i++) {
+          html += `<button class="page-btn ${
+            i === currentPage ? "active" : ""
+          }" onclick="changePage(${i})">${i}</button>`;
+        }
+        html += `<button class="page-btn" onclick="changePage(${
+          currentPage + 1
+        })" ${currentPage === total ? "disabled" : ""}>Next →</button>`;
+        el.innerHTML = html;
       }
-      html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===total?"disabled":""}>Next →</button>`;
-      el.innerHTML = html;
-    }
 
-    window.changePage = function(page) {
-      const total = Math.ceil(filteredReviews.length / itemsPerPage);
-      if (page<1||page>total) return;
-      currentPage = page;
-      renderReviews();
-      document.querySelector(".reviews-container").scrollIntoView({behavior:"smooth"});
-    };
+      window.changePage = function (page) {
+        const total = Math.ceil(filteredReviews.length / itemsPerPage);
+        if (page < 1 || page > total) return;
+        currentPage = page;
+        renderReviews();
+        document
+          .querySelector(".reviews-container")
+          .scrollIntoView({ behavior: "smooth" });
+      };
 
-    function renderReviews() {
-      const tbody = document.getElementById("reviewsBody");
-      if (filteredReviews.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">
+      function renderReviews() {
+        const tbody = document.getElementById("reviewsBody");
+        if (filteredReviews.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="empty-state">
           <lord-icon src="https://cdn.lordicon.com/hrqwmuhr.json" trigger="loop"
           colors="primary:#3F72AF,secondary:#112D4E" style="width:80px;height:80px"></lord-icon>
           <div>No reviews found.</div></td></tr>`;
-        renderPagination(); return;
-      }
-      const start = (currentPage - 1) * itemsPerPage;
-      const page = filteredReviews.slice(start, start + itemsPerPage);
-      tbody.innerHTML = page.map(r=>`
+          renderPagination();
+          return;
+        }
+        const start = (currentPage - 1) * itemsPerPage;
+        const page = filteredReviews.slice(start, start + itemsPerPage);
+        tbody.innerHTML = page
+          .map(
+            (r) => `
         <tr>
           <td>${r.nama}</td>
-          <td>${r.nrp}</td>
-          <td>${r.kelompok}</td>
-          <td><span class="rating-stars">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</span></td>
+          <td>${r.email}</td>
+          <td>${r.instansi}</td>
+          <td><span class="rating-stars">${"★".repeat(r.rating)}${"☆".repeat(
+              5 - r.rating
+            )}</span></td>
           <td>${r.review}</td>
-        </tr>`).join("");
-      renderPagination();
-    }
-
-    // Search & Sort
-    document.getElementById("searchInput").addEventListener("input", e=>filterReviews(e.target.value));
-    document.getElementById("sortSelect").addEventListener("change", e=>sortReviews(e.target.value));
-
-    // Submit Form
-    document.getElementById("reviewForm").addEventListener("submit", async function(e){
-      e.preventDefault();
-      const data = {
-        nama: document.getElementById("nama").value.trim(),
-        nrp: document.getElementById("nrp").value.trim(),
-        kelompok: document.getElementById("kelompok").value.trim(),
-        rating: parseInt(ratingInput.value),
-        review: document.getElementById("review").value.trim(),
-      };
-
-      if (!data.nama || !data.nrp || !data.kelompok || !data.review) {
-        alert("Please fill in all required fields!");
-        return;
-      }
-      if (data.rating === 0) {
-        alert("Please select a rating!");
-        return;
+        </tr>`
+          )
+          .join("");
+        renderPagination();
       }
 
-      try {
-        const res = await fetch("/api/reviews", {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify(data)
+      // Search & Sort
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", (e) => filterReviews(e.target.value));
+      document
+        .getElementById("sortSelect")
+        .addEventListener("change", (e) => sortReviews(e.target.value));
+
+      // Submit Form
+      document
+        .getElementById("reviewForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const data = {
+            nama: document.getElementById("nama").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            instansi: document.getElementById("instansi").value.trim(),
+            rating: parseInt(ratingInput.value),
+            review: document.getElementById("review").value.trim(),
+          };
+
+          if (!data.nama || !data.email || !data.instansi || !data.review) {
+            alert("Please fill in all required fields!");
+            return;
+          }
+          if (data.rating === 0) {
+            alert("Please select a rating!");
+            return;
+          }
+
+          try {
+            const res = await fetch("/api/reviews", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error("Failed to send review");
+            await fetchReviews();
+            this.reset();
+            ratingInput.value = 0;
+            currentRating = 0;
+            updateStars(0);
+
+            // Reset char counters
+            document.getElementById("namaCounter").textContent = "0/50";
+            document.getElementById("emailCounter").textContent = "0/20";
+            document.getElementById("instansiCounter").textContent = "0/10";
+            document.getElementById("reviewCounter").textContent = "0/500";
+
+            document
+              .querySelector(".reviews-container")
+              .scrollIntoView({ behavior: "smooth" });
+          } catch (err) {
+            console.error(err);
+            alert("Terjadi kesalahan saat mengirim review!");
+          }
         });
-        if (!res.ok) throw new Error("Failed to send review");
-        await fetchReviews();
-        this.reset();
-        ratingInput.value = 0;
-        currentRating = 0;
-        updateStars(0);
-        
-        // Reset char counters
-        document.getElementById("namaCounter").textContent = "0/50";
-        document.getElementById("nrpCounter").textContent = "0/20";
-        document.getElementById("kelompokCounter").textContent = "0/10";
-        document.getElementById("reviewCounter").textContent = "0/500";
-        
-        document.querySelector(".reviews-container").scrollIntoView({behavior:"smooth"});
-      } catch(err) {
-        console.error(err);
-        alert("Terjadi kesalahan saat mengirim review!");
-      }
-    });
 
-    // Init
-    fetchReviews();
-  </script>
-</body>
+      // Init
+      fetchReviews();
+    </script>
+  </body>
 </html>
