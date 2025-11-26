@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 
 from fastapi.responses import StreamingResponse
 import json
+import os
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -82,6 +83,37 @@ pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+
+def _title_from_video_url(video_url: str | None) -> str:
+    """
+    Ekstrak judul human-readable dari nama file video.
+    Contoh:
+      https://.../videos/20241126_104500_Limit_Fungsi.mp4
+      -> "Limit Fungsi"
+    """
+    if not video_url:
+        return "Untitled Video"
+    # Ambil nama file saja
+    filename = os.path.basename(video_url)
+    # Hilangkan query string kalau ada
+    filename = filename.split("?", 1)[0]
+    # Hilangkan ekstensi
+    name, _ext = os.path.splitext(filename)
+    if not name:
+        return "Untitled Video"
+    # Jika format diawali timestamp, buang bagian timestamp
+    # misal "20241126_104500_Topik_Video" -> "Topik_Video"
+    parts = name.split("_", 2)
+    if len(parts) >= 3 and parts[0].isdigit() and parts[1].isdigit():
+        base = parts[2]
+    elif len(parts) >= 2 and parts[0].isdigit():
+        base = parts[1]
+    else:
+        base = name
+    # Ganti underscore dengan spasi
+    base = base.replace("_", " ").strip()
+    return base or "Untitled Video"
 
 # ---------------- App ----------------
 app = FastAPI()
@@ -222,7 +254,8 @@ def api_gallery_videos(user: User = Depends(current_user_required)):
             "id": v.id,
             "video_url": v.video_url,
             "content": v.content,
-            "timestamp": v.timestamp.isoformat()
+            "title": _title_from_video_url(v.video_url),
+            "timestamp": v.timestamp.isoformat(),
         }
         for v in videos
     ]
