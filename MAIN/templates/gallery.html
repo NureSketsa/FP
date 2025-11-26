@@ -1954,20 +1954,6 @@
           index: index,
         }));
 
-        // Fullscreen button handler
-        grid.addEventListener("click", (e) => {
-          const fullscreenBtn = e.target.closest(".fullscreen-btn");
-          if (!fullscreenBtn) return;
-
-          e.preventDefault();
-          e.stopPropagation();
-
-          const card = fullscreenBtn.closest(".video-card");
-          currentVideoIndex = parseInt(card.dataset.videoIndex);
-
-          openFullscreenModal(currentVideoIndex);
-        });
-
         // Download button handler
         grid.addEventListener("click", async (e) => {
           const downloadBtn = e.target.closest(".download-btn");
@@ -1981,6 +1967,23 @@
           const videoTitle = card.dataset.videoTitle;
 
           downloadVideo(videoUrl, videoTitle);
+        });
+
+        // Klik di mana saja pada card (kecuali tombol download) -> fullscreen
+        grid.addEventListener("click", (e) => {
+          // Jika klik berasal dari tombol download, biarkan handler di atas yang jalan
+          if (e.target.closest(".download-btn")) {
+            return;
+          }
+
+          const card = e.target.closest(".video-card");
+          if (!card) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          currentVideoIndex = parseInt(card.dataset.videoIndex);
+          openFullscreenModal(currentVideoIndex);
         });
 
         // Create fullscreen modal
@@ -2160,6 +2163,23 @@
           const videoTitle = card.dataset.videoTitle;
 
           downloadVideo(videoUrl, videoTitle);
+        });
+
+        // Klik di mana saja pada card (kecuali tombol download/fullscreen) -> fullscreen
+        grid.addEventListener("click", (e) => {
+          // Jika klik berasal dari tombol download atau fullscreen, biarkan handler yang lain yang menangani
+          if (e.target.closest(".download-btn") || e.target.closest(".fullscreen-btn")) {
+            return;
+          }
+
+          const card = e.target.closest(".video-card");
+          if (!card) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          currentVideoIndex = parseInt(card.dataset.videoIndex);
+          openFullscreenModal(currentVideoIndex);
         });
 
         // Create fullscreen modal

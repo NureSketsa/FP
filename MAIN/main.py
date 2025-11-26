@@ -113,6 +113,10 @@ def _title_from_video_url(video_url: str | None) -> str:
         base = name
     # Ganti underscore dengan spasi
     base = base.replace("_", " ").strip()
+    if not base:
+        return "Untitled Video"
+    # Jadikan setiap kata berawalan huruf kapital
+    base = " ".join(word.capitalize() for word in base.split())
     return base or "Untitled Video"
 
 # ---------------- App ----------------
