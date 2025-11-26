@@ -136,7 +136,9 @@ def current_user_required(request: Request):  # >>> changed
             raise HTTPException(status_code=401, detail="Invalid session")
         return user
 
+from fastapi.responses import FileResponse
 # ---------------- Pages ----------------
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
