@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LearnVid AI - Saved Videos</title>
+    <title>LearnVid AI - Gallery</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
       rel="stylesheet"
@@ -12,7 +12,11 @@
       rel="stylesheet"
       href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
     />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
 
@@ -123,6 +127,9 @@
         width: 18px;
         height: 18px;
       } /* Icon sedikit lebih besar */
+      .menu-item i {
+        font-size: 18px;
+      }
 
       .chats-section {
         margin-top: 15px;
@@ -182,8 +189,10 @@
         color: #666;
         display: inline-flex;
         align-items: center;
+        padding: 4px;
       }
-      .fi-rr-file-edit {
+      .chat-menu-btn i {
+        font-size: 18px;
         color: #fff;
       }
       .chat-menu-dropdown {
@@ -416,51 +425,72 @@
       .gallery-container {
         flex: 1;
         overflow-y: auto;
-        padding: 30px;
-        /* Background dari Figma (biru sangat muda) */
-        background: #ebf1f8;
+        padding: 34px 28px 40px;
+        background: radial-gradient(circle at 18% 20%, rgba(63, 114, 175, 0.08), transparent 28%),
+          radial-gradient(circle at 80% 10%, rgba(17, 45, 78, 0.06), transparent 26%),
+          linear-gradient(180deg, #f7f9fc 0%, #edf1f8 100%);
         color: #112d4e;
       }
-
+      .gallery-inner {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .gallery-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        background: #ffffff;
+        border: 1px solid #e5e9f2;
+        border-radius: 18px;
+        box-shadow: 0 20px 60px rgba(17, 45, 78, 0.08);
+      }
       .gallery-title {
-        font-size: 2.5rem;
-        font-weight: 500;
-        margin-bottom: 30px;
-        text-align: center;
-        color: #112d4e;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #0f1b2d;
+        letter-spacing: -0.01em;
       }
-
+      .gallery-subtitle {
+        color: #51607f;
+        font-size: 0.98rem;
+      }
       .gallery-grid {
         display: grid;
-        /* 3 kolom seperti di Figma */
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
       }
 
       /* Enhanced Video Card Styles */
       .video-card {
         cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         text-decoration: none;
         color: #112d4e;
-        border-radius: 12px;
+        border-radius: 14px;
         position: relative;
         overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e5e9f2;
+        box-shadow: 0 12px 36px rgba(17, 45, 78, 0.08);
       }
-
       .video-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(17, 45, 78, 0.15);
+        transform: translateY(-6px);
+        box-shadow: 0 18px 42px rgba(17, 45, 78, 0.16);
+        border-color: rgba(63, 114, 175, 0.35);
       }
-
       .video-thumbnail {
         position: relative;
-        background: #222;
+        background: linear-gradient(135deg, #dfe8f7, #c5d6f1);
         border-radius: 12px;
         padding-top: 56.25%;
         overflow: hidden;
-        border: 3px solid transparent;
-        transition: border-color 0.3s ease;
+        border: 1px solid #e5e9f2;
+        transition: border-color 0.25s ease, transform 0.25s ease;
       }
 
       .video-thumbnail video {
@@ -1280,35 +1310,13 @@
 
         <div class="sidebar-menu">
           <a href="/chat" class="menu-item">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 20v-6M6 20v-4M18 20v-2" />
-              <path d="M12 14V4" />
-              <path d="M6 16V4" />
-              <path d="M18 18V4" />
-              <path d="M3 4h18" />
-            </svg>
+            <i class="bi bi-plus-circle"></i>
             New Chat
           </a>
 
           <a href="/gallery" class="menu-item active">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            Saved Videos
+            <i class="bi bi-bookmark"></i>
+            Gallery
           </a>
 
           <div class="chats-section" id="chats-section">
@@ -1318,7 +1326,7 @@
               <span class="chat-title">{{ c.title }}</span>
               <div class="chat-menu">
                 <button class="chat-menu-btn" title="Options">
-                  <i class="fi fi-rr-file-edit"></i>
+                  <i class="bi bi-three-dots"></i>
                 </button>
                 <div class="chat-menu-dropdown">
                   <button class="chat-rename">Rename</button>
@@ -1342,70 +1350,77 @@
 
       <div class="chat-main">
         <div class="gallery-container">
-          <h1 class="gallery-title">Saved Videos</h1>
-          <!-- Search Bar -->
-          <div class="search-container">
-            <div class="search-wrapper">
-              <svg
-                class="search-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
+          <div class="gallery-inner">
+            <div class="gallery-hero">
+              <div>
+                <h1 class="gallery-title">Saved Videos</h1>
+                <p class="gallery-subtitle">All your generated videos, neatly arranged.</p>
+              </div>
+            </div>
+            <!-- Search Bar -->
+            <div class="search-container">
+              <div class="search-wrapper">
+                <svg
+                  class="search-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  id="search-input"
+                  class="search-input"
+                  placeholder="Search videos..."
+                />
+                <button
+                  id="clear-search"
+                  class="clear-search-btn"
+                  style="display: none"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- <div class="gallery-grid" id="gallery-grid"></div> -->
+            <div class="gallery-grid" id="gallery-grid">
+              {% for i in range(12) %}
+              <a
+                href="/video/{{ i }}"
+                class="video-card {% if i == 3 %}active{% endif %}"
               >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                id="search-input"
-                class="search-input"
-                placeholder="Search videos..."
-              />
-              <button
-                id="clear-search"
-                class="clear-search-btn"
-                style="display: none"
-              >
+                <div class="video-thumbnail">
+                  <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </a>
+              {% endfor %}
+            </div>
+            <!-- Pagination Controls -->
+            <div class="pagination-container" id="pagination-container">
+              <button class="pagination-btn prev-page-btn" id="prev-page-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Prev
+              </button>
+
+              <div class="pagination-numbers" id="pagination-numbers"></div>
+
+              <button class="pagination-btn next-page-btn" id="next-page-btn">
+                Next
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             </div>
-          </div>
-
-          <!-- <div class="gallery-grid" id="gallery-grid"></div> -->
-          <div class="gallery-grid" id="gallery-grid">
-            {% for i in range(12) %}
-            <a
-              href="/video/{{ i }}"
-              class="video-card {% if i == 3 %}active{% endif %}"
-            >
-              <div class="video-thumbnail">
-                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </a>
-            {% endfor %}
-          </div>
-          <!-- Pagination Controls -->
-          <div class="pagination-container" id="pagination-container">
-            <button class="pagination-btn prev-page-btn" id="prev-page-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              Prev
-            </button>
-
-            <div class="pagination-numbers" id="pagination-numbers"></div>
-
-            <button class="pagination-btn next-page-btn" id="next-page-btn">
-              Next
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
@@ -2165,7 +2180,10 @@
         // Klik di mana saja pada card (kecuali tombol download/fullscreen) -> fullscreen
         grid.addEventListener("click", (e) => {
           // Jika klik berasal dari tombol download atau fullscreen, biarkan handler yang lain yang menangani
-          if (e.target.closest(".download-btn") || e.target.closest(".fullscreen-btn")) {
+          if (
+            e.target.closest(".download-btn") ||
+            e.target.closest(".fullscreen-btn")
+          ) {
             return;
           }
 
