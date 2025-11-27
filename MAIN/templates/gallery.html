@@ -31,13 +31,14 @@
         font-family: "Montaga", serif;
         background: #f9f7f7;
         color: #112d4e;
-        height: 100vh;
-        overflow: hidden;
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       .container {
         display: flex;
-        height: 100vh;
+        min-height: 100vh;
       }
 
       /* Sidebar */
@@ -441,9 +442,9 @@
 
       .gallery-grid {
         display: grid;
-        /* 3 kolom seperti di Figma */
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 20px;
+        align-items: start;
       }
 
       /* Enhanced Video Card Styles */
@@ -709,7 +710,7 @@
       /* Responsive adjustments */
       @media (max-width: 1024px) {
         .gallery-grid {
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           gap: 18px;
         }
 
@@ -765,7 +766,7 @@
         }
 
         .gallery-grid {
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: 1fr;
           gap: 15px;
         }
 
@@ -1093,6 +1094,7 @@
         gap: 15px;
         margin-top: 40px;
         padding: 20px;
+        flex-wrap: wrap;
       }
 
       .pagination-btn {
@@ -1223,6 +1225,7 @@
           gap: 10px;
           padding: 15px;
           margin-top: 30px;
+          justify-content: center;
         }
 
         .pagination-btn {
