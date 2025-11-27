@@ -943,7 +943,10 @@
         </div>
 
         <div class="sidebar-menu">
-          <a href="/chat" class="menu-item active">
+          <a
+            href="/chat"
+            class="menu-item {% if not request.query_params.get('id') %}active{% endif %}"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -979,7 +982,7 @@
             <div class="chats-title">Chats</div>
             {% if chats and chats|length > 0 %} {% for c in chats %}
             <div
-              class="chat-item {% if loop.first and not request.query_params.get('id') %}active{% elif c.id|string == request.query_params.get('id') %}active{% endif %}"
+              class="chat-item {% if c.id|string == request.query_params.get('id') %}active{% endif %}"
               data-chat-id="{{ c.id }}"
             >
               <span class="chat-title">{{ c.title }}</span>
@@ -1480,9 +1483,17 @@
             node.dataset.chatId = chat.id;
             node.innerHTML = `
               <span class="chat-title">${escapeHtml(chat.title)}</span>
-              <div class="chat-menu">...</div>
+              <div class="chat-menu">
+                <button class="chat-menu-btn" title="Options">
+                  <i class="fi fi-rr-file-edit"></i>
+                </button>
+                <div class="chat-menu-dropdown">
+                  <button class="chat-rename">Rename</button>
+                  <button class="chat-delete">Delete</button>
+                </div>
+              </div>
             `;
-            chatsSection.appendChild(node);
+            chatsSection.prepend(node);
             setActiveChatItemById(chat.id);
             // Update URL tanpa reload
             history.pushState(null, "", `/chat?id=${chat.id}`);
@@ -1641,6 +1652,10 @@
             const chatId = target.dataset.chatId;
             if (!chatId || chatId === activeChatId) return; // Jangan reload jika chat sudah aktif
 
+            // Hanya izinkan satu yang aktif: hapus dari menu & chat items
+            document
+              .querySelectorAll(".sidebar-menu .menu-item")
+              .forEach((i) => i.classList.remove("active"));
             document
               .querySelectorAll(".chat-item")
               .forEach((i) => i.classList.remove("active"));
@@ -1668,24 +1683,53 @@
         '.sidebar-menu .menu-item[href="/chat"]'
       );
       if (sidebarNewChat) {
-        sidebarNewChat.addEventListener("click", (e) => {
+        sidebarNewChat.addEventListener("click", async (e) => {
           e.preventDefault();
 
-          // Hapus status aktif dari semua item
-          document
-            .querySelectorAll(".chat-item")
-            .forEach((i) => i.classList.remove("active"));
-          activeChatId = null;
+          try {
+            // Hapus status aktif dari menu & chat items
+            document
+              .querySelectorAll(".sidebar-menu .menu-item")
+              .forEach((i) => i.classList.remove("active"));
+            document
+              .querySelectorAll(".chat-item")
+              .forEach((i) => i.classList.remove("active"));
 
-          // Reset tampilan
-          chatMessages.innerHTML = "";
-          chatMessages.style.display = "none";
-          welcomeScreen.classList.remove("hidden");
-          resetInput();
+            ensureNotEmptyState();
 
-          // Update URL
-          history.pushState(null, "", "/chat");
-          closeMobileSidebar();
+            // Buat chat baru langsung
+            const chat = await createChat("New chat");
+            activeChatId = chat.id;
+
+            const node = document.createElement("div");
+            node.className = "chat-item active";
+            node.dataset.chatId = chat.id;
+            node.innerHTML = `
+              <span class="chat-title">${escapeHtml(chat.title)}</span>
+              <div class="chat-menu">
+                <button class="chat-menu-btn" title="Options">
+                  <i class="fi fi-rr-file-edit"></i>
+                </button>
+                <div class="chat-menu-dropdown">
+                  <button class="chat-rename">Rename</button>
+                  <button class="chat-delete">Delete</button>
+                </div>
+              </div>
+            `;
+            chatsSection.prepend(node);
+
+            // Tampilkan UI chat kosong siap input
+            chatMessages.innerHTML = "";
+            showChatUI();
+            resetInput();
+
+            // Update URL ke chat baru
+            history.pushState(null, "", `/chat?id=${chat.id}`);
+            closeMobileSidebar();
+          } catch (err) {
+            console.error(err);
+            alert("Failed to create new chat");
+          }
         });
       }
 

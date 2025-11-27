@@ -1314,10 +1314,7 @@
           <div class="chats-section" id="chats-section">
             <div class="chats-title">Chats</div>
             {% if chats and chats|length > 0 %} {% for c in chats %}
-            <div
-              class="chat-item {% if loop.first and not request.query_params.get('id') %}active {% elif c.id|string == request.query_params.get('id') %}active {% endif %}"
-              data-chat-id="{{ c.id }}"
-            >
+            <div class="chat-item" data-chat-id="{{ c.id }}">
               <span class="chat-title">{{ c.title }}</span>
               <div class="chat-menu">
                 <button class="chat-menu-btn" title="Options">
