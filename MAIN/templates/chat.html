@@ -75,13 +75,15 @@
         color: var(--ink);
       }
       .loader {
-        width: 18px;
-        height: 18px;
-        border: 2px solid rgba(63, 114, 175, 0.18);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        display: inline-block;
-        animation: rotation 0.9s linear infinite;
+        width: 60px;
+        aspect-ratio: 2;
+        --_g: no-repeat radial-gradient(circle closest-side, var(--primary) 90%, transparent);
+        background:
+          var(--_g) 0% 50%,
+          var(--_g) 50% 50%,
+          var(--_g) 100% 50%;
+        background-size: calc(100% / 3) 50%;
+        animation: l3 1s infinite linear;
       }
       .loading-text {
         font-weight: 600;
@@ -140,12 +142,18 @@
         background: linear-gradient(90deg, #f9f7f7, rgba(255, 255, 255, 0.6));
         animation: indeterminate-progress 2s infinite linear;
       }
-      @keyframes rotation {
-        0% {
-          transform: rotate(0deg);
+      @keyframes l3 {
+        20% {
+          background-position: 0% 0%, 50% 50%, 100% 50%;
         }
-        100% {
-          transform: rotate(360deg);
+        40% {
+          background-position: 0% 100%, 50% 0%, 100% 50%;
+        }
+        60% {
+          background-position: 0% 50%, 50% 100%, 100% 0%;
+        }
+        80% {
+          background-position: 0% 50%, 50% 50%, 100% 100%;
         }
       }
       @keyframes indeterminate-progress {
