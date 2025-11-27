@@ -592,6 +592,14 @@
         stroke-width: 2;
       }
 
+      /* Always show actions on touch devices */
+      @media (hover: none) {
+        .video-actions {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       /* Fullscreen Modal */
       .fullscreen-modal {
         display: none;
@@ -690,6 +698,7 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
+        z-index: 2;
       }
 
       .close-fullscreen-btn:hover {
@@ -705,6 +714,13 @@
 
       .close-fullscreen-btn:hover svg {
         stroke: #f9f7f7;
+      }
+
+      @media (hover: none) {
+        .close-fullscreen-btn {
+          top: 12px;
+          right: 12px;
+        }
       }
 
       /* Responsive adjustments */
@@ -865,7 +881,8 @@
         }
 
         .close-fullscreen-btn {
-          top: -45px;
+          top: 12px;
+          right: 12px;
           width: 36px;
           height: 36px;
         }
