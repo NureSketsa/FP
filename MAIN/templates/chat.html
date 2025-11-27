@@ -15,7 +15,11 @@
       rel="stylesheet"
       href="https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css"
     />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&family=Manrope:wght@400;500;600;700&display=swap");
 
@@ -32,9 +36,21 @@
         --shadow-soft: 0 18px 60px rgba(17, 45, 78, 0.08);
         --radius-lg: 20px;
         --radius-pill: 999px;
-        --grad: radial-gradient(circle at 20% 20%, rgba(63, 114, 175, 0.18), transparent 30%),
-          radial-gradient(circle at 80% 0%, rgba(17, 45, 78, 0.15), transparent 28%),
-          radial-gradient(circle at 60% 90%, rgba(179, 204, 235, 0.2), transparent 30%);
+        --grad: radial-gradient(
+            circle at 20% 20%,
+            rgba(63, 114, 175, 0.18),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 80% 0%,
+            rgba(17, 45, 78, 0.15),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 60% 90%,
+            rgba(179, 204, 235, 0.2),
+            transparent 30%
+          );
       }
 
       /* Reset */
@@ -77,11 +93,9 @@
       .loader {
         width: 40px;
         aspect-ratio: 2;
-        --_g: no-repeat radial-gradient(circle closest-side, var(--panel) 90%, transparent);
-        background:
-          var(--_g) 0% 50%,
-          var(--_g) 50% 50%,
-          var(--_g) 100% 50%;
+        --_g: no-repeat
+          radial-gradient(circle closest-side, var(--panel) 90%, transparent);
+        background: var(--_g) 0% 50%, var(--_g) 50% 50%, var(--_g) 100% 50%;
         background-size: calc(100% / 3) 50%;
         animation: l3 1s infinite linear;
         display: inline-block;
@@ -193,7 +207,8 @@
       .upload-btn.active {
         background: var(--primary);
         border: 1px solid var(--primary-strong);
-        box-shadow: 0 12px 30px rgba(63, 114, 175, 0.35), 0 0 0 4px rgba(63, 114, 175, 0.12);
+        box-shadow: 0 12px 30px rgba(63, 114, 175, 0.35),
+          0 0 0 4px rgba(63, 114, 175, 0.12);
         color: #f9f7f7;
         transform: translateY(-1px) scale(1.02);
       }
@@ -296,6 +311,9 @@
         width: 18px;
         height: 18px;
       }
+      .menu-item i {
+        font-size: 18px;
+      }
       /* --------------------- */
 
       .chats-section {
@@ -355,8 +373,10 @@
         color: #666;
         display: inline-flex;
         align-items: center;
+        padding: 4px;
       }
-      .fi-rr-file-edit {
+      .chat-menu-btn i {
+        font-size: 18px;
         color: #fff;
       }
 
@@ -500,14 +520,22 @@
             rgba(17, 45, 78, 0.05),
             transparent 22%
           ),
-          linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0.8)
+          );
       }
       .chat-container::before {
         content: "";
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, transparent 22%),
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.9) 0%,
+            transparent 22%
+          ),
           linear-gradient(0deg, rgba(255, 255, 255, 0.9) 0%, transparent 18%);
         z-index: 1;
       }
@@ -624,7 +652,11 @@
       /* Input Area */
       .input-area {
         padding: 18px 20px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 248, 251, 0.95));
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.9),
+          rgba(247, 248, 251, 0.95)
+        );
         padding-bottom: calc(18px + env(safe-area-inset-bottom));
         position: sticky;
         bottom: 0;
@@ -1086,12 +1118,12 @@
           padding: 18px;
           max-width: 260px;
         }
-      .modal h2 {
-        font-size: 1rem;
-      }
-      .modal-input {
-        font-size: 14px;
-        padding: 8px 10px;
+        .modal h2 {
+          font-size: 1rem;
+        }
+        .modal-input {
+          font-size: 14px;
+          padding: 8px 10px;
         }
         .modal-btn {
           padding: 6px 12px;
@@ -1172,35 +1204,13 @@
             href="/chat"
             class="menu-item {% if not request.query_params.get('id') %}active{% endif %}"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 20v-6M6 20v-4M18 20v-2" />
-              <path d="M12 14V4" />
-              <path d="M6 16V4" />
-              <path d="M18 18V4" />
-              <path d="M3 4h18" />
-            </svg>
+            <i class="bi bi-plus-circle"></i>
             New Chat
           </a>
 
           <a href="/gallery" class="menu-item">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            Saved Videos
+            <i class="bi bi-bookmark"></i>
+            Gallery
           </a>
 
           <div class="chats-section" id="chats-section">
@@ -1213,7 +1223,7 @@
               <span class="chat-title">{{ c.title }}</span>
               <div class="chat-menu">
                 <button class="chat-menu-btn" title="Options">
-                  <i class="fi fi-rr-file-edit"></i>
+                  <i class="bi bi-three-dots"></i>
                 </button>
                 <div class="chat-menu-dropdown">
                   <button class="chat-rename">Rename</button>
@@ -1425,11 +1435,12 @@
           position: "fixed",
           top: "18px",
           right: "18px",
-          background: type === "success"
-            ? "linear-gradient(135deg, var(--primary), var(--primary-strong))"
-            : type === "info"
-            ? "linear-gradient(135deg, #2f5c9a, #3f72af)"
-            : "linear-gradient(135deg, #0f1b2d, #1f2f45)",
+          background:
+            type === "success"
+              ? "linear-gradient(135deg, var(--primary), var(--primary-strong))"
+              : type === "info"
+              ? "linear-gradient(135deg, #2f5c9a, #3f72af)"
+              : "linear-gradient(135deg, #0f1b2d, #1f2f45)",
           color: "#f9f7f7",
           padding: "10px 14px",
           borderRadius: "12px",
@@ -1595,7 +1606,9 @@
         const statusList = loadingIndicator.querySelector(".status-list");
         if (!statusList) return;
 
-        const currentItems = statusList.querySelectorAll(".status-item.current");
+        const currentItems = statusList.querySelectorAll(
+          ".status-item.current"
+        );
         if (!currentItems.length) return;
 
         const lastItem = currentItems[currentItems.length - 1];
@@ -1800,7 +1813,7 @@
               <span class="chat-title">${escapeHtml(chat.title)}</span>
               <div class="chat-menu">
                 <button class="chat-menu-btn" title="Options">
-                  <i class="fi fi-rr-file-edit"></i>
+                  <i class="bi bi-three-dots"></i>
                 </button>
                 <div class="chat-menu-dropdown">
                   <button class="chat-rename">Rename</button>
@@ -2270,4 +2283,3 @@
     </script>
   </body>
 </html>
-
