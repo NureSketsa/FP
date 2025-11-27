@@ -77,13 +77,14 @@
       .loader {
         width: 60px;
         aspect-ratio: 2;
-        --_g: no-repeat radial-gradient(circle closest-side, var(--primary) 90%, transparent);
+        --_g: no-repeat radial-gradient(circle closest-side, #000 90%, #0000);
         background:
           var(--_g) 0% 50%,
           var(--_g) 50% 50%,
           var(--_g) 100% 50%;
         background-size: calc(100% / 3) 50%;
         animation: l3 1s infinite linear;
+        display: inline-block;
       }
       .loading-text {
         font-weight: 600;
@@ -1438,7 +1439,7 @@
         content.className = "message-content loading-content";
 
         if (type === "thinking") {
-          content.innerHTML = `<div class="loader"></div><span class="loading-text">Thinking...</span>`;
+          content.innerHTML = `<div class="loader"></div>`;
         } else if (type === "video") {
           content.innerHTML = `
             <div class="loader"></div>
