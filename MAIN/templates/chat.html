@@ -1113,6 +1113,9 @@
       const chatMessages = document.getElementById("chat-messages");
       const welcomeScreen = document.getElementById("welcome-screen");
       const uploadBtn = document.getElementById("upload-btn");
+      const chatHeaderTitle = document.querySelector(
+        ".chat-header .chat-title"
+      );
 
       // ====== State ======
       let videoMode = false;
@@ -1133,6 +1136,19 @@
         const firstActive = document.querySelector(".chat-item.active");
         return firstActive ? firstActive.dataset.chatId || null : null;
       })();
+
+      function updateHeaderTitleFromActiveChat() {
+        if (!chatHeaderTitle) return;
+        if (!activeChatId) {
+          chatHeaderTitle.textContent = "LearnVid AI";
+          return;
+        }
+        const activeTitleEl = document.querySelector(
+          `.chat-item[data-chat-id="${activeChatId}"] .chat-title`
+        );
+        const titleText = activeTitleEl?.textContent?.trim();
+        chatHeaderTitle.textContent = titleText || "LearnVid AI";
+      }
 
       // ====== Mobile Sidebar Toggle ======
       if (mobileSidebarToggle) {
@@ -1419,6 +1435,17 @@
       }
 
       // ====== API calls ======
+      function makeChatTitleFromMessage(message) {
+        let text = (message || "").trim();
+        if (!text) return "New chat";
+        // Batasi panjang judul agar rapi di sidebar
+        const maxLen = 60;
+        if (text.length > maxLen) {
+          text = text.slice(0, maxLen).trim() + "…";
+        }
+        return text;
+      }
+
       async function createChat(title) {
         const res = await fetch("/api/chats", {
           method: "POST",
@@ -1475,7 +1502,8 @@
         try {
           if (!activeChatId) {
             // Jika ini chat pertama, buat dulu
-            const chat = await createChat("New chat");
+            const initialTitle = makeChatTitleFromMessage(message);
+            const chat = await createChat(initialTitle);
             activeChatId = chat.id;
             ensureNotEmptyState();
             const node = document.createElement("div");
@@ -1493,8 +1521,15 @@
                 </div>
               </div>
             `;
-            chatsSection.prepend(node);
+            // Sisipkan tepat setelah judul "Chats" agar posisi konsisten
+            const chatsTitle = chatsSection.querySelector(".chats-title");
+            if (chatsTitle && chatsTitle.parentNode === chatsSection) {
+              chatsTitle.insertAdjacentElement("afterend", node);
+            } else {
+              chatsSection.appendChild(node);
+            }
             setActiveChatItemById(chat.id);
+            updateHeaderTitleFromActiveChat();
             // Update URL tanpa reload
             history.pushState(null, "", `/chat?id=${chat.id}`);
           }
@@ -1623,14 +1658,17 @@
                 behavior: "smooth",
               });
             }, 300);
+            updateHeaderTitleFromActiveChat();
           } catch (e) {
             console.warn("No initial messages loaded:", e);
             welcomeScreen.classList.remove("hidden"); // Tampilkan welcome screen jika gagal load
+            updateHeaderTitleFromActiveChat();
           }
         } else {
           // Tidak ada chat aktif, pastikan welcome screen terlihat
           welcomeScreen.classList.remove("hidden");
           chatMessages.style.display = "none";
+          updateHeaderTitleFromActiveChat();
         }
       })();
 
@@ -1661,6 +1699,7 @@
               .forEach((i) => i.classList.remove("active"));
             target.classList.add("active");
             activeChatId = chatId;
+            updateHeaderTitleFromActiveChat();
 
             // Update URL
             history.pushState(null, "", `/chat?id=${chatId}`);
@@ -1683,53 +1722,35 @@
         '.sidebar-menu .menu-item[href="/chat"]'
       );
       if (sidebarNewChat) {
-        sidebarNewChat.addEventListener("click", async (e) => {
+        sidebarNewChat.addEventListener("click", (e) => {
           e.preventDefault();
 
-          try {
-            // Hapus status aktif dari menu & chat items
-            document
-              .querySelectorAll(".sidebar-menu .menu-item")
-              .forEach((i) => i.classList.remove("active"));
-            document
-              .querySelectorAll(".chat-item")
-              .forEach((i) => i.classList.remove("active"));
+          // Hapus status aktif dari menu & chat items
+          document
+            .querySelectorAll(".sidebar-menu .menu-item")
+            .forEach((i) => i.classList.remove("active"));
+          document
+            .querySelectorAll(".chat-item")
+            .forEach((i) => i.classList.remove("active"));
 
-            ensureNotEmptyState();
+          // Tandai New Chat sebagai aktif
+          sidebarNewChat.classList.add("active");
 
-            // Buat chat baru langsung
-            const chat = await createChat("New chat");
-            activeChatId = chat.id;
+          // Belum ada chat yang dipilih/dibuat
+          activeChatId = null;
 
-            const node = document.createElement("div");
-            node.className = "chat-item active";
-            node.dataset.chatId = chat.id;
-            node.innerHTML = `
-              <span class="chat-title">${escapeHtml(chat.title)}</span>
-              <div class="chat-menu">
-                <button class="chat-menu-btn" title="Options">
-                  <i class="fi fi-rr-file-edit"></i>
-                </button>
-                <div class="chat-menu-dropdown">
-                  <button class="chat-rename">Rename</button>
-                  <button class="chat-delete">Delete</button>
-                </div>
-              </div>
-            `;
-            chatsSection.prepend(node);
+          // Header kembali ke default
+          updateHeaderTitleFromActiveChat();
 
-            // Tampilkan UI chat kosong siap input
-            chatMessages.innerHTML = "";
-            showChatUI();
-            resetInput();
+          // Reset tampilan: kembali ke welcome screen, belum ada chat di sidebar yang baru
+          chatMessages.innerHTML = "";
+          chatMessages.style.display = "none";
+          welcomeScreen.classList.remove("hidden");
+          resetInput();
 
-            // Update URL ke chat baru
-            history.pushState(null, "", `/chat?id=${chat.id}`);
-            closeMobileSidebar();
-          } catch (err) {
-            console.error(err);
-            alert("Failed to create new chat");
-          }
+          // URL tanpa id, supaya sendMessage nanti buat chat baru
+          history.pushState(null, "", "/chat");
+          closeMobileSidebar();
         });
       }
 
@@ -1800,6 +1821,9 @@
           const data = await res.json();
 
           titleSpan.textContent = data.title;
+          if (chatId === activeChatId) {
+            updateHeaderTitleFromActiveChat();
+          }
           closeAllChatMenus(null);
         } catch (err) {
           console.error(err);
@@ -1852,6 +1876,8 @@
             const first = document.querySelector(".chat-item[data-chat-id]");
             if (first) {
               first.click(); // Simulasikan klik untuk memuat chat pertama
+            } else {
+              updateHeaderTitleFromActiveChat();
             }
           }
           closeAllChatMenus(null);
