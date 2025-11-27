@@ -624,6 +624,22 @@
         box-shadow: var(--shadow-soft);
         border: 1px solid rgba(17, 45, 78, 0.04);
       }
+      .message-content ul,
+      .message-content ol {
+        margin: 10px 0;
+        padding-left: 18px;
+        list-style-position: inside;
+      }
+      .message-content li {
+        margin: 4px 0;
+        padding-left: 2px;
+      }
+      .message-content ul ul,
+      .message-content ol ul,
+      .message-content ol ol,
+      .message-content ul ol {
+        margin: 6px 0 0 12px;
+      }
       .message-content p + p {
         margin-top: 10px;
       }
@@ -671,7 +687,7 @@
         border-radius: 30px;
         border: 1px solid var(--border);
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         min-height: 58px;
         transition: 0.25s ease;
         box-shadow: var(--shadow-soft);
@@ -700,10 +716,11 @@
         box-shadow: 0 10px 28px rgba(17, 45, 78, 0.08);
       }
       .upload-btn-bubble {
+        --bubble-shift: 0px;
         position: absolute;
         bottom: 54px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translate(calc(-50% + var(--bubble-shift)), -6px);
         background: var(--panel);
         color: var(--ink);
         border: 1px solid var(--border);
@@ -711,7 +728,10 @@
         padding: 8px 12px;
         box-shadow: 0 14px 36px rgba(17, 45, 78, 0.16);
         font-size: 12px;
+        line-height: 1.4;
         white-space: nowrap;
+        text-align: center;
+        max-width: none;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease, transform 0.2s ease;
@@ -721,7 +741,7 @@
         content: "";
         position: absolute;
         bottom: -6px;
-        left: 50%;
+        left: calc(50% - var(--bubble-shift));
         transform: translateX(-50%);
         border-width: 6px 7px 0 7px;
         border-style: solid;
@@ -740,7 +760,7 @@
 
       .message-input {
         flex: 1;
-        padding: 14px 4px 14px 8px;
+        padding: 16px 12px;
         min-height: 26px;
         max-height: 160px;
         border: none;
@@ -1022,6 +1042,12 @@
           padding: 10px 14px;
           font-size: 13px;
           max-width: 85%;
+        }
+        .upload-btn-bubble {
+          bottom: 64px;
+          --bubble-shift: 12px;
+          white-space: nowrap;
+          max-width: min(240px, calc(100vw - 72px));
         }
         .upload-btn,
         .send-button {
