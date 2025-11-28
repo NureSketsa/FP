@@ -166,16 +166,48 @@ def generate_video_for_topic_with_progress(topic: str):
         manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
         
         yield {"status": "rendering", "message": "🎬 Merender video..."}
-        
-        # Render video
-        video_path, response = generate_educational_video(topic)
-        
+
+        # === Render video ke folder unik (tanpa regenerate konten) ===
+        import shutil
+        from time import sleep
+
+        BASE_DIR = Path(__file__).resolve().parent
+        output_root = (BASE_DIR.parent / "MAIN" / "output").resolve()
+        output_root.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_topic = "".join(c if c.isalnum() else "_" for c in topic)[:25]
+        unique_output = output_root / f"{timestamp}_{safe_topic}"
+        unique_output.mkdir(parents=True, exist_ok=True)
+
+        video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
+        if not video_path or not os.path.exists(video_path):
+            raise Exception("Failed to create animation")
+
+        new_video_name = f"{timestamp}_{safe_topic}.mp4"
+        new_video_path = unique_output / new_video_name
+        os.rename(video_path, new_video_path)
+        final_video_path = str(new_video_path)
+
         yield {"status": "uploading", "message": "☁️ Mengupload ke cloud..."}
-        
-        video_url = response.get("video_path")
-        
+
+        # === Upload ke Supabase (sama seperti generate_educational_video) ===
+        video_url = None
+        try:
+            video_url = upload_to_supabase(final_video_path)
+            # Tunggu sebentar agar proses file selesai
+            sleep(2)
+            shutil.rmtree(unique_output, ignore_errors=True)
+        except Exception as e:
+            yield {"status": "error", "message": f"❌ Upload gagal: {str(e)}"}
+            return
+
         if video_url and "supabase.co" in video_url:
-            yield {"status": "completed", "message": "✅ Video berhasil dibuat!", "video_url": video_url}
+            yield {
+                "status": "completed",
+                "message": "✅ Video berhasil dibuat!",
+                "video_url": video_url,
+            }
         else:
             yield {"status": "error", "message": "❌ Upload gagal"}
             
@@ -209,4 +241,3 @@ if __name__ == "__main__":
             print(f"  • {obj}")
     
     
-

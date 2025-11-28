@@ -1958,8 +1958,8 @@
             );
           }
 
-          // Rename chat item jika ini pesan pertama
-          if (data.new_title) {
+          // Rename chat item jika ini pesan pertama (hanya untuk mode chat biasa)
+          if (!videoMode && data && data.new_title) {
             const chatItem = document.querySelector(
               `.chat-item[data-chat-id="${currentChatId}"] .chat-title`
             );
