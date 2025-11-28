@@ -5,18 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
-      rel="stylesheet"
-    />
-    <link
       rel="icon"
       href="../trial_media/images/logo.svg"
       type="image/svg+xml"
     />
 
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff2') }}")
+            format("woff2"),
+          url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff') }}")
+            format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
 
       :root {
         --bg-1: #0d1f37;
@@ -29,6 +35,8 @@
         --glass: rgba(249, 247, 247, 0.08);
         --border: rgba(219, 226, 239, 0.2);
         --glow: 0 25px 80px rgba(108, 194, 255, 0.18);
+        --font-display: "Cabinet Grotesk", sans-serif;
+        --font-body: "Montserrat", sans-serif;
       }
 
       * {
@@ -38,7 +46,7 @@
       }
 
       body {
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         background: radial-gradient(
             circle at 20% 20%,
             rgba(108, 194, 255, 0.08),
@@ -54,6 +62,15 @@
         overflow-x: hidden;
         min-height: 100vh;
         position: relative;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-display);
       }
 
       body::before {
@@ -255,7 +272,7 @@
       }
 
       .hero h1 {
-        font-family: "Montaga", cursive;
+        font-family: var(--font-display);
         font-size: 4.5rem;
         font-weight: 400;
         margin-bottom: 30px;
@@ -269,7 +286,7 @@
       }
 
       .hero .eyebrow {
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -291,7 +308,7 @@
       }
 
       .hero .subhead {
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
         color: var(--text-primary);
         font-size: 1.2rem;
         letter-spacing: 0.02em;
@@ -389,7 +406,7 @@
       }
 
       .cta-hint {
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
         color: var(--text-secondary);
         font-size: 0.95rem;
       }
@@ -405,7 +422,7 @@
       }
 
       .pill {
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
         padding: 10px 16px;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.05);
@@ -679,7 +696,7 @@
       }
 
       .how-header h2 {
-        font-family: "Montaga", cursive;
+        font-family: var(--font-display);
         font-size: 2rem;
         color: var(--text-primary);
         margin-bottom: 10px;
@@ -687,7 +704,7 @@
 
       .how-header p {
         color: var(--text-secondary);
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
       }
 
       .steps {
@@ -728,18 +745,18 @@
         place-items: center;
         color: var(--text-primary);
         font-weight: 600;
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-display);
       }
 
       .step-card h3 {
         font-size: 1.1rem;
         color: var(--text-primary);
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-display);
       }
 
       .step-card p {
         color: var(--text-secondary);
-        font-family: "Space Grotesk", sans-serif;
+        font-family: var(--font-body);
         line-height: 1.5;
         font-size: 0.95rem;
       }

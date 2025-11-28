@@ -5,12 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI - Login</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+      rel="icon"
+      type="image/svg+xml"
+      href="/static/logo.svg">
     <script src="https://cdn.lordicon.com/lordicon.js"></script>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff2') }}")
+            format("woff2"),
+          url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff') }}")
+            format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        --font-display: "Cabinet Grotesk", sans-serif;
+        --font-body: "Montserrat", sans-serif;
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -18,7 +35,7 @@
       }
 
       body {
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
         min-height: 100vh;
         display: flex;
@@ -27,6 +44,15 @@
         overflow-x: hidden;
         position: relative;
         padding: 20px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-display);
       }
 
       .bg-animations {
@@ -39,7 +65,7 @@
 
       .floating-symbol {
         position: absolute;
-        font-family: "Montaga", serif;
+        font-family: var(--font-display);
         font-weight: bold;
         opacity: 0;
         will-change: transform, opacity;
@@ -138,7 +164,7 @@
         padding: 14px 16px;
         border: 2px solid #dbe2ef;
         border-radius: 12px;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 14px;
         background: #f9f7f7;
         color: #112d4e;
@@ -164,7 +190,7 @@
         cursor: pointer;
         margin-top: 10px;
         transition: 0.3s;
-        font-family: "Montaga", serif;
+        font-family: var(--font-display);
       }
 
       .register-btn:hover {

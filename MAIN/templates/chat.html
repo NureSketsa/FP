@@ -8,10 +8,6 @@
     />
     <title>LearnVid AI - Chat</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
-      rel="stylesheet"
-    />
-    <link
       rel="stylesheet"
       href="https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css"
     />
@@ -21,7 +17,18 @@
     />
     <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&family=Manrope:wght@400;500;600;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff2') }}")
+            format("woff2"),
+          url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff') }}")
+            format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
 
       :root {
         --bg: #f7f8fb;
@@ -37,10 +44,10 @@
         --radius-lg: 20px;
         --radius-pill: 999px;
         --grad: radial-gradient(
-            circle at 20% 20%,
-            rgba(63, 114, 175, 0.18),
-            transparent 30%
-          ),
+          circle at 20% 20%,
+          rgba(63, 114, 175, 0.18),
+          transparent 30%
+        ),
           radial-gradient(
             circle at 80% 0%,
             rgba(17, 45, 78, 0.15),
@@ -51,6 +58,8 @@
             rgba(179, 204, 235, 0.2),
             transparent 30%
           );
+        --font-display: "Cabinet Grotesk", sans-serif;
+        --font-body: "Montserrat", sans-serif;
       }
 
       /* Reset */
@@ -65,12 +74,21 @@
       }
 
       body {
-        font-family: "Manrope", "Montaga", serif;
+        font-family: var(--font-body);
         background: var(--bg);
         color: var(--ink);
         height: 100dvh;
         overflow: hidden;
         position: relative;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-display);
       }
 
       body::before {
@@ -232,7 +250,7 @@
         flex-direction: column;
         border-right: 1px solid rgba(219, 226, 239, 0.1);
         transition: transform 0.3s ease;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
       }
 
       /* Mobile Sidebar Toggle */
@@ -276,6 +294,7 @@
         font-weight: 500;
         color: #f9f7f7;
         padding-left: 5px;
+        font-family: var(--font-display);
       }
       /* ------------------------------- */
 
@@ -470,7 +489,7 @@
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
       }
       .chat-header .chat-title {
-        font-family: "Montaga", cursive;
+        font-family: var(--font-display);
         font-size: 1.2rem;
         color: var(--ink);
         max-width: none;
@@ -556,7 +575,7 @@
         display: none;
       }
       .welcome-title {
-        font-family: "Montaga", cursive;
+        font-family: var(--font-display);
         font-size: 2.6rem;
         color: var(--ink);
         margin-bottom: 10px;
@@ -767,7 +786,7 @@
         background: transparent;
         outline: none;
         resize: none;
-        font-family: "Manrope", "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 15px;
         color: var(--ink);
         line-height: 1.55;
