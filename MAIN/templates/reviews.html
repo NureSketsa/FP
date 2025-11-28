@@ -4,13 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI - Reviews</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
     <script src="https://cdn.lordicon.com/lordicon.js"></script>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff2') }}")
+            format("woff2"),
+          url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff') }}")
+            format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        --font-display: "Cabinet Grotesk", sans-serif;
+        --font-body: "Montserrat", sans-serif;
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -18,7 +32,7 @@
       }
 
       body {
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
         min-height: 100vh;
         display: flex;
@@ -28,6 +42,196 @@
         overflow-y: auto;
         position: relative;
         padding: 80px 20px 40px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-display);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Navigation (matching index) */
+      nav {
+        padding: 20px 0;
+        position: relative;
+        z-index: 100;
+      }
+
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #f9f7f7;
+        display: none;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 40px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: #dbe2ef;
+        text-decoration: none;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #f9f7f7;
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after,
+      .nav-links a[href="/reviews"]::after {
+        width: 100%;
+      }
+
+      .nav-links a:hover,
+      .nav-links a[href="/reviews"] {
+        color: #f9f7f7;
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .register-btn {
+        background: #f9f7f7;
+        color: #112d4e;
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid #f9f7f7;
+        box-shadow: 0 4px 15px rgba(249, 247, 247, 0.2);
+      }
+
+      .register-btn:hover {
+        background: transparent;
+        color: #f9f7f7;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(249, 247, 247, 0.3);
+      }
+
+      .login-link {
+        color: #dbe2ef;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        padding: 12px 16px;
+        border-radius: 20px;
+      }
+
+      .login-link:hover {
+        color: #f9f7f7;
+        background: rgba(249, 247, 247, 0.1);
+      }
+
+      /* Mobile Menu (matching index) */
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        gap: 7px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: #f9f7f7;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 8px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+      }
+
+      .mobile-nav {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(17, 45, 78, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        z-index: 99;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .mobile-nav.active {
+        display: block;
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mobile-nav ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .mobile-nav a {
+        color: #dbe2ef;
+        text-decoration: none;
+        font-size: 18px;
+        display: block;
+        padding: 10px;
+        transition: color 0.3s ease;
+      }
+
+      .mobile-nav a:hover,
+      .mobile-nav a[href="/reviews"] {
+        color: #f9f7f7;
+        font-weight: bold;
       }
 
       /* Back to Chat Button */
@@ -43,7 +247,7 @@
         border: none;
         border-radius: 12px;
         color: #f9f7f7;
-        font-family: "Montaga", serif;
+        font-family: var(--font-display);
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
@@ -73,7 +277,7 @@
 
       .floating-symbol {
         position: absolute;
-        font-family: "Montaga", serif;
+        font-family: var(--font-display);
         font-weight: bold;
         opacity: 0;
         will-change: transform, opacity;
@@ -178,7 +382,7 @@
         padding: 14px 16px;
         border: 2px solid #dbe2ef;
         border-radius: 12px;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 14px;
         background: #f9f7f7;
         color: #112d4e;
@@ -229,7 +433,7 @@
         cursor: pointer;
         margin-top: 10px;
         transition: 0.3s;
-        font-family: "Montaga", serif;
+        font-family: var(--font-display);
       }
 
       .submit-btn:hover {
@@ -272,7 +476,7 @@
         padding: 12px 16px;
         border: 2px solid #dbe2ef;
         border-radius: 12px;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 14px;
         background: #f9f7f7;
         color: #112d4e;
@@ -289,7 +493,7 @@
         padding: 12px 16px;
         border: 2px solid #dbe2ef;
         border-radius: 12px;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 14px;
         background: #f9f7f7;
         color: #112d4e;
@@ -380,7 +584,7 @@
         border: 2px solid #dbe2ef;
         border-radius: 8px;
         color: #112d4e;
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         font-size: 14px;
         cursor: pointer;
         transition: all 0.3s ease;

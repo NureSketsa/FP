@@ -4,12 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI - How It Works</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montaga&display=swap"
-      rel="stylesheet"
-    />
 <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+      @font-face {
+        font-family: "Cabinet Grotesk";
+        src: url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff2') }}")
+            format("woff2"),
+          url("{{ url_for('static', filename='font/CabinetGrotesk-Regular.woff') }}")
+            format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        --font-display: "Cabinet Grotesk", sans-serif;
+        --font-body: "Montserrat", sans-serif;
+      }
+
       @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
       * {
         margin: 0;
@@ -18,13 +32,22 @@
       }
 
       body {
-        font-family: "Montaga", serif;
+        font-family: var(--font-body);
         background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
         color: #f9f7f7;
         overflow-x: hidden;
         min-height: 100vh;
         padding-bottom: 60px;
         position: relative;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-display);
       }
 
       /* Subtle background pattern */
@@ -140,7 +163,7 @@
       .mobile-menu-btn {
         display: none;
         flex-direction: column;
-        gap: 5px;
+        gap: 7px;
         background: none;
         border: none;
         cursor: pointer;
@@ -160,7 +183,7 @@
         opacity: 0;
       }
       .mobile-menu-btn.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(4px, -4px);
+        transform: rotate(-45deg) translate(7px, -7px);
       }
       .mobile-nav {
         display: none;
@@ -206,6 +229,47 @@
       .mobile-nav a[href="/how-it-works"] {
         color: #f9f7f7;
         font-weight: bold;
+      }
+
+      /* Footer */
+      .site-footer {
+        margin-top: 80px;
+        padding: 30px 0;
+        border-top: 1px solid rgba(249, 247, 247, 0.15);
+        background: rgba(0, 0, 0, 0.08);
+        color: #dbe2ef;
+      }
+
+      .site-footer .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .site-footer .brand {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f9f7f7;
+      }
+
+      .site-footer .footer-links {
+        display: flex;
+        gap: 18px;
+        list-style: none;
+      }
+
+      .site-footer .footer-links a {
+        color: #dbe2ef;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+      }
+
+      .site-footer .footer-links a:hover {
+        color: #f9f7f7;
       }
 
       /* Content Wrapper */
@@ -581,6 +645,20 @@
         <a href="/register" class="cta-button">Mulai Sekarang</a>
       </div>
     </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="brand">LearnVid AI</div>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/how-it-works">How it works</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/reviews">Review</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
 
     <script>
       const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
