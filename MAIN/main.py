@@ -562,17 +562,25 @@ async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(c
             # Generate video with progress callback
             video_url = None
             has_error = False
+            error_message = None
             
             for progress in generate_video_for_topic_with_progress(topic):
-                yield f"data: {json.dumps(progress)}\n\n"
-                if progress.get('status') == 'completed':
-                    video_url = progress.get('video_url')
-                if progress.get('status') == 'error':
+                status = progress.get("status")
+                # Tangkap status completed tapi jangan diteruskan ke klien
+                if status == "completed":
+                    video_url = progress.get("video_url")
+                    continue
+
+                if status == "error":
                     has_error = True
+                    error_message = progress.get("message")
+
+                # Teruskan progress lain (generating_content, generating_code, rendering, uploading)
+                yield f"data: {json.dumps(progress)}\n\n"
             
-            # Only save final message if no error occurred
-            if not has_error and video_url:
-                with Session(engine) as session:
+            with Session(engine) as session:
+                if not has_error and video_url:
+                    # Simpan pesan sukses ke DB
                     ai_msg = Message(
                         chat_folder_id=chat_id,
                         role=False,
@@ -583,10 +591,39 @@ async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(c
                     session.commit()
                     session.refresh(ai_msg)
                     
+                    # Kirim event final "done" ke klien (dipakai untuk menambah bubble sekali saja)
                     yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
+                elif has_error:
+                    # Simpan pesan error ke DB
+                    friendly_error = error_message or "❌ Maaf, terjadi kesalahan. Coba lagi nanti."
+                    ai_msg = Message(
+                        chat_folder_id=chat_id,
+                        role=False,
+                        content=friendly_error,
+                        video_url=None
+                    )
+                    session.add(ai_msg)
+                    session.commit()
+                    session.refresh(ai_msg)
+
+                    # Kirim status error ke klien
+                    yield f"data: {json.dumps({'status': 'error', 'message': friendly_error, 'message_id': ai_msg.id})}\n\n"
         
         except Exception as e:
-            yield f"data: {json.dumps({'status': 'error', 'message': f'❌ Error: {str(e)}'})}\n\n"
+            # Tangani error tak terduga: simpan di DB dan kirim ke klien
+            friendly_error = f"❌ Maaf, terjadi kesalahan. ({str(e)})"
+            with Session(engine) as session:
+                ai_msg = Message(
+                    chat_folder_id=chat_id,
+                    role=False,
+                    content=friendly_error,
+                    video_url=None
+                )
+                session.add(ai_msg)
+                session.commit()
+                session.refresh(ai_msg)
+
+            yield f"data: {json.dumps({'status': 'error', 'message': friendly_error, 'message_id': ai_msg.id})}\n\n"
 
     return StreamingResponse(generate_with_progress(), media_type="text/event-stream")
 
