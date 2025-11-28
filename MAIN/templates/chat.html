@@ -1942,9 +1942,38 @@
                 }
               }
             } catch (error) {
-              // Keep stack and add error at the end
+              // Keep stack and add error at the end, dan simpan ke DB
               markLastStatusComplete();
-              addStatusToLoading(`❌ Error: ${error.message}`, false);
+              const errorText = `❌ Error: ${error.message || "Load failed"}`;
+              addStatusToLoading(errorText, false, true);
+
+              try {
+                const resErr = await fetch(
+                  `/api/chats/${currentChatId}/error_message`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: errorText }),
+                  }
+                );
+                if (resErr.ok) {
+                  const saved = await resErr.json();
+                  setTimeout(() => {
+                    removeLoadingMessage();
+                    addMessage(saved.content, "ai");
+                  }, 500);
+                } else {
+                  setTimeout(() => {
+                    removeLoadingMessage();
+                    addMessage(errorText, "ai");
+                  }, 500);
+                }
+              } catch (e2) {
+                setTimeout(() => {
+                  removeLoadingMessage();
+                  addMessage(errorText, "ai");
+                }, 500);
+              }
             }
           } else {
             data = await postMessage(currentChatId, message);
@@ -1967,7 +1996,9 @@
           }
         } catch (err) {
           console.error(err);
-          addMessage("❌ Maaf, terjadi kesalahan. Coba lagi nanti.", "ai");
+          if (!videoMode) {
+            addMessage("❌ Maaf, terjadi kesalahan. Coba lagi nanti.", "ai");
+          }
         } finally {
           isGenerating = false;
           messageInput.disabled = false;
