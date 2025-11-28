@@ -211,17 +211,23 @@ def generate_video_for_topic_with_progress(
             video_url = upload_to_supabase(video_path)
             sleep(2)
 
+            # Beri tahu bahwa upload sukses
+            yield {"status": "upload_success", "message": "☁️ Upload selesai!"}
+
             # Hapus folder lokal
             shutil.rmtree(unique_output, ignore_errors=True)
 
         except Exception as e:
             yield {"status": "warning", "message": f"⚠️ Upload gagal: {e}"}
 
+        # === Progress finalisasi sebelum complete ===
+        yield {"status": "finalizing", "message": "🔧 Menyelesaikan proses akhir..."}
+
         # === Completed ===
         if video_url:
             yield {
                 "status": "completed",
-                "message": "✅ Video berhasil dibuat!",
+                "message": "🎉 Video berhasil dibuat!",
                 "video_url": video_url,
                 "educational_breakdown": video_plan.get("educational_breakdown", {}),
                 "manim_structure": video_plan.get("manim_structure", {}),
@@ -235,7 +241,6 @@ def generate_video_for_topic_with_progress(
 
     except Exception as e:
         yield {"status": "error", "message": f"❌ Error: {str(e)}"}
-
 import sys
 # Example usage
 if __name__ == "__main__":
