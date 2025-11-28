@@ -146,31 +146,37 @@ def generate_educational_video(
 
     return video_path, ai_response
 
-def generate_video_for_topic_with_progress(topic: str):
-    """
-    Modified version that yields progress updates
-    """
+def generate_video_for_topic_with_progress(
+    topic: str,
+    complexity: str = "high-school",
+    domain: str = "auto-detect"
+):
+    import shutil
+    from time import sleep
+
     try:
         yield {"status": "generating_content", "message": "📝 Membuat konten edukatif..."}
-        
-        # Generate educational content
+
+        # === Step 1: Generate educational content ===
         api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            yield {"status": "error", "message": "❌ GOOGLE_API_KEY tidak ditemukan."}
+            return
+
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
-        prompt = f"Create an educational animation about {topic}"
+        prompt = f"Create an educational animation about {topic} for {complexity} level ({domain})."
         video_plan = video_generator.generate_complete_video_plan(prompt)
-        
+        if not video_plan or "error" in video_plan:
+            yield {"status": "error", "message": "❌ Gagal membuat konten edukatif."}
+            return
+
         yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
-        
-        # Generate Manim code
+
+        # === Step 2: Generate Manim code ===
         manim_generator = ManIMCodeGenerator(google_api_key=api_key)
         manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
-        
-        yield {"status": "rendering", "message": "🎬 Merender video..."}
 
-        # === Render video ke folder unik (tanpa regenerate konten) ===
-        import shutil
-        from time import sleep
-
+        # === Setup folder output ===
         BASE_DIR = Path(__file__).resolve().parent
         output_root = (BASE_DIR.parent / "MAIN" / "output").resolve()
         output_root.mkdir(parents=True, exist_ok=True)
@@ -180,37 +186,53 @@ def generate_video_for_topic_with_progress(topic: str):
         unique_output = output_root / f"{timestamp}_{safe_topic}"
         unique_output.mkdir(parents=True, exist_ok=True)
 
-        video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
-        if not video_path or not os.path.exists(video_path):
-            raise Exception("Failed to create animation")
+        yield {"status": "rendering", "message": "🎬 Merender video dengan Manim..."}
 
+        # === Step 3: Render Manim ===
+        video_path = create_animation_from_code(
+            manim_code,
+            output_dir=str(unique_output)
+        )
+        if not video_path or not os.path.exists(video_path):
+            yield {"status": "error", "message": "❌ Gagal merender video."}
+            return
+
+        # Rename output video
         new_video_name = f"{timestamp}_{safe_topic}.mp4"
         new_video_path = unique_output / new_video_name
         os.rename(video_path, new_video_path)
-        final_video_path = str(new_video_path)
+        video_path = str(new_video_path)
 
-        yield {"status": "uploading", "message": "☁️ Mengupload ke cloud..."}
+        yield {"status": "uploading", "message": "☁️ Mengupload video ke Supabase..."}
 
-        # === Upload ke Supabase (sama seperti generate_educational_video) ===
+        # === Step 4: Upload ke Supabase ===
         video_url = None
         try:
-            video_url = upload_to_supabase(final_video_path)
-            # Tunggu sebentar agar proses file selesai
+            video_url = upload_to_supabase(video_path)
             sleep(2)
-            shutil.rmtree(unique_output, ignore_errors=True)
-        except Exception as e:
-            yield {"status": "error", "message": f"❌ Upload gagal: {str(e)}"}
-            return
 
-        if video_url and "supabase.co" in video_url:
+            # Hapus folder lokal
+            shutil.rmtree(unique_output, ignore_errors=True)
+
+        except Exception as e:
+            yield {"status": "warning", "message": f"⚠️ Upload gagal: {e}"}
+
+        # === Completed ===
+        if video_url:
             yield {
                 "status": "completed",
                 "message": "✅ Video berhasil dibuat!",
                 "video_url": video_url,
+                "educational_breakdown": video_plan.get("educational_breakdown", {}),
+                "manim_structure": video_plan.get("manim_structure", {}),
             }
         else:
-            yield {"status": "error", "message": "❌ Upload gagal"}
-            
+            yield {
+                "status": "completed_local",
+                "message": "⚠️ Video selesai, tetapi upload gagal. File disimpan lokal.",
+                "video_path": video_path,
+            }
+
     except Exception as e:
         yield {"status": "error", "message": f"❌ Error: {str(e)}"}
 

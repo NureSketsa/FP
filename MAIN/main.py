@@ -118,7 +118,7 @@ def _title_from_video_url(video_url: str | None) -> str:
     # Jadikan setiap kata berawalan huruf kapital
     base = " ".join(word.capitalize() for word in base.split())
     return base or "Untitled Video"
-
+ 
 # ---------------- App ----------------
 app = FastAPI()
 templates = Jinja2Templates(directory="MAIN/templates")
@@ -398,6 +398,9 @@ class NewChatIn(BaseModel):
 class PostMessageIn(BaseModel):
     content: str
 
+class ErrorMessageIn(BaseModel):
+    content: str
+
 # cek apakah akun ada (username ATAU email) 
 @app.get("/api/check-account")
 def api_check_account(q: str):
@@ -444,7 +447,44 @@ def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):
         }
         for m in msgs
     ]
-    
+
+@app.post("/api/chats/{chat_id}/error_message")
+def api_post_error_message(
+    chat_id: int,
+    payload: ErrorMessageIn,
+    user: User = Depends(current_user_required),
+):
+    """
+    Simpan pesan error AI ke database, misalnya saat client menerima
+    '❌ Error: Load failed' karena koneksi atau timeout worker.
+    """
+    content = (payload.content or "").strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Content required")
+
+    with Session(engine) as session:
+        chat = session.get(ChatFolder, chat_id)
+        if not chat or chat.user_id != user.id:
+            raise HTTPException(status_code=404, detail="Chat not found")
+
+        ai_msg = Message(
+            chat_folder_id=chat_id,
+            role=False,
+            content=content,
+            video_url=None,
+        )
+        session.add(ai_msg)
+        session.commit()
+        session.refresh(ai_msg)
+
+        return {
+            "id": ai_msg.id,
+            "role": "ai",
+            "content": ai_msg.content,
+            "timestamp": ai_msg.timestamp.isoformat(),
+            "video_url": ai_msg.video_url,
+        }
+
 import subprocess, shlex, json
 from pathlib import Path
 
