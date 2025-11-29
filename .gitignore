@@ -16,3 +16,5 @@ MAIN\trial_media\texts\*
 MAIN\trial_media\videos\*
 MAIN\trial_media\Tex\*
 # run.sh
+
+.env-old
