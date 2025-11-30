@@ -173,7 +173,7 @@ Please execute the following 6-step educational breakdown process:
 - Use analogies and metaphors when helpful
 - Include transition phrases between steps
 - Keep language appropriate for target audience
-- Aim for 50-100 words per step
+- Aim for 25-50 words per step
 
 🧪 STEP 6: ASSESSMENT & ENGAGEMENT PLANNING
 - Design 2-3 quiz questions of varying difficulty
@@ -217,7 +217,7 @@ Provide your complete analysis as a properly formatted JSON object following thi
                 "highlighting": ["elements to emphasize"]
             },
             "animation_plan": "Detailed step-by-step description of how this should be visualized in Manim (200+ words)",
-            "duration_seconds": 45,
+            "duration_seconds": 22, #/
             "difficulty_level": "beginner|intermediate|advanced",
             "transition_to_next": "How this step logically connects to the next step"
         }
@@ -438,7 +438,7 @@ Begin your comprehensive 6-step analysis now:
             },
             "metadata": {
                 "target_audience": "High school to undergraduate level",
-                "estimated_total_duration": 180,
+                "estimated_total_duration": 90, #/
                 "real_world_applications": self._generate_applications(topic),
                 "related_topics": self._generate_related_topics(topic),
                 "difficulty_progression": "Begins with basic concepts and gradually introduces more complex applications"
@@ -475,7 +475,7 @@ Begin your comprehensive 6-step analysis now:
                     "highlighting": ["main_concept"]
                 },
                 "animation_plan": f"Begin with an engaging title animation for '{topic}'. Use smooth text reveals to introduce the concept. Create visual interest with color transitions and gentle object movements. Display key terminology clearly with appropriate emphasis.",
-                "duration_seconds": 40,
+                "duration_seconds": 20, #/
                 "difficulty_level": "beginner",
                 "transition_to_next": "Now that we understand what {topic} is, let's explore the underlying principles"
             },
@@ -497,7 +497,7 @@ Begin your comprehensive 6-step analysis now:
                     "highlighting": ["critical_connections"]
                 },
                 "animation_plan": f"Create detailed diagrams showing the core principles of {topic}. Use animated arrows and connections to show relationships. Highlight key components as they're discussed. Use color coding to distinguish different aspects.",
-                "duration_seconds": 60,
+                "duration_seconds": 30, #/
                 "difficulty_level": "intermediate",
                 "transition_to_next": "With these principles in mind, let's see how they manifest in practice"
             },
@@ -519,7 +519,7 @@ Begin your comprehensive 6-step analysis now:
                     "highlighting": ["key_applications"]
                 },
                 "animation_plan": f"Present engaging real-world examples of {topic}. Use animations to show the concept in action. Create visual scenarios that students can relate to. Use dynamic movements to maintain engagement.",
-                "duration_seconds": 50,
+                "duration_seconds": 25, #/
                 "difficulty_level": "intermediate",
                 "transition_to_next": "Let's summarize what we've learned and test our understanding"
             },
@@ -541,7 +541,7 @@ Begin your comprehensive 6-step analysis now:
                     "highlighting": ["essential_concepts"]
                 },
                 "animation_plan": f"Create a comprehensive summary visualization that ties together all the main concepts of {topic}. Use clear, organized layouts to reinforce learning. End with memorable key takeaways.",
-                "duration_seconds": 30,
+                "duration_seconds": 15, #/
                 "difficulty_level": "beginner",
                 "transition_to_next": "You now have a solid foundation in {topic}!"
             }

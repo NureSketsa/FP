@@ -535,11 +535,13 @@ def api_post_message(chat_id: int, payload: PostMessageIn, user: User = Depends(
 from fastapi import APIRouter
 
 @app.post("/api/chats/{chat_id}/generate_video")
-async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
+def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
     """
-    Endpoint with SSE streaming for progress updates
+    Endpoint with SSE streaming for progress updates (SYNC version)
     """
     topic = (payload.get("topic") or "").strip()
+    print(f"[API DEBUG] Received topic: '{topic}'")
+    
     if not topic:
         raise HTTPException(status_code=400, detail="Topic required")
 
@@ -548,29 +550,28 @@ async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(c
         if not chat or chat.user_id != user.id:
             raise HTTPException(status_code=404, detail="Chat not found")
         
-        # Save user message
         user_msg = Message(chat_folder_id=chat.id, role=True, content=topic)
         session.add(user_msg)
         session.commit()
 
-    async def generate_with_progress():
-        """Generator function that yields progress updates"""
+    def generate_with_progress():
+        """Synchronous generator function"""
         try:
-            # Send initial status
-            yield f"data: {json.dumps({'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'})}\n\n"
+            initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
+            yield f"data: {json.dumps(initial_msg)}\n\n"
             
-            # Generate video with progress callback
             video_url = None
             has_error = False
             
             for progress in generate_video_for_topic_with_progress(topic):
+                print(f"[STREAM] Progress: {progress}")
                 yield f"data: {json.dumps(progress)}\n\n"
+                
                 if progress.get('status') == 'completed':
                     video_url = progress.get('video_url')
                 if progress.get('status') == 'error':
                     has_error = True
             
-            # Only save final message if no error occurred
             if not has_error and video_url:
                 with Session(engine) as session:
                     ai_msg = Message(
@@ -586,6 +587,8 @@ async def api_generate_video(chat_id: int, payload: dict, user: User = Depends(c
                     yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
         
         except Exception as e:
+            import traceback
+            print(f"[STREAM ERROR] {traceback.format_exc()}")
             yield f"data: {json.dumps({'status': 'error', 'message': f'❌ Error: {str(e)}'})}\n\n"
 
     return StreamingResponse(generate_with_progress(), media_type="text/event-stream")

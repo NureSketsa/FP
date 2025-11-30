@@ -150,38 +150,129 @@ def generate_video_for_topic_with_progress(topic: str):
     """
     Modified version that yields progress updates
     """
+    import shutil
+    from time import sleep
+    from pathlib import Path
+    
+    print(f"[DEBUG] Starting video generation for topic: '{topic}'")
+    
+    BASE_DIR = Path(__file__).resolve().parent
+    output_root = (BASE_DIR.parent / "MAIN" / "output").resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    # === Buat subfolder unik untuk topik ini ===
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_topic = "".join(c if c.isalnum() else "_" for c in topic)[:25]
+    unique_output = output_root / f"{timestamp}_{safe_topic}"
+    unique_output.mkdir(parents=True, exist_ok=True)
+
+    print(f"[DEBUG] Output folder: {unique_output}")
+
     try:
+        # === Step 1: Generate educational content ===
         yield {"status": "generating_content", "message": "📝 Membuat konten edukatif..."}
+        print("[DEBUG] Step 1: Starting educational content generation")
         
-        # Generate educational content
         api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable not set")
+            
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
         prompt = f"Create an educational animation about {topic}"
+        
+        print(f"[DEBUG] Generating video plan with prompt: {prompt}")
         video_plan = video_generator.generate_complete_video_plan(prompt)
         
-        yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        if not video_plan or "error" in video_plan:
+            error_msg = f"Failed to generate educational content: {video_plan.get('error', 'Unknown error')}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
         
-        # Generate Manim code
+        print("[DEBUG] Step 1 completed: Educational content generated")
+        
+        # === Step 2: Generate Manim code ===
+        yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        print("[DEBUG] Step 2: Starting Manim code generation")
+        
         manim_generator = ManIMCodeGenerator(google_api_key=api_key)
         manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
         
+        if not manim_code or len(manim_code.strip()) < 100:
+            error_msg = "Generated Manim code is too short or empty"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
+        
+        print(f"[DEBUG] Step 2 completed: Manim code generated ({len(manim_code)} characters)")
+        
+        # === Step 3: Render video ===
         yield {"status": "rendering", "message": "🎬 Merender video..."}
+        print("[DEBUG] Step 3: Starting video rendering")
         
-        # Render video
-        video_path, response = generate_educational_video(topic)
+        video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
         
+        if not video_path or not os.path.exists(video_path):
+            error_msg = f"Failed to create animation. Video path: {video_path}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
+
+        print(f"[DEBUG] Video rendered at: {video_path}")
+
+        # Rename video file
+        new_video_name = f"{timestamp}_{safe_topic}.mp4"
+        new_video_path = unique_output / new_video_name
+        
+        print(f"[DEBUG] Renaming video to: {new_video_path}")
+        os.rename(video_path, new_video_path)
+        video_path = str(new_video_path)
+        
+        print("[DEBUG] Step 3 completed: Video rendered successfully")
+        
+        # === Step 4: Upload to Supabase ===
         yield {"status": "uploading", "message": "☁️ Mengupload ke cloud..."}
+        print("[DEBUG] Step 4: Starting upload to Supabase")
         
-        video_url = response.get("video_path")
+        supabase_url = None
+        try:
+            supabase_url = upload_to_supabase(video_path)
+            print(f"[DEBUG] Upload successful: {supabase_url}")
+            
+            # Tunggu sebentar agar proses file selesai
+            sleep(2)
+
+            # 🧹 Hapus folder spesifik topik ini saja
+            shutil.rmtree(unique_output, ignore_errors=True)
+            print(f"[DEBUG] Cleaned up local folder: {unique_output}")
+            
+        except Exception as upload_error:
+            error_msg = f"Upload failed: {str(upload_error)}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            yield {"status": "error", "message": f"❌ {error_msg}"}
+            return
+        
+        video_url = supabase_url or video_path
         
         if video_url and "supabase.co" in video_url:
+            print(f"[DEBUG] Final video URL: {video_url}")
             yield {"status": "completed", "message": "✅ Video berhasil dibuat!", "video_url": video_url}
         else:
-            yield {"status": "error", "message": "❌ Upload gagal"}
+            error_msg = f"Invalid video URL: {video_url}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            yield {"status": "error", "message": "❌ Upload gagal - URL tidak valid"}
             
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"[DEBUG EXCEPTION] {error_details}")
         yield {"status": "error", "message": f"❌ Error: {str(e)}"}
-
+        
+        # Cleanup on error
+        try:
+            if unique_output.exists():
+                shutil.rmtree(unique_output, ignore_errors=True)
+                print(f"[DEBUG] Cleaned up folder after error: {unique_output}")
+        except:
+            pass
+        
 import sys
 # Example usage
 if __name__ == "__main__":
@@ -209,4 +300,3 @@ if __name__ == "__main__":
             print(f"  • {obj}")
     
     
-
