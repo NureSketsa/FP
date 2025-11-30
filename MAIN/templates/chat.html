@@ -1688,8 +1688,19 @@
           video.style.maxWidth = "100%";
           video.style.borderRadius = "10px";
 
-          const fileName =
-            videoUrl.split("/").pop() || `EduGen_${Date.now()}.mp4`;
+          // Tentukan nama file download tanpa prefix ID (hanya tanggal_waktu_judul.mp4)
+          let fileNamePart = videoUrl.split("/").pop() || `EduGen_${Date.now()}.mp4`;
+          // Hilangkan ekstensi untuk proses parsing
+          const dotIndex = fileNamePart.lastIndexOf(".");
+          const ext = dotIndex !== -1 ? fileNamePart.slice(dotIndex) : ".mp4";
+          let baseName = dotIndex !== -1 ? fileNamePart.slice(0, dotIndex) : fileNamePart;
+
+          const segments = baseName.split("_");
+          if (segments.length >= 3 && /^\d+$/.test(segments[0]) && /^\d+$/.test(segments[1])) {
+            // Pola: <messageId>_<timestamp>_<judul...>
+            baseName = segments.slice(1).join("_");
+          }
+          const fileName = `${baseName}${ext}`;
           const downloadBtn = document.createElement("button");
           downloadBtn.textContent = "Download Video";
           Object.assign(downloadBtn.style, {
@@ -1939,8 +1950,8 @@
             );
           }
 
-          // Rename chat item jika ini pesan pertama
-          if (data.new_title) {
+          // Rename chat item jika ini pesan pertama (hanya mode chat teks)
+          if (!videoMode && data && data.new_title) {
             const chatItem = document.querySelector(
               `.chat-item[data-chat-id="${currentChatId}"] .chat-title`
             );

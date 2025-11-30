@@ -23,8 +23,8 @@ import json
 import os
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
-BASE_DIR = Path(__file__).resolve().parent
-project_root = BASE_DIR.parent
+BASE_DIR = Path(__file__).resolve().parent       # .../FP/MAIN
+project_root = BASE_DIR.parent                   # .../FP
 env_paths = [
     BASE_DIR / ".env",           # MAIN/.env
     project_root / ".env",       # FP/.env
@@ -87,45 +87,46 @@ def create_db_and_tables():
 
 def _title_from_video_url(video_url: str | None) -> str:
     """
-    Ekstrak judul human-readable dari nama file video.
+    Ekstrak judul video dari format nama file baru:
+      {msgId}_{tanggal}_{waktu}_{title}.mp4
     Contoh:
-      https://.../videos/20241126_104500_Limit_Fungsi.mp4
-      -> "Limit Fungsi"
+      76_20251130_222549_newton_2.mp4 -> "Newton 2"
     """
     if not video_url:
         return "Untitled Video"
-    # Ambil nama file saja
-    filename = os.path.basename(video_url)
-    # Hilangkan query string kalau ada
-    filename = filename.split("?", 1)[0]
-    # Hilangkan ekstensi
-    name, _ext = os.path.splitext(filename)
-    if not name:
-        return "Untitled Video"
-    # Jika format diawali timestamp, buang bagian timestamp
-    # misal "20241126_104500_Topik_Video" -> "Topik_Video"
-    parts = name.split("_", 2)
-    if len(parts) >= 3 and parts[0].isdigit() and parts[1].isdigit():
-        base = parts[2]
-    elif len(parts) >= 2 and parts[0].isdigit():
-        base = parts[1]
-    else:
-        base = name
-    # Ganti underscore dengan spasi
-    base = base.replace("_", " ").strip()
-    if not base:
-        return "Untitled Video"
-    # Jadikan setiap kata berawalan huruf kapital
-    base = " ".join(word.capitalize() for word in base.split())
-    return base or "Untitled Video"
+
+    filename = os.path.basename(video_url).split("?", 1)[0]
+    name, _ = os.path.splitext(filename)
+
+    # Pecah menjadi 4 bagian:
+    # [msgId, tanggal, waktu, title]
+    parts = name.split("_", 3)
+    if len(parts) < 4:
+        # Format lama atau tidak sesuai → fallback ke versi simple
+        cleaned = name.replace("_", " ").strip()
+        return cleaned.title() if cleaned else "Untitled Video"
+
+    title_part = parts[3]  # ambil bagian title
+
+    # Ubah underscore → spasi, kapitalisasi tiap kata
+    cleaned = title_part.replace("_", " ").strip()
+    return cleaned.title() if cleaned else "Untitled Video"
 
 # ---------------- App ----------------
 app = FastAPI()
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
-# Mount folder static
+# Static untuk asset biasa
 app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
+
+# Static untuk video lokal
+video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
+video_dir = Path(video_folder_env)
+if not video_dir.is_absolute():
+    video_dir = (project_root / video_dir).resolve()
+video_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -454,7 +455,7 @@ def generate_video_for_topic(topic: str) -> Optional[str]:
     """
     Jalankan langsung fungsi generate_educational_video() dari AI/app.py
     tanpa menggunakan subprocess. 
-    Mengembalikan URL video hasil upload ke Supabase.
+    Mengembalikan URL video (lokal) yang bisa diakses frontend.
     """
     try:
         print(f"[learnvidai] Generating educational video for topic: {topic}")
@@ -462,15 +463,15 @@ def generate_video_for_topic(topic: str) -> Optional[str]:
         # Jalankan fungsi utama secara langsung
         video_path, response = generate_educational_video(topic)
 
-        # Ambil URL dari hasil upload (Supabase)
-        video_url = response.get("video_path")
+        # Ambil URL publik dari response (lokal)
+        video_url = response.get("video_url") or response.get("video_path")
         print(f"[learnvidai] Video URL: {video_url}")
 
-        # Pastikan hasil valid
-        if video_url and "supabase.co" in video_url:
+        # Pastikan hasil valid (string non-kosong)
+        if video_url:
             return video_url
         else:
-            print("[learnvidai] No Supabase URL found in response.")
+            print("[learnvidai] No video URL found in response.")
             return None
 
     except Exception as e:
@@ -553,6 +554,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         user_msg = Message(chat_folder_id=chat.id, role=True, content=topic)
         session.add(user_msg)
         session.commit()
+        session.refresh(user_msg)  # untuk dapatkan ID pesan user
 
     def generate_with_progress():
         """Synchronous generator function"""
@@ -562,8 +564,9 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             
             video_url = None
             has_error = False
+            error_text = None
             
-            for progress in generate_video_for_topic_with_progress(topic):
+            for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
                 print(f"[STREAM] Progress: {progress}")
                 yield f"data: {json.dumps(progress)}\n\n"
                 
@@ -571,6 +574,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     video_url = progress.get('video_url')
                 if progress.get('status') == 'error':
                     has_error = True
+                    error_text = progress.get('message')
             
             if not has_error and video_url:
                 with Session(engine) as session:
@@ -585,6 +589,20 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     session.refresh(ai_msg)
                     
                     yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
+            elif has_error:
+                # Simpan pesan error ke database agar tidak temporary
+                with Session(engine) as session:
+                    ai_msg = Message(
+                        chat_folder_id=chat_id,
+                        role=False,
+                        content=error_text or "❌ Maaf, terjadi kesalahan. Coba lagi nanti.",
+                        video_url=None
+                    )
+                    session.add(ai_msg)
+                    session.commit()
+                    session.refresh(ai_msg)
+
+                    yield f"data: {json.dumps({'status': 'final_error', 'message': ai_msg.content, 'message_id': ai_msg.id})}\n\n"
         
         except Exception as e:
             import traceback
