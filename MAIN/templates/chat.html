@@ -1199,6 +1199,36 @@
           scroll-behavior: auto !important;
         }
       }
+
+      /* === LOADER VIDEO (SPINNER KECIL PUTIH) === */
+      .loader-video {
+        width: 18px;            /* kecil */
+        padding: 4px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #ffffff;    /* warna putih */
+        --_m: 
+          conic-gradient(#0000 10%, #000),
+          linear-gradient(#000 0 0) content-box;
+        -webkit-mask: var(--_m);
+                mask: var(--_m);
+        -webkit-mask-composite: source-out;
+                mask-composite: subtract;
+        display: inline-block;
+        animation: video-spin 1s infinite linear;
+      }
+
+      @keyframes video-spin {
+        to { transform: rotate(1turn); }
+      }
+
+      /* Pastikan spinner tetap berputar meski prefers-reduced-motion: reduce */
+      @media (prefers-reduced-motion: reduce) {
+        .loader-video {
+          animation-duration: 1s !important;
+          animation-iteration-count: infinite !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1499,6 +1529,7 @@
       // ====== Loading Animation Functions ======
       function showLoadingMessage(type = "thinking") {
         removeLoadingMessage();
+
         const loadingDiv = document.createElement("div");
         loadingDiv.className = "message ai";
         loadingDiv.id = "loading-indicator";
@@ -1510,11 +1541,13 @@
         const content = document.createElement("div");
         content.className = "message-content loading-content";
 
+        // ========== LOADER UNTUK CHAT (thinking mode) ==========
         if (type === "thinking") {
           content.innerHTML = `<div class="loader"></div>`;
-        } else if (type === "video") {
+        }
+        // ========== LOADER UNTUK VIDEO ==========
+        else if (type === "video") {
           content.innerHTML = `
-            <div class="loader"></div>
             <div class="video-loading">
               <div class="status-list"></div>
             </div>
@@ -1524,6 +1557,7 @@
         loadingDiv.appendChild(avatar);
         loadingDiv.appendChild(content);
         chatMessages.appendChild(loadingDiv);
+
         chatMessages.scrollTo({
           top: chatMessages.scrollHeight,
           behavior: "smooth",
@@ -1609,12 +1643,18 @@
           isComplete ? "complete" : isError ? "error" : "current"
         }`;
 
-        let icon = "-";
-        if (isComplete) icon = "OK";
-        if (isError) icon = "!";
+        let iconHtml = "";
+        if (isError) {
+          iconHtml = "!";
+        } else if (isComplete) {
+          iconHtml = "OK";
+        } else {
+          // Status sedang berjalan → tampilkan loader-video kecil
+          iconHtml = '<span class="loader-video"></span>';
+        }
 
         statusItem.innerHTML = `
-          <span class="status-icon">${icon}</span>
+          <span class="status-icon">${iconHtml}</span>
           <span class="status-text">${text}</span>
         `;
 

@@ -55,7 +55,8 @@ class ScienceVideoGenerator:
         self.memory = deque(maxlen=5)
 
         self.google_chat = ChatGoogleGenerativeAI(
-            model="gemini-2.5-pro",
+            # model="gemini-2.5-pro",
+            model="gemini-2.5-flash-lite",
             google_api_key=self.google_api_key,
             temperature=0.5,
             max_output_tokens=None,
