@@ -37,7 +37,7 @@
         color: #f9f7f7;
         overflow-x: hidden;
         min-height: 100vh;
-        padding-bottom: 60px;
+        padding: 0 14px 60px;
       }
 
       h1,
@@ -222,6 +222,7 @@
         z-index: 10;
         animation: slideUp 0.8s ease-out;
         color: #112d4e;
+        position: relative;
       }
       @keyframes slideUp {
         from {
@@ -291,6 +292,8 @@
         font-weight: 500;
         color: #112d4e;
         transition: color 0.3s ease;
+        white-space: normal;
+        flex: 1;
       }
 
       .faq-item.active .faq-question span {
@@ -304,6 +307,7 @@
         transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         min-width: 30px;
         text-align: center;
+        margin-top: 2px;
       }
 
       .faq-answer {
@@ -320,6 +324,7 @@
         line-height: 1.8;
         padding: 0 20px 28px 20px;
         animation: fadeInText 0.5s ease forwards;
+        word-break: break-word;
       }
 
       @keyframes fadeInText {
@@ -368,10 +373,39 @@
       }
 
       /* Responsive */
+      @media (max-width: 1024px) {
+        .container {
+          padding: 0 14px;
+        }
+        .content-wrapper {
+          padding: 40px 28px;
+          margin-top: 30px;
+        }
+        nav {
+          padding: 16px 0;
+        }
+      }
+
       @media (max-width: 768px) {
         .logo {
           display: block;
           font-size: 1.3rem;
+        }
+        .nav-container {
+          gap: 12px;
+          align-items: center;
+          flex-wrap: nowrap;
+        }
+        .nav-buttons {
+          gap: 12px;
+          align-items: center;
+        }
+        .register-btn {
+          padding: 10px 18px;
+          font-size: 14px;
+        }
+        .login-link {
+          padding: 10px 12px;
         }
         .nav-links {
           display: none;
@@ -383,6 +417,7 @@
           padding: 35px 25px;
           margin-top: 20px;
           border-radius: 20px;
+          width: 100%;
         }
         .content-wrapper h1 {
           font-size: 2rem;
@@ -394,6 +429,8 @@
         }
         .faq-question {
           padding: 22px 15px;
+          align-items: flex-start;
+          gap: 12px;
         }
         .faq-question:hover {
           padding-left: 15px;
@@ -401,6 +438,7 @@
         .faq-question span {
           font-size: 1.05rem;
           line-height: 1.4;
+          flex: 1;
         }
         .faq-icon {
           font-size: 1.7rem;
@@ -409,6 +447,41 @@
         .faq-answer p {
           font-size: 0.98rem;
           padding: 0 15px 22px 15px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        nav {
+          padding: 14px 0;
+        }
+        .nav-container {
+          flex-wrap: nowrap;
+          gap: 12px;
+        }
+        .nav-buttons {
+          width: auto;
+          justify-content: flex-start;
+          gap: 10px;
+        }
+        .content-wrapper {
+          padding: 28px 18px;
+          margin-top: 16px;
+        }
+        .content-wrapper h1 {
+          font-size: 1.8rem;
+        }
+        .subtitle {
+          font-size: 0.96rem;
+          margin-bottom: 24px;
+        }
+        .faq-question {
+          padding: 18px 12px;
+        }
+        .faq-question span {
+          font-size: 0.98rem;
+        }
+        .faq-icon {
+          font-size: 1.5rem;
         }
       }
 
