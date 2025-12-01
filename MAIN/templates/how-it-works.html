@@ -80,28 +80,32 @@
         z-index: 1;
       }
 
-      /* Navigation */
+      /* Navigation (mirrors landing page) */
       nav {
         padding: 20px 0;
         position: relative;
         z-index: 100;
       }
+
       .nav-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
+
       .logo {
         font-size: 1.5rem;
         font-weight: 600;
         color: #f9f7f7;
         display: none;
       }
+
       .nav-links {
         display: flex;
         gap: 40px;
         list-style: none;
       }
+
       .nav-links a {
         color: #dbe2ef;
         text-decoration: none;
@@ -109,6 +113,7 @@
         transition: all 0.3s ease;
         position: relative;
       }
+
       .nav-links a::after {
         content: "";
         position: absolute;
@@ -119,19 +124,23 @@
         background: #f9f7f7;
         transition: width 0.3s ease;
       }
+
       .nav-links a:hover::after,
       .nav-links a[href="/how-it-works"]::after {
         width: 100%;
       }
+
       .nav-links a:hover,
       .nav-links a[href="/how-it-works"] {
         color: #f9f7f7;
       }
+
       .nav-buttons {
         display: flex;
         gap: 20px;
         align-items: center;
       }
+
       .register-btn {
         background: #f9f7f7;
         color: #112d4e;
@@ -141,20 +150,19 @@
         font-weight: 500;
         transition: all 0.3s ease;
         border: 2px solid #f9f7f7;
-        box-shadow: 0 4px 15px rgba(249, 247, 247, 0.2);
       }
+
       .register-btn:hover {
         background: transparent;
         color: #f9f7f7;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(249, 247, 247, 0.3);
       }
+
       .login-link {
         color: #dbe2ef;
         text-decoration: none;
         transition: color 0.3s ease;
-        position: relative;
       }
+
       .login-link:hover {
         color: #f9f7f7;
       }
@@ -169,6 +177,7 @@
         cursor: pointer;
         padding: 5px;
       }
+
       .mobile-menu-btn span {
         width: 25px;
         height: 3px;
@@ -176,15 +185,19 @@
         border-radius: 2px;
         transition: all 0.3s ease;
       }
+
       .mobile-menu-btn.active span:nth-child(1) {
         transform: rotate(45deg) translate(8px, 8px);
       }
+
       .mobile-menu-btn.active span:nth-child(2) {
         opacity: 0;
       }
+
       .mobile-menu-btn.active span:nth-child(3) {
         transform: rotate(-45deg) translate(7px, -7px);
       }
+
       .mobile-nav {
         display: none;
         position: fixed;
@@ -197,10 +210,12 @@
         z-index: 99;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       }
+
       .mobile-nav.active {
         display: block;
         animation: slideDown 0.3s ease;
       }
+
       @keyframes slideDown {
         from {
           opacity: 0;
@@ -211,12 +226,14 @@
           transform: translateY(0);
         }
       }
+
       .mobile-nav ul {
         list-style: none;
         display: flex;
         flex-direction: column;
         gap: 20px;
       }
+
       .mobile-nav a {
         color: #dbe2ef;
         text-decoration: none;
@@ -225,6 +242,7 @@
         padding: 10px;
         transition: color 0.3s ease;
       }
+
       .mobile-nav a:hover,
       .mobile-nav a[href="/how-it-works"] {
         color: #f9f7f7;
@@ -443,6 +461,9 @@
 
       /* Responsive */
       @media (max-width: 768px) {
+        body {
+          padding: 0 14px 60px;
+        }
         .logo {
           display: block;
           font-size: 1.3rem;
@@ -452,6 +473,16 @@
         }
         .mobile-menu-btn {
           display: flex;
+        }
+        .nav-buttons {
+          gap: 15px;
+        }
+        .register-btn {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+        .login-link {
+          font-size: 14px;
         }
         .content-wrapper {
           padding: 40px 25px;

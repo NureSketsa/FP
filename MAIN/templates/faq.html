@@ -55,28 +55,32 @@
         padding: 0 20px;
       }
 
-      /* Navigation */
+      /* Navigation (mirrors landing page) */
       nav {
         padding: 20px 0;
         position: relative;
         z-index: 100;
       }
+
       .nav-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
+
       .logo {
         font-size: 1.5rem;
         font-weight: 600;
         color: #f9f7f7;
         display: none;
       }
+
       .nav-links {
         display: flex;
         gap: 40px;
         list-style: none;
       }
+
       .nav-links a {
         color: #dbe2ef;
         text-decoration: none;
@@ -84,6 +88,7 @@
         transition: all 0.3s ease;
         position: relative;
       }
+
       .nav-links a::after {
         content: "";
         position: absolute;
@@ -94,19 +99,23 @@
         background: #f9f7f7;
         transition: width 0.3s ease;
       }
+
       .nav-links a:hover::after,
       .nav-links a[href="/faq"]::after {
         width: 100%;
       }
+
       .nav-links a:hover,
       .nav-links a[href="/faq"] {
         color: #f9f7f7;
       }
+
       .nav-buttons {
         display: flex;
         gap: 20px;
         align-items: center;
       }
+
       .register-btn {
         background: #f9f7f7;
         color: #112d4e;
@@ -116,36 +125,34 @@
         font-weight: 500;
         transition: all 0.3s ease;
         border: 2px solid #f9f7f7;
-        box-shadow: 0 4px 15px rgba(249, 247, 247, 0.2);
       }
+
       .register-btn:hover {
         background: transparent;
         color: #f9f7f7;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(249, 247, 247, 0.3);
       }
+
       .login-link {
         color: #dbe2ef;
         text-decoration: none;
-        transition: all 0.3s ease;
-        padding: 12px 16px;
-        border-radius: 20px;
+        transition: color 0.3s ease;
       }
+
       .login-link:hover {
         color: #f9f7f7;
-        background: rgba(249, 247, 247, 0.1);
       }
 
       /* Mobile Menu */
       .mobile-menu-btn {
         display: none;
         flex-direction: column;
-        gap: 5px;
+        gap: 7px;
         background: none;
         border: none;
         cursor: pointer;
         padding: 5px;
       }
+
       .mobile-menu-btn span {
         width: 25px;
         height: 3px;
@@ -153,15 +160,19 @@
         border-radius: 2px;
         transition: all 0.3s ease;
       }
+
       .mobile-menu-btn.active span:nth-child(1) {
         transform: rotate(45deg) translate(8px, 8px);
       }
+
       .mobile-menu-btn.active span:nth-child(2) {
         opacity: 0;
       }
+
       .mobile-menu-btn.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(4px, -4px);
+        transform: rotate(-45deg) translate(7px, -7px);
       }
+
       .mobile-nav {
         display: none;
         position: fixed;
@@ -174,10 +185,12 @@
         z-index: 99;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       }
+
       .mobile-nav.active {
         display: block;
         animation: slideDown 0.3s ease;
       }
+
       @keyframes slideDown {
         from {
           opacity: 0;
@@ -188,25 +201,27 @@
           transform: translateY(0);
         }
       }
+
       .mobile-nav ul {
         list-style: none;
         display: flex;
         flex-direction: column;
         gap: 20px;
       }
+
       .mobile-nav a {
         color: #dbe2ef;
         text-decoration: none;
         font-size: 18px;
         display: block;
         padding: 10px;
-        transition: all 0.3s ease;
-        border-radius: 8px;
+        transition: color 0.3s ease;
       }
+
       .mobile-nav a:hover,
       .mobile-nav a[href="/faq"] {
         color: #f9f7f7;
-        background: rgba(249, 247, 247, 0.1);
+        font-weight: bold;
       }
 
       /* Content Wrapper */
@@ -292,8 +307,6 @@
         font-weight: 500;
         color: #112d4e;
         transition: color 0.3s ease;
-        white-space: normal;
-        flex: 1;
       }
 
       .faq-item.active .faq-question span {
@@ -307,7 +320,6 @@
         transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         min-width: 30px;
         text-align: center;
-        margin-top: 2px;
       }
 
       .faq-answer {
@@ -324,7 +336,6 @@
         line-height: 1.8;
         padding: 0 20px 28px 20px;
         animation: fadeInText 0.5s ease forwards;
-        word-break: break-word;
       }
 
       @keyframes fadeInText {
@@ -373,39 +384,10 @@
       }
 
       /* Responsive */
-      @media (max-width: 1024px) {
-        .container {
-          padding: 0 14px;
-        }
-        .content-wrapper {
-          padding: 40px 28px;
-          margin-top: 30px;
-        }
-        nav {
-          padding: 16px 0;
-        }
-      }
-
       @media (max-width: 768px) {
         .logo {
           display: block;
           font-size: 1.3rem;
-        }
-        .nav-container {
-          gap: 12px;
-          align-items: center;
-          flex-wrap: nowrap;
-        }
-        .nav-buttons {
-          gap: 12px;
-          align-items: center;
-        }
-        .register-btn {
-          padding: 10px 18px;
-          font-size: 14px;
-        }
-        .login-link {
-          padding: 10px 12px;
         }
         .nav-links {
           display: none;
@@ -413,11 +395,20 @@
         .mobile-menu-btn {
           display: flex;
         }
+        .nav-buttons {
+          gap: 15px;
+        }
+        .register-btn {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+        .login-link {
+          font-size: 14px;
+        }
         .content-wrapper {
           padding: 35px 25px;
           margin-top: 20px;
           border-radius: 20px;
-          width: 100%;
         }
         .content-wrapper h1 {
           font-size: 2rem;
@@ -429,8 +420,6 @@
         }
         .faq-question {
           padding: 22px 15px;
-          align-items: flex-start;
-          gap: 12px;
         }
         .faq-question:hover {
           padding-left: 15px;
@@ -438,7 +427,6 @@
         .faq-question span {
           font-size: 1.05rem;
           line-height: 1.4;
-          flex: 1;
         }
         .faq-icon {
           font-size: 1.7rem;
@@ -447,41 +435,6 @@
         .faq-answer p {
           font-size: 0.98rem;
           padding: 0 15px 22px 15px;
-        }
-      }
-
-      @media (max-width: 560px) {
-        nav {
-          padding: 14px 0;
-        }
-        .nav-container {
-          flex-wrap: nowrap;
-          gap: 12px;
-        }
-        .nav-buttons {
-          width: auto;
-          justify-content: flex-start;
-          gap: 10px;
-        }
-        .content-wrapper {
-          padding: 28px 18px;
-          margin-top: 16px;
-        }
-        .content-wrapper h1 {
-          font-size: 1.8rem;
-        }
-        .subtitle {
-          font-size: 0.96rem;
-          margin-bottom: 24px;
-        }
-        .faq-question {
-          padding: 18px 12px;
-        }
-        .faq-question span {
-          font-size: 0.98rem;
-        }
-        .faq-icon {
-          font-size: 1.5rem;
         }
       }
 
