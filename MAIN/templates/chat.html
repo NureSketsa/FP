@@ -768,13 +768,67 @@
         filter: drop-shadow(0 -1px 1px rgba(17, 45, 78, 0.08));
       }
       .upload-btn:hover {
-        background: #d7e2f5;
-        color: var(--ink);
+        background: #e6eeff;
+        color: var(--primary-strong);
+        border-color: #cdd8f0;
+        box-shadow: 0 12px 30px rgba(17, 45, 78, 0.1);
+        transform: translateY(-0.5px);
+      }
+      .upload-btn.active:hover {
+        background: var(--primary);
+        color: #f9f7f7;
+        border-color: var(--primary-strong);
+        box-shadow: 0 12px 30px rgba(63, 114, 175, 0.35),
+          0 0 0 4px rgba(63, 114, 175, 0.12);
         transform: translateY(-1px);
       }
       .upload-btn svg {
         width: 20px;
         height: 20px;
+      }
+      .video-state {
+        position: absolute;
+        left: 12px;
+        bottom: calc(100% + 8px);
+        background: var(--panel);
+        color: var(--ink);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 6px 10px;
+        font-size: 12px;
+        line-height: 1.3;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+        max-width: calc(100% - 40px);
+        white-space: normal;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      }
+      .video-state-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+        flex-shrink: 0;
+      }
+      .video-state.on {
+        color: #0f2b55;
+        border-color: rgba(63, 114, 175, 0.3);
+        background: #e8f0ff;
+        box-shadow: 0 10px 24px rgba(63, 114, 175, 0.18);
+      }
+      .video-state.on .video-state-dot {
+        background: var(--primary);
+      }
+      .video-state.show {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
       }
 
       .message-input {
@@ -1063,10 +1117,20 @@
           max-width: 85%;
         }
         .upload-btn-bubble {
-          bottom: 64px;
-          --bubble-shift: 12px;
-          white-space: nowrap;
-          max-width: min(240px, calc(100vw - 72px));
+          position: fixed;
+          bottom: auto;
+          left: 50%;
+          right: auto;
+          transform: translate(-50%, -10px);
+          white-space: normal;
+          text-align: center;
+          word-break: break-word;
+          max-width: calc(100vw - 32px);
+          min-width: 140px;
+        }
+        .upload-btn-bubble::after {
+          left: 50%;
+          transform: translateX(-50%);
         }
         .upload-btn,
         .send-button {
@@ -1337,12 +1401,16 @@
             class="chat-messages"
             id="chat-messages"
             aria-live="polite"
-            aria-label="Chat messages"
+          aria-label="Chat messages"
           ></div>
         </div>
 
         <div class="input-area">
           <div class="input-container">
+            <div class="video-state" id="video-state">
+              <span class="video-state-dot"></span>
+              <span class="video-state-label">Video off</span>
+            </div>
             <div class="upload-btn" id="upload-btn" title="Buat Video">
               <svg
                 viewBox="0 0 24 24"
@@ -2287,10 +2355,37 @@
 
       // Toggle Mode: Buat Video
       const uploadBtnEl = document.getElementById("upload-btn");
+      const videoStateEl = document.getElementById("video-state");
+      const videoStateLabel = videoStateEl?.querySelector(
+        ".video-state-label"
+      );
       if (uploadBtnEl) {
         let bubbleTimeout = null;
+        let stateTimeout = null;
+
+        function showVideoState(isOn) {
+          if (!videoStateEl || !videoStateLabel) return;
+          if (!window.matchMedia("(max-width: 600px)").matches) return;
+
+          videoStateEl.classList.toggle("on", isOn);
+          videoStateLabel.textContent = isOn
+            ? "Video mode on"
+            : "Video mode off";
+          videoStateEl.classList.add("show");
+
+          clearTimeout(stateTimeout);
+          stateTimeout = setTimeout(() => {
+            videoStateEl.classList.remove("show");
+          }, 1600);
+        }
 
         function showToggleBubble(msg) {
+          const isMobile = window.matchMedia("(max-width: 600px)").matches;
+          if (isMobile) {
+            showVideoState(videoMode);
+            return;
+          }
+
           let bubble = uploadBtnEl.querySelector(".upload-btn-bubble");
           if (!bubble) {
             bubble = document.createElement("div");
@@ -2300,7 +2395,19 @@
 
           bubble.textContent = msg;
           bubble.style.opacity = "1";
+          bubble.style.position = "absolute";
+          bubble.style.left = "50%";
+          bubble.style.right = "auto";
+          bubble.style.whiteSpace = "nowrap";
+          bubble.style.textAlign = "center";
+          bubble.style.overflowWrap = "";
+          bubble.style.wordBreak = "";
+          bubble.style.maxWidth = "none";
+          bubble.style.minWidth = "";
           bubble.style.transform = "translate(-50%, -4px)";
+          bubble.style.top = "";
+          bubble.style.bottom = "";
+          bubble.style.width = "";
 
           clearTimeout(bubbleTimeout);
           bubbleTimeout = setTimeout(() => {
