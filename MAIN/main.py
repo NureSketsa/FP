@@ -1,26 +1,22 @@
-import os
-from typing import Optional
-from contextlib import asynccontextmanager
-from MAIN.AI.app import generate_educational_video
-from MAIN.AI.app import generate_video_for_topic_with_progress
-
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, Body
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
-from fastapi.templating import Jinja2Templates
- 
-from pydantic import BaseModel
-from datetime import datetime
-from sqlmodel import SQLModel, Field, Session, create_engine, select
-from passlib.context import CryptContext
-from itsdangerous import URLSafeSerializer, BadSignature 
-from sqlalchemy import func  
-
-from pathlib import Path
-from dotenv import load_dotenv
-
-from fastapi.responses import StreamingResponse
 import json
 import os
+from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+from dotenv import load_dotenv
+from fastapi import Body, Depends, FastAPI, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from itsdangerous import BadSignature, URLSafeSerializer
+from langchain_google_genai import ChatGoogleGenerativeAI
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlmodel import SQLModel, Field, Session, create_engine, select
+
+from MAIN.AI.app import generate_educational_video, generate_video_for_topic_with_progress
 
 # === Load .env dari lokasi AI, MAIN, atau root ===
 BASE_DIR = Path(__file__).resolve().parent       # .../FP/MAIN
@@ -235,7 +231,7 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
     
     
 @app.get("/reviews", response_class=HTMLResponse)
-def login_page(request: Request):
+def reviews_page(request: Request):
     return templates.TemplateResponse("reviews.html", {"request": request, "message": None})
 
 @app.get("/api/gallery/videos")
@@ -445,12 +441,6 @@ def api_get_messages(chat_id: int, user: User = Depends(current_user_required)):
         }
         for m in msgs
     ]
-    
-import subprocess, shlex, json
-from pathlib import Path
-
- 
-
 def generate_video_for_topic(topic: str) -> Optional[str]:
     """
     Jalankan langsung fungsi generate_educational_video() dari AI/app.py
@@ -477,9 +467,6 @@ def generate_video_for_topic(topic: str) -> Optional[str]:
     except Exception as e:
         print(f"[learnvidai ERROR] {e}")
         return None
-    
-from langchain_google_genai import ChatGoogleGenerativeAI
-
 def chat_with_gemini(user_message: str) -> str:
     """
     Mode chat biasa menggunakan Gemini.

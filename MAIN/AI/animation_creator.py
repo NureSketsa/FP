@@ -19,9 +19,9 @@ class LLMClient:
             google_api_key = os.getenv('GOOGLE_API_KEY')
             if not google_api_key:
                 raise ValueError("animation GOOGLE_API_KEY not found in environment variables")
-            
-            # Initialize the Google Generative AI model
-            self.llm = ChatGoogleGenerativeAI(
+
+            # Initialize the Google Generative AI models
+            self.llm_flash = ChatGoogleGenerativeAI(
                 google_api_key=google_api_key,
                 model="gemini-2.5-flash",
                 temperature=0.2,
@@ -29,13 +29,28 @@ class LLMClient:
                 timeout=None,
                 max_retries=4
             )
-            
+
+            # Pro model (used on later attempts)
+            try:
+                self.llm_pro = ChatGoogleGenerativeAI(
+                    google_api_key=google_api_key,
+                    model="gemini-2.5-pro",
+                    temperature=0.2,
+                    max_tokens=None,
+                    timeout=None,
+                    max_retries=2,
+                )
+            except Exception as pro_err:
+                print(f"Warning: Failed to initialize pro LLM client: {pro_err}")
+                self.llm_pro = None
+
         except Exception as e:
             print(f"Warning: Failed to initialize LLM client: {e}")
             print("Falling back to basic error handling")
-            self.llm = None
+            self.llm_flash = None
+            self.llm_pro = None
     
-    def fix_manim_code(self, manim_code, error_message=None):
+    def fix_manim_code(self, manim_code, error_message=None, use_pro: bool = False):
         """
         Direct fix of Manim code using LLM
         
@@ -43,10 +58,15 @@ class LLMClient:
             manim_code (str): The Manim code to fix
             error_message (str, optional): Specific error message if available
             
+        Args:
+            use_pro (bool): If True, prefer the pro model.
+
         Returns:
             str: Fixed Manim code
         """
-        if self.llm is None:
+        llm = self.llm_pro if use_pro and self.llm_pro is not None else self.llm_flash
+
+        if llm is None:
             print("LLM not available, returning original code")
             return manim_code
         
@@ -75,7 +95,7 @@ Return only the corrected Python code with proper Manim syntax."""
                 HumanMessage(content=prompt)
             ]
             
-            response = self.llm.invoke(messages)
+            response = llm.invoke(messages)
             fixed_code = response.content.strip()
             
             # Clean up any markdown formatting
@@ -294,11 +314,21 @@ def create_animation_from_code(manim_code, output_dir="media/videos", max_render
                 break
             else:
                 print(f"Trial render attempt {render_attempt + 1} failed.")
-                
+
                 if render_attempt < max_render_attempts - 1:
-                    print("Attempting to fix rendering errors with LLM...")
+                    attempt_number = render_attempt + 1  # 1-based for human-readable attempts
+                    # Attempts 1–3: flash, attempts 4–5: pro
+                    use_pro_model = attempt_number >= 4
+                    print(
+                        f"Attempting to fix rendering errors with LLM "
+                        f"using model: {'gemini-2.5-pro' if use_pro_model else 'gemini-2.5-flash'}..."
+                    )
                     # Send to LLM for fixing rendering issues
-                    current_code = llm_client.fix_manim_code(current_code, trial_error)
+                    current_code = llm_client.fix_manim_code(
+                        current_code,
+                        trial_error,
+                        use_pro=use_pro_model,
+                    )
                     render_attempt += 1
                 else:
                     print(f"Failed to fix rendering errors after {max_render_attempts} attempts.")

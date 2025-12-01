@@ -7,3 +7,4 @@
 #source venv/bin/activate
 uvicorn MAIN.main:app --reload
 #uvicorn MAIN.main:app --reload --host 0.0.0.0 --port 8000
+# gunicorn -k uvicorn.workers.UvicornWorker MAIN.main:app --bind localhost:8000 --workers 4

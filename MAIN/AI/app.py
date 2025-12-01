@@ -235,7 +235,8 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
         
         if not video_path or not os.path.exists(video_path):
-            error_msg = f"Failed to create animation. Video path: {video_path}"
+            # error_msg = f"Failed to create animation. Video path: {video_path}"
+            error_msg = f"Failed to create animation."
             print(f"[DEBUG ERROR] {error_msg}")
             raise Exception(error_msg)
 
