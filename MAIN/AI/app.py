@@ -29,44 +29,74 @@ else:
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 
 from MAIN.AI.script_generator import ScienceVideoGenerator
 from MAIN.AI.manim_code_generator import ManIMCodeGenerator
 from MAIN.AI.animation_creator import create_animation_from_code
 
-from supabase import create_client
-import mimetypes
 
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-def upload_to_supabase(file_path: str, bucket_name: str = "videos") -> str:
-    """
-    Upload video ke Supabase Storage dan kembalikan URL publik.
-    """
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_KEY")
-    if not url or not key:
-        raise ValueError("Supabase credentials (SUPABASE_URL / SUPABASE_KEY) tidak ditemukan")
 
-    supabase = create_client(url, key)
-    file_name = os.path.basename(file_path)
+def _get_video_storage_dir() -> Path:
+    """
+    Ambil folder penyimpanan video lokal dari env.
+    Default: MAIN/videos relatif dari root project (FP).
+    """
+    base_dir = Path(__file__).resolve().parent  # .../FP/MAIN/AI
+    project_root = base_dir.parent.parent      # .../FP
 
-    with open(file_path, "rb") as f:
-        res = supabase.storage.from_(bucket_name).upload(file_name, f, {"content-type": mimetypes.guess_type(file_name)[0]})
-    
-    # Jika bucket public:
-    public_url = f"{url}/storage/v1/object/public/{bucket_name}/{file_name}"
-    return public_url
+    env_value = os.getenv("VIDEO_FOLDER", "MAIN/videos")
+    video_dir = Path(env_value)
+
+    if not video_dir.is_absolute():
+        video_dir = (project_root / video_dir).resolve()
+
+    video_dir.mkdir(parents=True, exist_ok=True)
+    return video_dir
+
+
+def _move_video_to_storage(temp_video_path: str, final_name: str | None = None) -> tuple[str, str]:
+    """
+    Pindahkan file video dari folder sementara ke folder storage lokal.
+    Return:
+      - absolute_path (di filesystem)
+      - public_url (relative URL FastAPI, misal: /videos/xxx.mp4)
+    """
+    import shutil
+
+    temp_video = Path(temp_video_path)
+    if not temp_video.exists():
+        raise FileNotFoundError(f"Video sementara tidak ditemukan: {temp_video}")
+
+    storage_dir = _get_video_storage_dir()
+    # Gunakan nama yang diberikan, atau gunakan nama file asal
+    target_name = final_name or temp_video.name
+    target_path = storage_dir / target_name
+
+    # Jika sudah ada file dengan nama sama, tambahkan suffix angka
+    counter = 1
+    stem, suffix = os.path.splitext(target_name)
+    while target_path.exists():
+        target_path = storage_dir / f"{stem}_{counter}{suffix}"
+        counter += 1
+
+    shutil.move(str(temp_video), target_path)
+
+    # URL publik relative yang akan dilayani oleh FastAPI:
+    public_url = f"/videos/{target_path.name}"
+    return str(target_path), public_url
 
 
 def generate_educational_video(
     topic: str,
     complexity: str = "high-school",
     domain: str = "auto-detect",
-    output_dir: str = "../MAIN/output"
+    output_dir: str = "../MAIN/output",
+    message_id: Optional[int] = None,
 ) -> Tuple[str, Dict]:
     import shutil
     from time import sleep
@@ -111,77 +141,155 @@ def generate_educational_video(
     if not video_path or not os.path.exists(video_path):
         raise Exception("Failed to create animation")
 
-    new_video_name = f"{timestamp}_{safe_topic}.mp4"
+    prefix = f"{message_id}_" if message_id is not None else ""
+    new_video_name = f"{prefix}{timestamp}_{safe_topic}.mp4"
     new_video_path = unique_output / new_video_name
     os.rename(video_path, new_video_path)
     video_path = str(new_video_path)
 
-    # === Upload ke Supabase ===
-    print("\n☁️ Uploading to Supabase Storage...")
-    supabase_url = None
-    try:
-        supabase_url = upload_to_supabase(video_path)
-        print(f"{supabase_url}")
+    # === Pindahkan ke storage lokal dan buat URL publik ===
+    print("\n💾 Menyimpan video ke storage lokal...")
+    stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
 
-        # Tunggu sebentar agar proses file selesai
-        sleep(2)
-
-        # 🧹 Hapus folder spesifik topik ini saja
-        shutil.rmtree(unique_output, ignore_errors=True)
-        print(f"🧼 Deleted local folder: {unique_output}")
-
-    except Exception as e:
-        print(f"❌ Upload gagal: {e}")
+    # 🧹 Hapus folder spesifik topik ini saja (folder sementara)
+    shutil.rmtree(unique_output, ignore_errors=True)
+    print(f"🧼 Deleted temp folder: {unique_output}")
 
     ai_response = {
         "topic": topic,
         "complexity": complexity,
         "domain": domain,
         "timestamp": timestamp,
-        "video_path": supabase_url or video_path,
+        "video_path": stored_path,   # absolute path di server (opsional)
+        "video_url": public_url,     # URL publik untuk diakses frontend
         "educational_breakdown": video_plan.get("educational_breakdown", {}),
         "manim_structure": video_plan.get("manim_structure", {}),
         "generation_metadata": video_plan.get("generation_metadata", {}),
     }
 
-    return video_path, ai_response
+    return stored_path, ai_response
 
-def generate_video_for_topic_with_progress(topic: str):
+
+def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int] = None):
     """
     Modified version that yields progress updates
     """
+    import shutil
+    from time import sleep
+    from pathlib import Path
+    
+    print(f"[DEBUG] Starting video generation for topic: '{topic}'")
+    
+    BASE_DIR = Path(__file__).resolve().parent
+    output_root = (BASE_DIR.parent / "MAIN" / "output").resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
+
+    # === Buat subfolder unik untuk topik ini ===
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_topic = "".join(c if c.isalnum() else "_" for c in topic)[:25]
+    unique_output = output_root / f"{timestamp}_{safe_topic}"
+    unique_output.mkdir(parents=True, exist_ok=True)
+
+    print(f"[DEBUG] Output folder: {unique_output}")
+
     try:
+        # === Step 1: Generate educational content ===
         yield {"status": "generating_content", "message": "📝 Membuat konten edukatif..."}
+        print("[DEBUG] Step 1: Starting educational content generation")
         
-        # Generate educational content
         api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable not set")
+            
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
         prompt = f"Create an educational animation about {topic}"
+        
+        print(f"[DEBUG] Generating video plan with prompt: {prompt}")
         video_plan = video_generator.generate_complete_video_plan(prompt)
         
-        yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        if not video_plan or "error" in video_plan:
+            error_msg = f"Failed to generate educational content: {video_plan.get('error', 'Unknown error')}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
         
-        # Generate Manim code
+        print("[DEBUG] Step 1 completed: Educational content generated")
+        
+        # === Step 2: Generate Manim code ===
+        yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        print("[DEBUG] Step 2: Starting Manim code generation")
+        
         manim_generator = ManIMCodeGenerator(google_api_key=api_key)
         manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
         
+        if not manim_code or len(manim_code.strip()) < 100:
+            error_msg = "Generated Manim code is too short or empty"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
+        
+        print(f"[DEBUG] Step 2 completed: Manim code generated ({len(manim_code)} characters)")
+        
+        # === Step 3: Render video ===
         yield {"status": "rendering", "message": "🎬 Merender video..."}
+        print("[DEBUG] Step 3: Starting video rendering")
         
-        # Render video
-        video_path, response = generate_educational_video(topic)
+        video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
         
-        yield {"status": "uploading", "message": "☁️ Mengupload ke cloud..."}
+        if not video_path or not os.path.exists(video_path):
+            error_msg = f"Failed to create animation. Video path: {video_path}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            raise Exception(error_msg)
+
+        print(f"[DEBUG] Video rendered at: {video_path}")
+
+        # Rename video file (sertakan message_id jika ada)
+        prefix = f"{message_id}_" if message_id is not None else ""
+        new_video_name = f"{prefix}{timestamp}_{safe_topic}.mp4"
+        new_video_path = unique_output / new_video_name
         
-        video_url = response.get("video_path")
+        print(f"[DEBUG] Renaming video to: {new_video_path}")
+        os.rename(video_path, new_video_path)
+        video_path = str(new_video_path)  # masih di folder sementara
         
-        if video_url and "supabase.co" in video_url:
-            yield {"status": "completed", "message": "✅ Video berhasil dibuat!", "video_url": video_url}
-        else:
-            yield {"status": "error", "message": "❌ Upload gagal"}
+        print("[DEBUG] Step 3 completed: Video rendered successfully")
+        
+        # === Step 4: Pindahkan ke storage lokal ===
+        yield {"status": "saving", "message": "💾 Menyimpan video ke server..."}
+        print("[DEBUG] Step 4: Moving video to local storage")
+
+        try:
+            stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
+
+            # 🧹 Hapus folder spesifik topik ini saja (folder sementara)
+            shutil.rmtree(unique_output, ignore_errors=True)
+            print(f"[DEBUG] Cleaned up temp folder: {unique_output}")
+
+        except Exception as storage_error:
+            error_msg = f"Gagal menyimpan video ke storage lokal: {str(storage_error)}"
+            print(f"[DEBUG ERROR] {error_msg}")
+            yield {"status": "error", "message": f"❌ {error_msg}"}
+            return
+        
+        print(f"[DEBUG] Final video stored at: {stored_path}, public URL: {public_url}")
+        yield {
+            "status": "completed",
+            "message": "✅ Video berhasil dibuat!",
+            "video_url": public_url,
+        }
             
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"[DEBUG EXCEPTION] {error_details}")
         yield {"status": "error", "message": f"❌ Error: {str(e)}"}
-
+        
+        # Cleanup on error
+        try:
+            if unique_output.exists():
+                shutil.rmtree(unique_output, ignore_errors=True)
+                print(f"[DEBUG] Cleaned up folder after error: {unique_output}")
+        except:
+            pass
+        
 import sys
 # Example usage
 if __name__ == "__main__":
@@ -209,4 +317,3 @@ if __name__ == "__main__":
             print(f"  • {obj}")
     
     
-

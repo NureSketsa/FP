@@ -111,8 +111,10 @@ def validate_and_fix_manim_code(manim_code, max_attempts=5):
     error_history = []
     
     while attempt < max_attempts:
-        # Create temporary Python file for validation
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+        # Create temporary Python file for validationw
+        #with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+        #    temp_file.write(current_code.encode('utf-8'))
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as temp_file:
             temp_file.write(current_code)
             temp_file_path = temp_file.name
         
@@ -167,6 +169,7 @@ def trial_render_manim(temp_file_path, scene_class_name, output_dir="trial_media
         os.makedirs(output_dir, exist_ok=True)
         
         # Trial render command with low quality for speed
+        # Trial render command with low quality for speed
         cmd = [
             'manim', 
             temp_file_path,
@@ -175,9 +178,37 @@ def trial_render_manim(temp_file_path, scene_class_name, output_dir="trial_media
             '--disable_caching',
             f'--media_dir={output_dir}'
         ]
-        
+
         print(f"Running trial render: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+
+        # Run with real-time output
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding='utf-8',
+            bufsize=1,
+            universal_newlines=True
+        )
+
+        # Capture output while showing progress
+        output_lines = []
+        for line in process.stdout:
+            print(f"[MANIM TRIAL] {line.rstrip()}")
+            output_lines.append(line)
+
+        # Wait for completion
+        return_code = process.wait()
+
+        # Create result object for compatibility
+        class Result:
+            def __init__(self, returncode, stdout):
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = ""
+
+        result = Result(return_code, ''.join(output_lines))
         
         if result.returncode == 0:
             print("Trial render successful!")
@@ -248,7 +279,9 @@ def create_animation_from_code(manim_code, output_dir="media/videos", max_render
     
     while render_attempt < max_render_attempts:
         # Create temporary file with current code
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+        #with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+        #    temp_file.write(current_code)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as temp_file:
             temp_file.write(current_code)
             temp_file_path = temp_file.name
         
@@ -278,7 +311,9 @@ def create_animation_from_code(manim_code, output_dir="media/videos", max_render
     
     # If we reach here, trial render was successful
     # Proceed with final rendering using validated and render-tested code
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+    #with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+    #    temp_file.write(current_code)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as temp_file:
         temp_file.write(current_code)
         temp_file_path = temp_file.name
     
@@ -286,6 +321,7 @@ def create_animation_from_code(manim_code, output_dir="media/videos", max_render
         # Ensure output directory exists
         os.makedirs(output_dir, exist_ok=True)
 
+        # Run final Manim rendering
         # Run final Manim rendering
         cmd = [
             'manim', 
@@ -295,9 +331,37 @@ def create_animation_from_code(manim_code, output_dir="media/videos", max_render
             '--disable_caching',
             f'--media_dir={output_dir}' 
         ]
-        
+
         print(f"Running final render: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+
+        # Run with real-time output
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding='utf-8',
+            bufsize=1,
+            universal_newlines=True
+        )
+
+        # Capture output while showing progress
+        output_lines = []
+        for line in process.stdout:
+            print(f"[MANIM FINAL] {line.rstrip()}")
+            output_lines.append(line)
+
+        # Wait for completion
+        return_code = process.wait()
+
+        # Create result object for compatibility
+        class Result:
+            def __init__(self, returncode, stdout):
+                self.returncode = returncode
+                self.stdout = stdout
+                self.stderr = ""
+
+        result = Result(return_code, ''.join(output_lines))
         
         if result.returncode == 0:
             # Find the generated video
