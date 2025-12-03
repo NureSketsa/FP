@@ -201,18 +201,38 @@ REQUIREMENTS FOR MANIM CODE:
 - Represent real-world examples with text descriptions and geometric visualizations
 - Focus on mathematical notation, graphs, and animated text elements
 
-⚡ DYNAMIC FEATURES & SCENE MANAGEMENT:
-- Objects that move and transform with smooth transitions
-- Reveal animations for key concepts (Write, FadeIn, Transform)
-- Highlighting and emphasis effects (Indicate, Flash, Wiggle)
-- Clear scene transitions - remove old content before adding new
-- Use self.clear() or FadeOut() to clean scenes between steps
-- Dynamic positioning - move objects to different locations
-- Interactive-style demonstrations with step-by-step reveals
-- Progressive complexity building with animated transformations
-- Avoid static layouts - everything should move and change
-- No overlapping text - use proper spacing and timing
-- Create visual flow with object movements and morphing
+⚡ MANDATORY OBJECT UPDATE & TRANSITION RULES:
+
+1. NEVER overwrite or layer new numbers/text on top of old ones.  
+   If you show [9], then later want to show [10], you MUST either:  
+   - (Preferred) Transform [9] → [10] using Transform(old_obj, new_obj), OR  
+   - (If context changed) Fully remove [9] via FadeOut() before creating [10].
+
+2. Every major step transition MUST begin with a clean slate:  
+   ```python
+   if self.mobjects:  
+       self.play(FadeOut(*self.mobjects), run_time=0.5)  
+   self.wait(0.3)
+   ```
+
+3. For numbered sequences within the same logical idea (e.g., counting, iterations):  
+   - Keep the container object (e.g., a MathTex or Text) and update it via Transform:
+    ```python  
+    counter = MathTex("9")  
+    self.play(Write(counter))  
+    new_counter = MathTex("10")  
+    self.play(Transform(counter, new_counter))
+    ```  
+   - Never do: self.play(Write(MathTex("10"))) while MathTex("9") is still on screen.
+
+4. Visual flow rule:  
+   If content stays on screen across steps, move it or transform it—don’t leave it static while new content appears nearby. Use .animate.shift(), .animate.scale(), or Indicate() to maintain dynamism.
+
+5. Position registry reset:  
+   After FadeOut(*self.mobjects), assume all positions are free. No need to manually manage registry if you clear the scene.
+
+✅ Summary for AI:  
+“If old content is no longer relevant, fade it out completely before showing new content. If it’s part of a sequence, transform it—never draw new text at the same coordinates.”
 
 🎯 MANDATORY POSITIONING RULES:
 - NEVER place text in the same position (0,0) or ORIGIN
@@ -235,17 +255,95 @@ REQUIREMENTS FOR MANIM CODE:
 - Test positioning: title.shift(UP*3) should never go beyond screen top
 - For wide equations, use font_size reduction instead of horizontal overflow
 
-🚫 TEXT OVERLAP PREVENTION SYSTEM:
-- MANDATORY: Track used positions and avoid conflicts
-- Create position grid system: UP*3, UP*2, UP*1, ORIGIN, DOWN*1, DOWN*2, DOWN*3
-- Horizontal slots: LEFT*4, LEFT*2, ORIGIN, RIGHT*2, RIGHT*4  
-- NEVER place two Text objects at same coordinates simultaneously
-- Use .next_to() for automatic positioning relative to other objects
-- Implement z-layering with .set_z_index() when objects must overlap
-- Clear screen completely between major sections: self.play(FadeOut(*self.mobjects))
-- Move existing objects before adding new ones: old_text.animate.shift(UP*1)
-- Use VGroup() to manage multiple related text elements as single unit
-- Stagger positioning: first text at UP*2, second at ORIGIN, third at DOWN*2
+🚫 ULTRA-STRICT TEXT OVERLAP PREVENTION SYSTEM:
+
+CRITICAL POSITIONING RULES - MUST FOLLOW FOR EVERY TEXT OBJECT:
+
+1. MANDATORY POSITION TRACKING:
+   - Create position_registry = {} at start of construct()
+   - Format: position_registry[object_id] = (x, y, width, height)
+   - NEVER place text without checking registry first
+
+2. COLLISION DETECTION (MANDATORY):
+    ```python
+    def check_position_free(self, new_x, new_y, new_width, new_height):
+        BUFFER = 0.8  # Minimum spacing between objects
+        for obj_id, (x, y, w, h) in self.position_registry.items():
+            # Check if rectangles overlap with buffer
+            if (abs(new_x - x) < (new_width + w)/2 + BUFFER and
+                abs(new_y - y) < (new_height + h)/2 + BUFFER):
+                return False  # Position occupied!
+        return True  # Position free
+    ```
+
+3. AUTOMATIC POSITION FINDING:
+   - If preferred position occupied, AUTO-SHIFT to nearest free position
+   - Check positions in this order: original → +0.8 units Y → -0.8 units Y → +1.5 units X → -1.5 units X
+   - NEVER use same position twice
+
+4. STRICT VERTICAL ZONING (NO EXCEPTIONS):
+   Zone 1 (TITLE):     Y = 3.0 to 2.5  (ONLY 1 object allowed)
+   Zone 2 (SUBTITLE):  Y = 2.0 to 1.5  (Max 2 objects, use LEFT/RIGHT separation)
+   Zone 3 (MAIN):      Y = 1.0 to -1.0 (Max 3 objects, use column layout)
+   Zone 4 (DETAIL):    Y = -1.5 to -2.0 (Max 2 objects)
+   Zone 5 (FOOTER):    Y = -2.5 to -3.0 (Max 1 object)
+
+5. MANDATORY CLEARING BETWEEN STEPS:
+   ```python
+   def transition_to_next_step(self):
+       # Clear EVERYTHING except persistent elements
+       self.play(FadeOut(*self.mobjects))
+       self.position_registry.clear()  # CRITICAL: Reset registry
+       self.wait(0.5)
+   ```
+
+6. MULTI-LINE TEXT HANDLING:
+   - For text longer than 50 characters: ALWAYS use VGroup with line breaks
+   - Example:
+   ```python
+   long_text = VGroup(
+       Text("Line 1 content", font_size=20),
+       Text("Line 2 content", font_size=20).shift(DOWN*0.4)
+   ).arrange(DOWN, buff=0.3)
+   ```
+
+7. FONT SIZE RULES FOR COMPLEX TOPICS:
+   - Titles: 36-40 (NOT 48 - too large for complex topics)
+   - Subtitles: 28-32
+   - Main content: 20-24
+   - Details: 18-20
+   - If text doesn't fit: REDUCE font_size, NEVER extend beyond bounds
+
+8. HORIZONTAL LAYOUT FOR COMPLEX TOPICS:
+   - Use 2-column layout: LEFT side (X=-4 to -1.5), RIGHT side (X=1.5 to 4)
+   - Use 3-column layout: LEFT (X=-5 to -2), CENTER (X=-1.5 to 1.5), RIGHT (X=2 to 5)
+   - NEVER put more than 2 text objects in same column at same Y level
+
+9. DYNAMIC POSITIONING EXAMPLE:
+   ```python
+   # BAD - Static positioning, will overlap:
+   title = Text("Title").shift(UP*3)
+   subtitle = Text("Subtitle").shift(UP*3)  # OVERLAPS!
+   
+   # GOOD - Check and adjust:
+   title = Text("Title").shift(UP*3)
+   self.add_to_registry(title, "title")
+   
+   subtitle_pos = UP*2.5  # Try here first
+   if not self.check_position_free(subtitle_pos):
+       subtitle_pos = UP*2.0  # Adjust if needed
+   subtitle = Text("Subtitle").shift(subtitle_pos)
+   self.add_to_registry(subtitle, "subtitle")
+   ```
+
+10. SCREEN BOUNDS VALIDATION (MANDATORY):
+    Before adding ANY object:
+    - X must be in range: -5.5 to 5.5
+    - Y must be in range: -3.0 to 3.0
+    - Object width must be < 11 units (use .scale() if needed)
+    - Object height must be < 6 units
+
+⚠️ FAILURE TO FOLLOW THESE RULES = OVERLAPPING TEXT = CODE REJECTED
 
 🎭 DYNAMIC VISUAL EXPLANATION REQUIREMENTS:
 - EVERY concept must have animated visual representation
@@ -1042,28 +1140,43 @@ Please do not use 'CYAN': NameError: name 'CYAN' is not defined
 - ALWAYS use proper 4-space indentation for class methods
 
 ⚠️ ERROR REPORTING AND DIAGNOSTIC INSTRUCTIONS:
-- OVERLAP DETECTION: If objects occupy same coordinates, report with format:
-  "ERROR [Scene_ID]: Text overlap detected - Object1 'title_text' and Object2 'subtitle_text' both at position [0, 2, 0]"
-- BOUNDS VIOLATION: If objects extend beyond safe viewing area, report:
-  "ERROR [Scene_ID]: Bounds violation - Object 'equation_text' extends to X=8.5 (safe limit: X=6.5)"
-- READABILITY ISSUES: If text is too small or overlaps with background, report:
-  "ERROR [Scene_ID]: Readability issue - Object 'detail_text' font_size=8 below minimum readable size (minimum: 16)"
-- MISALIGNMENT DETECTION: If related objects aren't properly aligned, report:
-  "ERROR [Scene_ID]: Alignment issue - Object 'arrow' start point [1, 2, 0] doesn't connect to Object 'circle' center [1.5, 2, 0]"
-- TIMING VIOLATIONS: If scene duration exceeds allocated time, report:
-  "ERROR [Scene_ID]: Timing overflow - Scene duration 8.5s exceeds allocated 6.0s"
-- ANIMATION CONFLICTS: If animations interfere with each other, report:
-  "ERROR [Scene_ID]: Animation conflict - Object 'text1' Transform() overlaps with Object 'text2' FadeIn() at timestamp 2.5s"
-- MISSING ELEMENTS: If required visual elements are absent, report:
-  "ERROR [Scene_ID]: Missing element - No visual representation found for concept 'quadratic formula' in mathematical explanation"
-- POSITIONING ERRORS: If objects use invalid coordinates, report:
-  "ERROR [Scene_ID]: Invalid position - Object 'title' positioned at [0, 5, 0] exceeds maximum Y=3.8 for 16:9 aspect ratio"
-- SCENE FLOW ISSUES: If logical progression is broken, report:
-  "ERROR [Scene_ID]: Flow violation - Concept 'derivatives' introduced before prerequisite 'functions' in step sequence"
-- DIAGNOSTIC FORMAT: All errors must include Scene_ID, Object_Label, Position_Coordinates, and Suggested_Fix
-- ERROR CATEGORIZATION: Classify as CRITICAL (renders fail), WARNING (suboptimal), or INFO (style suggestions)
-- BATCH REPORTING: Collect all errors before reporting to avoid fragmenting output
-- SOLUTION SUGGESTIONS: Each error report must include specific fix recommendation
+Before generating any Manim code, internally validate the scene against the following rules. 
+Only output code that passes all checks—never generate scenes that would trigger errors.
+✅ MANDATORY PRE-GENERATION VALIDATION CHECKLIST:
+1. Position Grid Compliance
+- Use only these coordinates:
+    - Y: UP*3 to DOWN*3 in 0.5-unit steps
+    - X: integers from LEFT*5 (x = -5) to RIGHT*5 (x = +5)
+- Every text object must have an explicit .shift(pos)
+2. Overlap Prevention
+- Minimum 0.8 units between any two text centers (Euclidean distance)
+- Maximum 5 visible text objects at once
+- If adding a new object exceeds limit, remove oldest before adding
+3. Screen Bounds Enforcement
+- All object centers must satisfy: -6 ≤ x ≤ 6, -3.5 ≤ y ≤ 3.5
+- If content is too wide (>10 units), auto-scale:
+```python
+- Minimum 0.8 units between any two text centers (Euclidean distance)
+- Maximum 5 visible text objects at once
+- If adding a new object exceeds limit, remove oldest before adding
+```
+4. Readability Standards
+- Titles: font_size ≥ 24
+- Body text: font_size ≥ 18
+- Text color: WHITE or BLACK only (high contrast)
+5. Scene Hygiene
+- Between major sections, clear non-persistent objects:
+```python
+to_remove = [m for m in self.mobjects if not getattr(m, 'is_persistent', False)]  
+self.play(FadeOut(*to_remove))  
+```
+- Use explicit naming (e.g., title, equation_1) for traceability
+🚫 NEVER generate code that violates these rules.
+If a design would break a rule, adjust it silently (e.g., shift, scale, remove) and proceed.
+Output format:
+- Only the construct() method
+- No comments, no markdown, no error messages
+- No explanations—just clean, compliant Manim code
 
 ANIMATION REQUIREMENTS:
 - Every text element should be animated (Write, FadeIn, etc.)
@@ -1112,8 +1225,8 @@ self.play(Write(subtitle))
 
 ❌ WRONG - Same position overlap:
 ```python
-title = Text("Title").shift(UP*2)
-subtitle = Text("Subtitle").shift(UP*2)  # OVERLAP! Same position
+title = Text("Title", font_size=48).shift(UP * 3)
+subtitle = Text("Subtitle", font_size=32).next_to(title, DOWN, buff=0.8)  # ✅ Safe spacing
 ```
 
 ✅ CORRECT - Clear before new content:

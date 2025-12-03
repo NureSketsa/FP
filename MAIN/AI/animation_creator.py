@@ -260,7 +260,7 @@ def cleanup_trial_animations(trial_output_dir):
     except Exception as e:
         print(f"Warning: Failed to clean up trial animations from {trial_output_dir}: {e}")
 
-def create_animation_from_code(manim_code, output_dir="media/videos", max_render_attempts=5):
+def create_animation_from_code(manim_code, output_dir="media/videos", max_render_attempts=10):
     """
     Enhanced animation creator with pre-validation and trial rendering.
     Create animation from generated Manim code.
