@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import Body, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.templating import Jinja2Templates
 from itsdangerous import BadSignature, URLSafeSerializer
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -123,6 +124,24 @@ if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    """
+    Redirect user to home (/) for 401 errors on HTML pages,
+    but keep JSON response for API endpoints.
+    """
+    # Untuk endpoint API, tetap kembalikan JSON default
+    if request.url.path.startswith("/api"):
+        return await http_exception_handler(request, exc)
+
+    # Jika unauthorized saat akses halaman biasa → redirect ke beranda
+    if exc.status_code == 401:
+        return RedirectResponse(url="/", status_code=303)
+
+    # Selain itu, gunakan handler default
+    return await http_exception_handler(request, exc)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
