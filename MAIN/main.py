@@ -282,7 +282,7 @@ def api_gallery_videos(user: User = Depends(current_user_required)):
 
 
 @app.post("/api/reviews")
-def submit_review(data: dict, user: User = Depends(current_user_required)):
+def submit_review(data: dict):
     """Terima review dari form frontend (AJAX POST)"""
     try:
         nama = data.get("nama", "").strip()
