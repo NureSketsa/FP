@@ -37,8 +37,9 @@
         color: #f9f7f7;
         overflow-x: hidden;
         min-height: 100vh;
-        padding-bottom: 60px;
         position: relative;
+        display: flex;
+        flex-direction: column;
       }
 
       h1,
@@ -463,6 +464,10 @@
         animation: fadeIn 1s ease-out 0.8s both;
       }
 
+      main {
+        flex: 1;
+      }
+
       .cta-section h2 {
         font-size: 1.8rem;
         color: #112d4e;
@@ -556,6 +561,55 @@
         .cta-button {
           padding: 14px 32px;
           font-size: 1rem;
+        }
+      }
+
+      /* Footer */
+      footer {
+        padding: 36px 0;
+        background: linear-gradient(135deg, #0d1f37 0%, #112d4e 100%);
+        border-top: 1px solid rgba(219, 226, 239, 0.12);
+        margin-top: 60px;
+        width: 100%;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: #dbe2ef;
+        font-size: 0.95rem;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: #dbe2ef;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .footer-links a:hover {
+        color: #f9f7f7;
+      }
+
+      @media (max-width: 480px) {
+        .footer-content {
+          justify-content: center;
+          text-align: center;
+        }
+
+        .footer-links {
+          justify-content: center;
         }
       }
     </style>
@@ -666,6 +720,17 @@
         <a href="/register" class="cta-button">Mulai Sekarang</a>
       </div>
     </main>
+
+    <footer>
+      <div class="footer-content">
+        <div>© 2025 LearnVid AI. All rights reserved.</div>
+        <div class="footer-links">
+          <a href="/how-it-works">How it works</a>
+          <a href="/faq">FAQ</a>
+          <a href="/reviews">Review</a>
+        </div>
+      </div>
+    </footer>
 
     <script>
       const nav = document.querySelector("nav");

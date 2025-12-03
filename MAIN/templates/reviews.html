@@ -36,12 +36,10 @@
         background: linear-gradient(135deg, #112d4e 0%, #1a3f63 100%);
         min-height: 100vh;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
         overflow-x: hidden;
         overflow-y: auto;
         position: relative;
-        padding: 80px 20px 40px;
       }
 
       h1,
@@ -62,8 +60,12 @@
       /* Navigation (matching index) */
       nav {
         padding: 20px 0;
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
+        transition: background 0.3s ease, box-shadow 0.3s ease,
+          padding 0.25s ease, transform 0.3s ease;
+        backdrop-filter: blur(0px);
       }
 
       .nav-container {
@@ -152,6 +154,19 @@
         background: rgba(249, 247, 247, 0.1);
       }
 
+      nav.nav-scrolled {
+        background: rgba(13, 31, 55, 0.9);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+        padding: 14px 0;
+        animation: navReveal 0.35s ease;
+        border-bottom: 1px solid rgba(219, 226, 239, 0.15);
+      }
+
+      nav.nav-hidden {
+        transform: translateY(-100%);
+      }
+
       /* Mobile Menu (matching index) */
       .mobile-menu-btn {
         display: none;
@@ -209,6 +224,17 @@
         to {
           opacity: 1;
           transform: translateY(0);
+        }
+      }
+
+      @keyframes navReveal {
+        from {
+          transform: translateY(-14px);
+          opacity: 0.9;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
         }
       }
 
@@ -315,6 +341,14 @@
         display: flex;
         flex-direction: column;
         gap: 30px;
+        margin: 50px auto 60px;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        padding: 90px 20px 60px;
       }
 
       .review-form-container {
@@ -731,6 +765,44 @@
         color: #3f72af;
       }
 
+      /* Footer */
+      footer {
+        padding: 36px 0;
+        background: linear-gradient(135deg, #0d1f37 0%, #112d4e 100%);
+        border-top: 1px solid rgba(219, 226, 239, 0.12);
+        margin-top: 60px;
+        width: 100%;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: #dbe2ef;
+        font-size: 0.95rem;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: #dbe2ef;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .footer-links a:hover {
+        color: #f9f7f7;
+      }
+
       /* ===== RESPONSIVE STYLES ===== */
 
       /* Tablets */
@@ -747,7 +819,7 @@
 
       @media (max-width: 768px) {
         body {
-          padding: 90px 15px 30px;
+          padding: 0;
         }
 
         .back-to-chat {
@@ -764,6 +836,12 @@
 
         .main-container {
           gap: 25px;
+          margin: 30px auto 50px;
+          padding: 0 16px;
+        }
+
+        main {
+          padding: 80px 12px 50px;
         }
 
         .review-form-container,
@@ -845,7 +923,7 @@
 
       @media (max-width: 600px) {
         body {
-          padding: 85px 12px 25px;
+          padding: 0;
         }
 
         .back-to-chat {
@@ -978,11 +1056,15 @@
           font-size: 12px;
           padding: 0 5px;
         }
+
+        main {
+          padding: 75px 12px 45px;
+        }
       }
 
       @media (max-width: 480px) {
         body {
-          padding: 80px 10px 20px;
+          padding: 0;
         }
 
         .back-to-chat {
@@ -1069,6 +1151,19 @@
           font-size: 11px;
           min-width: 32px;
         }
+
+        .footer-content {
+          justify-content: center;
+          text-align: center;
+        }
+
+        .footer-links {
+          justify-content: center;
+        }
+
+        main {
+          padding: 70px 10px 40px;
+        }
       }
 
       /* Very small screens */
@@ -1125,22 +1220,42 @@
     </style>
   </head>
   <body>
-    <!-- Back to Chat Button -->
-    <a href="/" class="back-to-chat">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M19 12H5M12 19l-7-7 7-7" />
-      </svg>
-      Back to Home
-    </a>
+    <nav>
+      <div class="container">
+        <div class="nav-container">
+          <div class="logo">LearnVid AI</div>
+          <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/how-it-works">How it works</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/reviews">Review</a></li>
+          </ul>
+          <div class="nav-buttons">
+            <a href="/register" class="register-btn">Register</a>
+            <a href="/login" class="login-link">Login</a>
+          </div>
+          <button class="mobile-menu-btn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="mobile-nav">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/how-it-works">How it works</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/reviews">Review</a></li>
+      </ul>
+    </div>
 
     <div class="bg-animations"></div>
 
-    <div class="main-container">
+    <main>
+      <div class="main-container">
       <!-- Review Form -->
       <div class="review-form-container">
         <div class="icon-container">
@@ -1286,7 +1401,19 @@
 
         <div class="pagination" id="pagination"></div>
       </div>
-    </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div>© 2024 LearnVid AI. All rights reserved.</div>
+        <div class="footer-links">
+          <a href="/how-it-works">How it works</a>
+          <a href="/faq">FAQ</a>
+          <a href="/reviews">Review</a>
+        </div>
+      </div>
+    </footer>
 
     <!-- Custom Modal -->
     <div id="appModal" class="modal-backdrop">
@@ -1307,6 +1434,43 @@
     </div>
 
     <script>
+      // Nav state and mobile menu
+      const nav = document.querySelector("nav");
+
+      const updateNavState = () => {
+        const scrolled = window.scrollY > 10;
+        nav.classList.toggle("nav-scrolled", scrolled);
+        nav.classList.remove("nav-hidden");
+      };
+
+      updateNavState();
+      window.addEventListener("scroll", updateNavState);
+
+      const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
+      const mobileNav = document.querySelector(".mobile-nav");
+
+      mobileMenuBtn.addEventListener("click", function () {
+        this.classList.toggle("active");
+        mobileNav.classList.toggle("active");
+      });
+
+      document.addEventListener("click", function (event) {
+        const isClickInside =
+          mobileMenuBtn.contains(event.target) ||
+          mobileNav.contains(event.target);
+        if (!isClickInside && mobileNav.classList.contains("active")) {
+          mobileMenuBtn.classList.remove("active");
+          mobileNav.classList.remove("active");
+        }
+      });
+
+      document.querySelectorAll(".mobile-nav a").forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenuBtn.classList.remove("active");
+          mobileNav.classList.remove("active");
+        });
+      });
+
       // Background animation
       const container = document.querySelector(".bg-animations");
       const symbols = [

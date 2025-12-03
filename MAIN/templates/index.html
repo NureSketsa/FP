@@ -1324,11 +1324,45 @@
           height: 30px;
         }
 
-        .video-indicator {
-          width: 8px;
-          height: 8px;
-        }
+      .video-indicator {
+        width: 8px;
+        height: 8px;
       }
+    }
+
+    /* Footer */
+    footer {
+      padding: 32px 0;
+      background: rgba(13, 31, 55, 0.9);
+      border-top: 1px solid rgba(219, 226, 239, 0.12);
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
     </style>
   </head>
   <body>
@@ -1674,6 +1708,17 @@
         </div>
       </div>
     </section>
+
+    <footer>
+      <div class="container footer-content">
+        <div>© 2025 LearnVid AI. All rights reserved.</div>
+        <div class="footer-links">
+          <a href="/how-it-works">How it works</a>
+          <a href="/faq">FAQ</a>
+          <a href="/reviews">Review</a>
+        </div>
+      </div>
+    </footer>
 
     <script>
       // Mobile menu toggle
