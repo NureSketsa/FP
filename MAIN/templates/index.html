@@ -783,13 +783,21 @@
       }
 
       .carousel {
+        --nav-offset: 88px;
         position: relative;
         width: 100%;
         max-width: 1040px;
         margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 calc(var(--nav-offset) + 12px);
       }
 
       .slides {
+        flex: 1 1 0%;
+        width: 100%;
+        max-width: 1040px;
         aspect-ratio: 16 / 9;
         border-radius: 24px;
         overflow: hidden;
@@ -834,6 +842,9 @@
         display: grid;
         place-items: center;
         cursor: pointer;
+        touch-action: manipulation;
+        pointer-events: auto;
+        z-index: 5;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
         transition: transform 0.25s ease, box-shadow 0.25s ease,
           background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
@@ -852,11 +863,11 @@
       }
 
       .prev {
-        left: 18px;
+        left: calc(var(--nav-offset) * -1);
       }
 
       .next {
-        right: 18px;
+        right: calc(var(--nav-offset) * -1);
       }
       }
 
@@ -1060,17 +1071,19 @@
 
         /* Video carousel */
         .carousel {
+          --nav-offset: 60px;
           max-width: 100%;
+          padding: 0 calc(var(--nav-offset) + 14px);
         }
 
         .slides {
-          border-radius: 20px;
+          border-radius: 18px;
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
         }
 
         .nav-btn {
-          width: 44px;
-          height: 44px;
+          width: 46px;
+          height: 46px;
           padding: 12px;
         }
 
@@ -1123,6 +1136,20 @@
         .start-icon {
           width: 18px;
           height: 18px;
+        }
+
+        /* Video carousel */
+        .carousel {
+          --nav-offset: 40px;
+          padding: 0 calc(var(--nav-offset) + 12px);
+        }
+
+        .slides {
+          border-radius: 16px;
+        }
+
+        .nav-btn {
+          display: none;
         }
 
         .animated-box {
@@ -1189,13 +1216,19 @@
         }
 
         /* Video carousel tighter */
+        .carousel {
+          --nav-offset: 30px;
+          padding: 0 calc(var(--nav-offset) + 10px);
+        }
+
         .slides {
           border-radius: 16px;
+          box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
         }
 
         .nav-btn {
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           padding: 10px;
         }
 
@@ -1287,9 +1320,17 @@
           font-size: 10px;
         }
 
-        .video-card {
-          max-width: 100%;
+        .carousel {
+          --nav-offset: 28px;
+          padding: 0 calc(var(--nav-offset) + 8px);
         }
+
+        .nav-btn {
+          width: 32px;
+          height: 32px;
+          padding: 9px;
+        }
+
       }
 
       /* Landscape mobile */
@@ -1324,6 +1365,11 @@
       @media (max-width: 320px) {
         .animated-box {
           min-width: 160px;
+        }
+
+        .carousel {
+          --nav-offset: 22px;
+          padding: 0 calc(var(--nav-offset) + 6px);
         }
 
         .nav-btn {
@@ -1715,9 +1761,9 @@
     <section class="video-showcase" id="demo-videos">
       <div class="container">
         <div class="video-header">
-          <h2>See How Your Videos Could Look</h2>
+          <h2>Video Showcase</h2>
           <p>
-            Drop in a single featured clip to keep the page clean and focused.
+            Check out some sample educational videos generated using LearnVid AI
           </p>
         </div>
         <div class="video-feature">
@@ -2001,6 +2047,42 @@
         if (carouselArea) {
           carouselArea.addEventListener("mouseenter", pauseAutoplay);
           carouselArea.addEventListener("mouseleave", startAutoplay);
+
+          // Basic swipe support for touch/pointer devices
+          let swipeStartX = 0;
+          let swipeStartTime = 0;
+          let activePointer = null;
+
+          const onPointerDown = (e) => {
+            activePointer = e.pointerId;
+            swipeStartX = e.clientX;
+            swipeStartTime = Date.now();
+            carouselArea.setPointerCapture(activePointer);
+          };
+
+          const onPointerUp = (e) => {
+            if (activePointer !== e.pointerId) return;
+            carouselArea.releasePointerCapture(activePointer);
+            const dx = e.clientX - swipeStartX;
+            const dt = Date.now() - swipeStartTime;
+            const distanceOK = Math.abs(dx) > 35;
+            const quickSwipe = dt < 500 && distanceOK;
+            if (distanceOK && quickSwipe) {
+              if (dx > 0) {
+                showSlide(slideIndex - 1, true);
+              } else {
+                showSlide(slideIndex + 1, true);
+              }
+              startAutoplay();
+            }
+            activePointer = null;
+          };
+
+          carouselArea.addEventListener("pointerdown", onPointerDown);
+          carouselArea.addEventListener("pointerup", onPointerUp);
+          carouselArea.addEventListener("pointercancel", () => {
+            activePointer = null;
+          });
         }
 
         showSlide(slideIndex, false);
