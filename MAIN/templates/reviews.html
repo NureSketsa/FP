@@ -1256,157 +1256,159 @@
 
     <main>
       <div class="main-container">
-      <!-- Review Form -->
-      <div class="review-form-container">
-        <div class="icon-container">
-          <lord-icon
-            src="https://cdn.lordicon.com/cvwrvyjv.json"
-            trigger="loop"
-            delay="500"
-            state="hover-wink"
-            colors="primary:#dbe2ef,secondary:#dbe2ef"
-            style="width: 70px; height: 70px"
-          >
-          </lord-icon>
-        </div>
-
-        <h1 class="review-title">Leave a Review</h1>
-
-        <form id="reviewForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="nama"
-              ><span class="required">*</span> Nama
-              <!-- <span style="font-size: 12px; color: #3f72af">(Max 50 characters)</span> -->
-              </label
+        <!-- Review Form -->
+        <div class="review-form-container">
+          <div class="icon-container">
+            <lord-icon
+              src="https://cdn.lordicon.com/cvwrvyjv.json"
+              trigger="loop"
+              delay="500"
+              state="hover-wink"
+              colors="primary:#dbe2ef,secondary:#dbe2ef"
+              style="width: 70px; height: 70px"
             >
-            <input
-              id="nama"
-              name="nama"
-              type="text"
-              class="form-input"
-              placeholder="Enter your name"
-              maxlength="30"
-              required
-            />
-            <small class="char-counter" id="namaCounter">0/30</small>
+            </lord-icon>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="email"
-              ><span class="required">*</span> Email
-              <!-- <span style="font-size: 12px; color: #3f72af">(Max 20 characters)</span> -->
-                </label
-            >
-            <input
-              id="email"
-              name="email"
-              type="email"
-              class="form-input"
-              placeholder="Enter your email"
-              maxlength="50"
-              required
-            />
-            <small class="char-counter" id="emailCounter">0/50</small>
-          </div>
+          <h1 class="review-title">Leave a Review</h1>
 
-          <div class="form-group">
-            <label class="form-label" for="Instansi"
-              ><span class="required">*</span> instansi
-              <!-- <span style="font-size: 12px; color: #3f72af">(Max 30 characters)</span> -->
-                </label
-            >
-            <input
-              id="instansi"
-              name="instansi"
-              type="text"
-              class="form-input"
-              placeholder="Enter your agency"
-              maxlength="50"
-              required
-            />
-            <small class="char-counter" id="instansiCounter">0/50</small>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label"
-              ><span class="required">*</span> Rate our Website</label
-            >
-            <div class="star-rating">
-              <span class="star" data-rating="1">★</span>
-              <span class="star" data-rating="2">★</span>
-              <span class="star" data-rating="3">★</span>
-              <span class="star" data-rating="4">★</span>
-              <span class="star" data-rating="5">★</span>
+          <form id="reviewForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="nama"
+                ><span class="required">*</span> Nama
+                <!-- <span style="font-size: 12px; color: #3f72af">(Max 50 characters)</span> -->
+              </label>
+              <input
+                id="nama"
+                name="nama"
+                type="text"
+                class="form-input"
+                placeholder="Enter your name"
+                maxlength="30"
+                required
+              />
+              <small class="char-counter" id="namaCounter">0/30</small>
             </div>
-            <input type="hidden" id="rating" name="rating" value="0" required />
-          </div>
 
-          <div class="form-group">
-            <label class="form-label" for="review"
-              ><span class="required">*</span> Review
-              <!-- <span style="font-size: 12px; color: #3f72af">(Max 500 characters)</span> -->
-              </label
-            >
-            <textarea
-              id="review"
-              name="review"
-              class="form-input"
-              placeholder="Write your review here..."
-              maxlength="500"
-              required
-            ></textarea>
-            <small class="char-counter" id="reviewCounter">0/500</small>
-          </div>
+            <div class="form-group">
+              <label class="form-label" for="email"
+                ><span class="required">*</span> Email
+                <!-- <span style="font-size: 12px; color: #3f72af">(Max 20 characters)</span> -->
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                class="form-input"
+                placeholder="Enter your email"
+                maxlength="50"
+                required
+              />
+              <small class="char-counter" id="emailCounter">0/50</small>
+            </div>
 
-          <button type="submit" class="submit-btn">Send Review</button>
-        </form>
-      </div>
+            <div class="form-group">
+              <label class="form-label" for="Instansi"
+                ><span class="required">*</span> instansi
+                <!-- <span style="font-size: 12px; color: #3f72af">(Max 30 characters)</span> -->
+              </label>
+              <input
+                id="instansi"
+                name="instansi"
+                type="text"
+                class="form-input"
+                placeholder="Enter your agency"
+                maxlength="50"
+                required
+              />
+              <small class="char-counter" id="instansiCounter">0/50</small>
+            </div>
 
-      <!-- Reviews Table -->
-      <div class="reviews-container">
-        <h2 class="reviews-title">Other People Reviews</h2>
+            <div class="form-group">
+              <label class="form-label"
+                ><span class="required">*</span> Rate our Website</label
+              >
+              <div class="star-rating">
+                <span class="star" data-rating="1">★</span>
+                <span class="star" data-rating="2">★</span>
+                <span class="star" data-rating="3">★</span>
+                <span class="star" data-rating="4">★</span>
+                <span class="star" data-rating="5">★</span>
+              </div>
+              <input
+                type="hidden"
+                id="rating"
+                name="rating"
+                value="0"
+                required
+              />
+            </div>
 
-        <div class="table-controls">
-          <input
-            type="text"
-            id="searchInput"
-            class="search-box"
-            placeholder="🔍 Search by name, email, or review..."
-          />
-          <select id="sortSelect" class="sort-select">
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="highest">Highest Rating</option>
-            <option value="lowest">Lowest Rating</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
+            <div class="form-group">
+              <label class="form-label" for="review"
+                ><span class="required">*</span> Review
+                <!-- <span style="font-size: 12px; color: #3f72af">(Max 500 characters)</span> -->
+              </label>
+              <textarea
+                id="review"
+                name="review"
+                class="form-input"
+                placeholder="Write your review here..."
+                maxlength="500"
+                required
+              ></textarea>
+              <small class="char-counter" id="reviewCounter">0/500</small>
+            </div>
+
+            <button type="submit" class="submit-btn">Send Review</button>
+          </form>
         </div>
 
-        <div class="reviews-table-wrapper">
-          <table id="reviewsTable">
-            <thead>
-              <tr>
-                <th>Nama</th>
-                <th>email</th>
-                <th>instansi</th>
-                <th>Rating</th>
-                <th>Review</th>
-              </tr>
-            </thead>
-            <tbody id="reviewsBody">
-              <!-- Filled dynamically -->
-            </tbody>
-          </table>
-        </div>
+        <!-- Reviews Table -->
+        <div class="reviews-container">
+          <h2 class="reviews-title">Other People Reviews</h2>
 
-        <div class="pagination" id="pagination"></div>
-      </div>
+          <div class="table-controls">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-box"
+              placeholder="🔍 Search by name, email, or review..."
+            />
+            <select id="sortSelect" class="sort-select">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="highest">Highest Rating</option>
+              <option value="lowest">Lowest Rating</option>
+              <option value="name">Name (A-Z)</option>
+            </select>
+          </div>
+
+          <div class="reviews-table-wrapper">
+            <table id="reviewsTable">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>email</th>
+                  <th>instansi</th>
+                  <th>Rating</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody id="reviewsBody">
+                <!-- Filled dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
       </div>
     </main>
 
     <footer>
       <div class="footer-content">
-        <div>© 2024 LearnVid AI. All rights reserved.</div>
+        <div>© 2025 LearnVid AI. All rights reserved.</div>
         <div class="footer-links">
           <a href="/how-it-works">How it works</a>
           <a href="/faq">FAQ</a>
@@ -1422,11 +1424,13 @@
           <span class="icon">!</span>
           <span id="modalTitle">Notification</span>
         </div>
-        <div id="modalMessage" class="modal-message">
-          Message
-        </div>
+        <div id="modalMessage" class="modal-message">Message</div>
         <div class="modal-actions">
-          <button type="button" id="modalCloseBtn" class="modal-btn modal-btn-primary">
+          <button
+            type="button"
+            id="modalCloseBtn"
+            class="modal-btn modal-btn-primary"
+          >
             OK
           </button>
         </div>
