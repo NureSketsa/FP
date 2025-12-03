@@ -768,7 +768,9 @@
 
       .video-feature {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
         position: relative;
         opacity: 0;
         transform: translateY(22px);
@@ -780,21 +782,18 @@
         transform: translateY(0);
       }
 
-      .carousel-wrapper {
+      .carousel {
+        position: relative;
         width: 100%;
         max-width: 1040px;
         margin: 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 18px;
       }
 
-      .video-container {
-        flex: 1;
-        position: relative;
+      .slides {
         aspect-ratio: 16 / 9;
-        border-radius: 16px;
+        border-radius: 24px;
         overflow: hidden;
+        position: relative;
         background: radial-gradient(
             circle at 30% 30%,
             rgba(108, 194, 255, 0.15),
@@ -806,39 +805,59 @@
         isolation: isolate;
       }
 
-      .demo-video {
+      .slide {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.7s ease;
+        pointer-events: none;
       }
 
-      .video-nav {
-        width: 44px;
-        height: 44px;
+      .slide.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 50%;
-        border: 1px solid rgba(219, 226, 239, 0.25);
-        background: rgba(13, 31, 55, 0.92);
-        color: #e8edf5;
+        padding: 16px;
+        backdrop-filter: blur(12px);
+        color: #f9f7f7;
         display: grid;
         place-items: center;
         cursor: pointer;
-        transition: transform 0.25s ease, box-shadow 0.25s ease,
-          background 0.25s ease, border-color 0.25s ease;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease, box-shadow 0.25s ease,
+          background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
       }
 
-      .video-nav:hover {
-        background: rgba(63, 114, 175, 0.95);
-        border-color: rgba(108, 194, 255, 0.6);
-        transform: translateY(-2px) scale(1.05);
+      .nav-btn:hover {
+        background: rgba(63, 114, 175, 0.85);
+        border-color: rgba(108, 194, 255, 0.5);
+        transform: translateY(-50%) scale(1.05);
         box-shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
       }
 
-      .video-nav svg {
+      .nav-btn svg {
         width: 18px;
         height: 18px;
+      }
+
+      .prev {
+        left: 18px;
+      }
+
+      .next {
+        right: 18px;
+      }
       }
 
       .video-indicators {
@@ -1040,18 +1059,19 @@
         }
 
         /* Video carousel */
-        .carousel-wrapper {
-          gap: 12px;
+        .carousel {
+          max-width: 100%;
         }
 
-        .video-container {
-          border-radius: 14px;
+        .slides {
+          border-radius: 20px;
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
         }
 
-        .video-nav {
-          width: 36px;
-          height: 36px;
+        .nav-btn {
+          width: 44px;
+          height: 44px;
+          padding: 12px;
         }
 
         .video-indicators {
@@ -1169,17 +1189,14 @@
         }
 
         /* Video carousel tighter */
-        .carousel-wrapper {
-          gap: 10px;
+        .slides {
+          border-radius: 16px;
         }
 
-        .video-container {
-          border-radius: 12px;
-        }
-
-        .video-nav {
-          width: 32px;
-          height: 32px;
+        .nav-btn {
+          width: 38px;
+          height: 38px;
+          padding: 10px;
         }
 
         .video-indicators {
@@ -1309,9 +1326,10 @@
           min-width: 160px;
         }
 
-        .video-nav {
+        .nav-btn {
           width: 30px;
           height: 30px;
+          padding: 9px;
         }
 
         .video-indicator {
@@ -1702,59 +1720,82 @@
             Drop in a single featured clip to keep the page clean and focused.
           </p>
         </div>
-        <div class="video-feature carousel-wrapper">
-          <button class="video-nav prev" aria-label="Previous video">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-          <div class="video-container">
-            <video
-              id="demo-video"
-              class="demo-video"
-              controls
-              autoplay
-              preload="none"
-              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
-            ></video>
+        <div class="video-feature">
+          <div class="carousel">
+            <div class="slides">
+              <video
+                class="slide active"
+                controls
+                preload="metadata"
+                playsinline
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
+                src="/videos/demo1.mp4"
+              ></video>
+              <video
+                class="slide"
+                preload="metadata"
+                playsinline
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
+                src="/videos/demo2.mp4"
+              ></video>
+              <video
+                class="slide"
+                preload="metadata"
+                playsinline
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
+                src="/videos/demo3.mp4"
+              ></video>
+              <video
+                class="slide"
+                preload="metadata"
+                playsinline
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
+                src="/videos/demo4.mp4"
+              ></video>
+            </div>
+            <button class="nav-btn prev" aria-label="Previous video">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button class="nav-btn next" aria-label="Next video">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
           </div>
-          <button class="video-nav next" aria-label="Next video">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-        </div>
-        <div class="video-indicators" role="tablist">
-          <button
-            class="video-indicator active"
-            aria-label="Go to slide 1"
-            data-slide="0"
-          ></button>
-          <button
-            class="video-indicator"
-            aria-label="Go to slide 2"
-            data-slide="1"
-          ></button>
-          <button
-            class="video-indicator"
-            aria-label="Go to slide 3"
-            data-slide="2"
-          ></button>
-          <button
-            class="video-indicator"
-            aria-label="Go to slide 4"
-            data-slide="3"
-          ></button>
+          <div class="video-indicators" role="tablist">
+            <button
+              class="video-indicator active"
+              aria-label="Go to slide 1"
+              data-slide="0"
+            ></button>
+            <button
+              class="video-indicator"
+              aria-label="Go to slide 2"
+              data-slide="1"
+            ></button>
+            <button
+              class="video-indicator"
+              aria-label="Go to slide 3"
+              data-slide="2"
+            ></button>
+            <button
+              class="video-indicator"
+              aria-label="Go to slide 4"
+              data-slide="3"
+            ></button>
+          </div>
         </div>
       </div>
     </section>
@@ -1878,77 +1919,91 @@
         );
         stepCards.forEach((card) => observer.observe(card));
 
-        // Video carousel (single video element with multiple sources)
-        const demoVideo = document.getElementById("demo-video");
+        // Video carousel (stacked slides with fade)
+        const slides = Array.from(document.querySelectorAll(".slides .slide"));
         const videoIndicators = Array.from(
           document.querySelectorAll(".video-indicator")
         );
-        const prevBtn = document.querySelector(".video-nav.prev");
-        const nextBtn = document.querySelector(".video-nav.next");
-        const videoSources = [
-          "/videos/demo1.mp4",
-          "/videos/demo2.mp4",
-          "/videos/demo3.mp4",
-          "/videos/demo4.mp4",
-        ];
-        let videoIndex = 0;
-        let videoAuto = null;
-        const VIDEO_AUTOPLAY_DELAY = 4500;
+        const prevBtn = document.querySelector(".nav-btn.prev");
+        const nextBtn = document.querySelector(".nav-btn.next");
+        const carouselArea = document.querySelector(".carousel");
+        let slideIndex = Math.max(
+          0,
+          slides.findIndex((slide) => slide.classList.contains("active"))
+        );
+        let slideAuto = null;
+        const SLIDE_AUTOPLAY_DELAY = 4500;
 
-        const setVideo = (idx) => {
-          const total = videoSources.length;
-          videoIndex = (idx + total) % total;
-          if (demoVideo) {
-            const wasPlaying =
-              !demoVideo.paused && !demoVideo.ended && demoVideo.readyState > 2;
-            demoVideo.pause();
-            demoVideo.src = videoSources[videoIndex];
-            demoVideo.load();
-            if (wasPlaying) {
-              demoVideo.play().catch(() => {});
+        const showSlide = (idx, preservePlayback = false) => {
+          if (!slides.length) return;
+          const total = slides.length;
+          const nextIndex = (idx + total) % total;
+          const outgoing = slides[slideIndex];
+          const incoming = slides[nextIndex];
+          const wasPlaying =
+            preservePlayback &&
+            outgoing &&
+            outgoing.tagName === "VIDEO" &&
+            !outgoing.paused &&
+            !outgoing.ended;
+
+          slides.forEach((slide, i) => {
+            const isActive = i === nextIndex;
+            slide.classList.toggle("active", isActive);
+            slide.toggleAttribute("controls", isActive);
+            slide.style.zIndex = isActive ? 2 : 1;
+            if (!isActive && slide.pause) {
+              slide.pause();
             }
-          }
-          videoIndicators.forEach((dot, i) => {
-            dot.classList.toggle("active", i === videoIndex);
           });
+
+          if (wasPlaying && incoming?.play) {
+            incoming.play().catch(() => {});
+          }
+
+          videoIndicators.forEach((dot, i) => {
+            dot.classList.toggle("active", i === nextIndex);
+          });
+
+          slideIndex = nextIndex;
         };
 
         const startAutoplay = () => {
-          clearInterval(videoAuto);
-          videoAuto = setInterval(
-            () => setVideo(videoIndex + 1),
-            VIDEO_AUTOPLAY_DELAY
-          );
+          clearInterval(slideAuto);
+          if (slides.length > 1) {
+            slideAuto = setInterval(
+              () => showSlide(slideIndex + 1, true),
+              SLIDE_AUTOPLAY_DELAY
+            );
+          }
         };
 
-        const pauseAutoplay = () => clearInterval(videoAuto);
+        const pauseAutoplay = () => clearInterval(slideAuto);
 
         prevBtn?.addEventListener("click", () => {
-          setVideo(videoIndex - 1);
+          showSlide(slideIndex - 1, true);
           startAutoplay();
         });
 
         nextBtn?.addEventListener("click", () => {
-          setVideo(videoIndex + 1);
+          showSlide(slideIndex + 1, true);
           startAutoplay();
         });
 
         videoIndicators.forEach((dot) => {
           dot.addEventListener("click", () => {
             const target = Number(dot.dataset.slide || 0);
-            setVideo(target);
+            showSlide(target, true);
             startAutoplay();
           });
         });
 
-        const carouselArea = document.querySelector(".carousel-wrapper");
         if (carouselArea) {
           carouselArea.addEventListener("mouseenter", pauseAutoplay);
           carouselArea.addEventListener("mouseleave", startAutoplay);
         }
 
-        // Initial video
-        setVideo(0);
+        showSlide(slideIndex, false);
         startAutoplay();
 
         // Reveal video feature on scroll
