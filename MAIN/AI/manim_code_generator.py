@@ -809,29 +809,19 @@ Study these examples to understand how REAL Manim animations are constructed:
 **Dynamic Curve Generation**: Like SineCurveUnitCircle, create curves that build over time using updaters and always_redraw(). This technique is perfect for showing how mathematical relationships develop.
 
 **Multi-Stage Scene Flow**: Like OpeningManim, structure animations in distinct phases with clear transitions. Use Transform() to evolve concepts and FadeOut() to clear space for new ideas.
-
 **Custom Updater Functions**: Implement sophisticated updater patterns that respond to changing values. Use lambda functions and class methods to create responsive animations.
-
 **Mathematical Storytelling**: Connect abstract concepts to visual representations. Show the "why" and "how" behind mathematical relationships through animated demonstrations.
-
 **Progressive Complexity Building**: Start with simple elements and gradually add complexity. Transform basic shapes into complex mathematical objects through smooth animations.
-
 **Real-Time Curve Drawing**: Use VGroup() and line additions to create curves that draw themselves. Perfect for showing function behavior and mathematical relationships.
-
 **Advanced Positioning Systems**: Use custom coordinate systems and relative positioning. Create your own reference points and build layouts around them.
-
 **Smooth Transition Management**: Master the art of clearing scenes and introducing new content without jarring jumps. Use fadeouts, transformations, and staged reveals.
 
 🎨 VISUAL STORYTELLING PRINCIPLES FROM EXAMPLES:
 
 **Cause and Effect Demonstration**: Show how one mathematical element affects another through connected animations. The unit circle example perfectly demonstrates this.
-
 **Progressive Disclosure**: Reveal mathematical complexity gradually. Don't overwhelm with too much information at once.
-
 **Visual Metaphor Integration**: Use familiar geometric shapes to represent abstract concepts, then transform them to show mathematical relationships.
-
 **Interactive-Style Responsiveness**: Create animations that feel like they're responding to an instructor's explanation. Use pauses, emphasis, and callbacks effectively.
-
 **Mathematical Proof Through Animation**: Use visual demonstrations to prove mathematical statements. Show rather than just tell.
 
 🎓 KEY PATTERNS FROM ALL EXAMPLES:
