@@ -557,10 +557,42 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         session.refresh(user_msg)  # untuk dapatkan ID pesan user
 
     def generate_with_progress():
-        """Synchronous generator function"""
+        """Synchronous generator function
+        
+        Menyimpan hanya SATU baris progress di tabel messages
+        untuk proses pembuatan video ini. Setiap update progress
+        akan mengubah isi baris tersebut agar yang tersimpan
+        selalu status progress terkini.
+        """
+        # ID message progress (AI) yang sedang berjalan untuk chat & request ini
+        progress_msg_id: Optional[int] = None
+
         try:
             initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
             yield f"data: {json.dumps(initial_msg)}\n\n"
+
+            # 💾 Simpan / update progress awal ke DB (hanya 1 baris)
+            try:
+                with Session(engine) as session:
+                    if progress_msg_id is None:
+                        progress_msg = Message(
+                            chat_folder_id=chat_id,
+                            role=False,
+                            # Simpan hanya teks pesan tanpa prefix status
+                            content=initial_msg["message"],
+                        )
+                        session.add(progress_msg)
+                        session.commit()
+                        session.refresh(progress_msg)
+                        progress_msg_id = progress_msg.id
+                    else:
+                        progress_msg = session.get(Message, progress_msg_id)
+                        if progress_msg:
+                            progress_msg.content = initial_msg["message"]
+                            session.add(progress_msg)
+                            session.commit()
+            except Exception as db_err:
+                print(f"[PROGRESS DB ERROR] {db_err}")
             
             video_url = None
             has_error = False
@@ -569,6 +601,34 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
                 print(f"[STREAM] Progress: {progress}")
                 yield f"data: {json.dumps(progress)}\n\n"
+
+                # 💾 Simpan setiap progress penting ke DB (update baris yang sama)
+                try:
+                    status = progress.get("status")
+                    message_text = progress.get("message") or ""
+
+                    # Simpan hanya status utama agar tidak terlalu bising
+                    if status in {"generating_content", "generating_code", "rendering", "saving", "error"} and message_text:
+                        with Session(engine) as session:
+                            if progress_msg_id is None:
+                                progress_msg = Message(
+                                    chat_folder_id=chat_id,
+                                    role=False,
+                                    # Simpan hanya teks progress tanpa prefix status
+                                    content=message_text,
+                                )
+                                session.add(progress_msg)
+                                session.commit()
+                                session.refresh(progress_msg)
+                                progress_msg_id = progress_msg.id
+                            else:
+                                progress_msg = session.get(Message, progress_msg_id)
+                                if progress_msg:
+                                    progress_msg.content = message_text
+                                    session.add(progress_msg)
+                                    session.commit()
+                except Exception as db_err:
+                    print(f"[PROGRESS DB ERROR] {db_err}")
                 
                 if progress.get('status') == 'completed':
                     video_url = progress.get('video_url')
