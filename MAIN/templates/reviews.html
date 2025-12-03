@@ -625,6 +625,112 @@
         opacity: 0.8;
       }
 
+      /* ==== Custom Modal ==== */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 11000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .modal-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-card {
+        background: #f9f7f7;
+        border-radius: 20px;
+        padding: 24px 24px 20px;
+        max-width: 360px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(17, 45, 78, 0.4);
+        text-align: left;
+        position: relative;
+        transform: translateY(10px);
+        animation: modalSlideUp 0.25s ease forwards;
+      }
+
+      @keyframes modalSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-title {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        color: #112d4e;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .modal-title span.icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        background: #3f72af1a;
+        color: #3f72af;
+        font-size: 15px;
+      }
+
+      .modal-message {
+        font-size: 0.95rem;
+        color: #243b61;
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 8px;
+      }
+
+      .modal-btn {
+        border: none;
+        border-radius: 999px;
+        padding: 8px 18px;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .modal-btn-primary {
+        background: #3f72af;
+        color: #f9f7f7;
+        box-shadow: 0 6px 18px rgba(63, 114, 175, 0.45);
+      }
+
+      .modal-btn-primary:hover {
+        background: #2d5a94;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(63, 114, 175, 0.6);
+      }
+
+      .modal-btn-ghost {
+        background: transparent;
+        color: #3f72af;
+      }
+
       /* ===== RESPONSIVE STYLES ===== */
 
       /* Tablets */
@@ -1055,9 +1161,8 @@
           <div class="form-group">
             <label class="form-label" for="nama"
               ><span class="required">*</span> Nama
-              <span style="font-size: 12px; color: #3f72af"
-                >(Max 50 characters)</span
-              ></label
+              <!-- <span style="font-size: 12px; color: #3f72af">(Max 50 characters)</span> -->
+              </label
             >
             <input
               id="nama"
@@ -1065,37 +1170,35 @@
               type="text"
               class="form-input"
               placeholder="Enter your name"
-              maxlength="50"
+              maxlength="30"
               required
             />
-            <small class="char-counter" id="namaCounter">0/50</small>
+            <small class="char-counter" id="namaCounter">0/30</small>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="email"
               ><span class="required">*</span> Email
-              <span style="font-size: 12px; color: #3f72af"
-                >(Max 20 characters)</span
-              ></label
+              <!-- <span style="font-size: 12px; color: #3f72af">(Max 20 characters)</span> -->
+                </label
             >
             <input
               id="email"
               name="email"
-              type="text"
+              type="email"
               class="form-input"
               placeholder="Enter your email"
-              maxlength="20"
+              maxlength="50"
               required
             />
-            <small class="char-counter" id="emailCounter">0/20</small>
+            <small class="char-counter" id="emailCounter">0/50</small>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="Instansi"
               ><span class="required">*</span> instansi
-              <span style="font-size: 12px; color: #3f72af"
-                >(Max 30 characters)</span
-              ></label
+              <!-- <span style="font-size: 12px; color: #3f72af">(Max 30 characters)</span> -->
+                </label
             >
             <input
               id="instansi"
@@ -1103,10 +1206,10 @@
               type="text"
               class="form-input"
               placeholder="Enter your agency"
-              maxlength="30"
+              maxlength="50"
               required
             />
-            <small class="char-counter" id="instansiCounter">0/10</small>
+            <small class="char-counter" id="instansiCounter">0/50</small>
           </div>
 
           <div class="form-group">
@@ -1126,9 +1229,8 @@
           <div class="form-group">
             <label class="form-label" for="review"
               ><span class="required">*</span> Review
-              <span style="font-size: 12px; color: #3f72af"
-                >(Max 500 characters)</span
-              ></label
+              <!-- <span style="font-size: 12px; color: #3f72af">(Max 500 characters)</span> -->
+              </label
             >
             <textarea
               id="review"
@@ -1183,6 +1285,24 @@
         </div>
 
         <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="appModal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title">
+          <span class="icon">!</span>
+          <span id="modalTitle">Notification</span>
+        </div>
+        <div id="modalMessage" class="modal-message">
+          Message
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="modalCloseBtn" class="modal-btn modal-btn-primary">
+            OK
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1310,9 +1430,9 @@
           label.textContent = `${len}/${max}`;
         });
       }
-      setupCharCounter("nama", "namaCounter", 50);
-      setupCharCounter("email", "emailCounter", 20);
-      setupCharCounter("instansi", "instansiCounter", 10);
+      setupCharCounter("nama", "namaCounter", 30);
+      setupCharCounter("email", "emailCounter", 50);
+      setupCharCounter("instansi", "instansiCounter", 50);
       setupCharCounter("review", "reviewCounter", 500);
 
       // Review Logic
@@ -1320,6 +1440,33 @@
       let filteredReviews = [];
       let currentPage = 1;
       const itemsPerPage = 10;
+
+      // Simple helper to show custom modal
+      function showModal(message, title = "Notification") {
+        const backdrop = document.getElementById("appModal");
+        const titleEl = document.getElementById("modalTitle");
+        const msgEl = document.getElementById("modalMessage");
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        backdrop.classList.add("show");
+      }
+
+      (function initModal() {
+        const backdrop = document.getElementById("appModal");
+        const closeBtn = document.getElementById("modalCloseBtn");
+
+        function hide() {
+          backdrop.classList.remove("show");
+        }
+
+        closeBtn.addEventListener("click", hide);
+        backdrop.addEventListener("click", (e) => {
+          if (e.target === backdrop) hide();
+        });
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") hide();
+        });
+      })();
 
       async function fetchReviews() {
         try {
@@ -1330,7 +1477,7 @@
           renderReviews();
         } catch (err) {
           console.error(err);
-          alert("Gagal memuat review dari server!");
+          showModal("Gagal memuat review dari server!", "Error");
         }
       }
 
@@ -1455,11 +1602,19 @@
           };
 
           if (!data.nama || !data.email || !data.instansi || !data.review) {
-            alert("Please fill in all required fields!");
+            showModal("Please fill in all required fields!", "Validation");
             return;
           }
+
+          // Simple email format validation
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(data.email)) {
+            showModal("Please enter a valid email address!", "Validation");
+            return;
+          }
+
           if (data.rating === 0) {
-            alert("Please select a rating!");
+            showModal("Please select a rating!", "Validation");
             return;
           }
 
@@ -1487,7 +1642,7 @@
               .scrollIntoView({ behavior: "smooth" });
           } catch (err) {
             console.error(err);
-            alert("Terjadi kesalahan saat mengirim review!");
+            showModal("Terjadi kesalahan saat mengirim review!", "Error");
           }
         });
 

@@ -267,10 +267,17 @@ def submit_review(data: dict, user: User = Depends(current_user_required)):
     """Terima review dari form frontend (AJAX POST)"""
     try:
         nama = data.get("nama", "").strip()
-        nrp = data.get("nrp", "").strip()
-        kelompok = data.get("kelompok", "").strip()
+        email_raw = (data.get("email") or "").strip()
+        # Backend historically memakai field nrp & kelompok.
+        # Form baru mengirim email & instansi, jadi kita map ke kolom lama.
+        nrp = (data.get("nrp") or email_raw or "").strip()
+        kelompok = (data.get("kelompok") or data.get("instansi") or "").strip()
         rating = int(data.get("rating", 0))
         review_text = data.get("review", "").strip()
+
+        # Basic email format check
+        if not email_raw or "@" not in email_raw or "." not in email_raw.split("@")[-1]:
+            raise HTTPException(status_code=400, detail="Invalid email format")
 
         if not nama or not nrp or not kelompok or not review_text or rating < 1 or rating > 5:
             raise HTTPException(status_code=400, detail="Invalid input")
@@ -293,6 +300,9 @@ def submit_review(data: dict, user: User = Depends(current_user_required)):
                     "nama": new_review.nama,
                     "nrp": new_review.nrp,
                     "kelompok": new_review.kelompok,
+                    # Alias untuk frontend baru:
+                    "email": new_review.nrp,
+                    "instansi": new_review.kelompok,
                     "rating": new_review.rating,
                     "review": new_review.review,
                     "created_at": new_review.created_at.isoformat()
@@ -313,6 +323,9 @@ def get_all_reviews():
             "nama": r.nama,
             "nrp": r.nrp,
             "kelompok": r.kelompok,
+            # Alias agar JS di reviews.html bisa pakai email & instansi
+            "email": r.nrp,
+            "instansi": r.kelompok,
             "rating": r.rating,
             "review": r.review,
             "created_at": r.created_at.isoformat()
