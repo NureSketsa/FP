@@ -1317,7 +1317,7 @@
             <li><a href="/">Home</a></li>
             <li><a href="/how-it-works">How it works</a></li>
             <li><a href="/faq">FAQ</a></li>
-            <li><a href="/reviews">Review</a></li>
+            <li><a href="/reviews">Reviews</a></li>
           </ul>
           <div class="nav-buttons">
             <a href="/register" class="register-btn">Register</a>
@@ -1337,7 +1337,7 @@
         <li><a href="/">Home</a></li>
         <li><a href="/how-it-works">How it works</a></li>
         <li><a href="/faq">FAQ</a></li>
-        <li><a href="/reviews">Review</a></li>
+        <li><a href="/reviews">Reviews</a></li>
       </ul>
     </div>
 
@@ -1364,7 +1364,7 @@
           <form id="reviewForm" novalidate>
             <div class="form-group">
               <label class="form-label" for="nama"
-                ><span class="required">*</span> Nama
+                ><span class="required">*</span> Name
                 <!-- <span style="font-size: 12px; color: #3f72af">(Max 50 characters)</span> -->
               </label>
               <input
@@ -1397,8 +1397,8 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="Instansi"
-                ><span class="required">*</span> instansi
+              <label class="form-label" for="instansi"
+                ><span class="required">*</span> Organization
                 <!-- <span style="font-size: 12px; color: #3f72af">(Max 30 characters)</span> -->
               </label>
               <input
@@ -1406,7 +1406,7 @@
                 name="instansi"
                 type="text"
                 class="form-input"
-                placeholder="Enter your agency"
+                placeholder="Enter your organization"
                 maxlength="50"
                 required
               />
@@ -1455,14 +1455,14 @@
 
         <!-- Reviews Table -->
         <div class="reviews-container">
-          <h2 class="reviews-title">Other People Reviews</h2>
+          <h2 class="reviews-title">What Others Are Saying</h2>
 
           <div class="table-controls">
             <input
               type="text"
               id="searchInput"
               class="search-box"
-              placeholder="🔍 Search by name, email, or review..."
+              placeholder="Search by name, email, or review..."
             />
             <select id="sortSelect" class="sort-select">
               <option value="newest">Newest First</option>
@@ -1477,9 +1477,9 @@
             <table id="reviewsTable">
               <thead>
                 <tr>
-                  <th>Nama</th>
-                  <th>email</th>
-                  <th>instansi</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Organization</th>
                   <th>Rating</th>
                   <th>Review</th>
                 </tr>
@@ -1497,11 +1497,15 @@
 
     <footer>
       <div class="footer-content">
-        <div>© 2025 LearnVid AI. All rights reserved.</div>
+        <div class="footer-brand">
+          <div class="footer-copy">
+            &copy; 2025 LearnVid AI. All rights reserved.
+          </div>
+        </div>
         <div class="footer-links">
           <a href="/how-it-works">How it works</a>
           <a href="/faq">FAQ</a>
-          <a href="/reviews">Review</a>
+          <a href="/reviews">Reviews</a>
         </div>
       </div>
     </footer>
@@ -1734,7 +1738,7 @@
           renderReviews();
         } catch (err) {
           console.error(err);
-          showModal("Gagal memuat review dari server!", "Error");
+          showModal("Failed to load reviews from the server.", "Error");
         }
       }
 
@@ -1889,9 +1893,9 @@
             updateStars(0);
 
             // Reset char counters
-            document.getElementById("namaCounter").textContent = "0/50";
-            document.getElementById("emailCounter").textContent = "0/20";
-            document.getElementById("instansiCounter").textContent = "0/10";
+            document.getElementById("namaCounter").textContent = "0/30";
+            document.getElementById("emailCounter").textContent = "0/50";
+            document.getElementById("instansiCounter").textContent = "0/50";
             document.getElementById("reviewCounter").textContent = "0/500";
 
             document
@@ -1899,7 +1903,7 @@
               .scrollIntoView({ behavior: "smooth" });
           } catch (err) {
             console.error(err);
-            showModal("Terjadi kesalahan saat mengirim review!", "Error");
+            showModal("Something went wrong while sending your review.", "Error");
           }
         });
 
