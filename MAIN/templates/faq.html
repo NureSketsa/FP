@@ -482,60 +482,56 @@
         }
       }
 
-      @media (max-width: 480px) {
-        .content-wrapper {
-          padding: 30px 20px;
-        }
-        .content-wrapper h1 {
-          font-size: 1.7rem;
-        }
-        .subtitle {
-          font-size: 0.95rem;
-        }
-        .faq-question span {
-          font-size: 1rem;
-        }
-        .faq-answer p {
-          font-size: 0.95rem;
-        }
-
-        .footer-content {
-          justify-content: center;
-          text-align: center;
-        }
-
-        .footer-links {
-          justify-content: center;
-        }
-      }
-
       /* Footer */
       footer {
-        padding: 36px 0;
-        background: linear-gradient(135deg, #0d1f37 0%, #112d4e 100%);
+        padding: 32px 0;
+        background: rgba(13, 31, 55, 0.9);
         border-top: 1px solid rgba(219, 226, 239, 0.12);
         margin-top: 60px;
         width: calc(100% + var(--page-gutter) * 2);
         margin-left: calc(-1 * var(--page-gutter));
+        position: relative;
+        overflow: hidden;
+      }
+
+      footer::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 10% 10%,
+          rgba(108, 194, 255, 0.07),
+          transparent 35%
+        );
+        pointer-events: none;
       }
 
       .footer-content {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 12px 18px;
+        color: #dbe2ef;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 20px;
-        display: flex;
-        flex-wrap: wrap;
+      }
+
+      .footer-brand {
+        display: inline-flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        color: #dbe2ef;
-        font-size: 0.95rem;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .footer-links {
         display: flex;
         gap: 16px;
         flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
       .footer-links a {
@@ -546,6 +542,27 @@
 
       .footer-links a:hover {
         color: #f9f7f7;
+      }
+
+      @media (max-width: 720px) {
+        footer {
+          padding: 28px 0 34px;
+        }
+
+        .footer-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+          justify-items: center;
+          gap: 14px;
+        }
+
+        .footer-brand {
+          justify-content: center;
+        }
+
+        .footer-links {
+          justify-content: center;
+        }
       }
     </style>
   </head>
@@ -660,7 +677,11 @@
 
     <footer>
       <div class="footer-content">
-        <div>© 2025 LearnVid AI. All rights reserved.</div>
+        <div class="footer-brand">
+          <div class="footer-copy">
+            &copy; 2025 LearnVid AI. All rights reserved.
+          </div>
+        </div>
         <div class="footer-links">
           <a href="/how-it-works">How it works</a>
           <a href="/faq">FAQ</a>
