@@ -2033,6 +2033,43 @@
           });
         });
 
+        // Swipe support khusus mobile (touch)
+        if (carouselArea && window.innerWidth <= 768) {
+          let touchStartX = 0;
+          let touchStartTime = 0;
+
+          carouselArea.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length !== 1) return;
+              touchStartX = e.touches[0].clientX;
+              touchStartTime = Date.now();
+            },
+            { passive: true }
+          );
+
+          carouselArea.addEventListener(
+            "touchend",
+            (e) => {
+              const touch = e.changedTouches[0];
+              const dx = touch.clientX - touchStartX;
+              const dt = Date.now() - touchStartTime;
+              const distanceOK = Math.abs(dx) > 40;
+              const quickSwipe = dt < 500;
+              if (!distanceOK || !quickSwipe) return;
+
+              if (dx > 0) {
+                // swipe kanan → slide sebelumnya
+                showSlide(slideIndex - 1, true);
+              } else {
+                // swipe kiri → slide berikutnya
+                showSlide(slideIndex + 1, true);
+              }
+            },
+            { passive: true }
+          );
+        }
+
         showSlide(slideIndex, false);
 
         // Reveal video feature on scroll
