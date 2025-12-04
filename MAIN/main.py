@@ -110,7 +110,8 @@ def _title_from_video_url(video_url: str | None) -> str:
     return cleaned.title() if cleaned else "Untitled Video"
 
 # ---------------- App ----------------
-app = FastAPI()
+# app = FastAPI()
+app = FastAPI(root_path="/learnvid-ai")
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
@@ -123,9 +124,9 @@ video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
 # app.mount("/videos", StaticFiles(directory="MAIN/videos"), name="videos")
-app.mount("/learnvid-ai/videos", StaticFiles(directory=str(video_dir)), name="videos")
+# app.mount("/learnvid-ai/videos", StaticFiles(directory=str(video_dir)), name="videos")
 
 
 
