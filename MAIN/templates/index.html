@@ -44,6 +44,7 @@
         --glow: 0 25px 80px rgba(108, 194, 255, 0.18);
         --font-display: "Cabinet Grotesk", sans-serif;
         --font-body: "Montserrat", sans-serif;
+        --nav-height: 88px;
       }
 
       * {
@@ -238,7 +239,7 @@
       .mobile-nav {
         display: none;
         position: fixed;
-        top: 70px;
+        top: var(--nav-height, 70px);
         left: 0;
         right: 0;
         background: rgba(17, 45, 78, 0.98);
@@ -1904,13 +1905,23 @@
       document.addEventListener("DOMContentLoaded", function () {
         const nav = document.querySelector("nav");
 
+        const setNavHeight = () => {
+          if (!nav) return;
+          document.documentElement.style.setProperty(
+            "--nav-height",
+            `${nav.offsetHeight}px`
+          );
+        };
+
         const updateNavState = () => {
           const scrolled = window.scrollY > 10;
           nav.classList.toggle("nav-scrolled", scrolled);
           nav.classList.remove("nav-hidden");
+          setNavHeight();
         };
 
         updateNavState();
+        window.addEventListener("resize", setNavHeight);
         window.addEventListener("scroll", updateNavState);
 
         const boxes = document.querySelectorAll(".animated-box");
@@ -2032,6 +2043,43 @@
             showSlide(target, true);
           });
         });
+
+        // Swipe support khusus mobile (touch)
+        if (carouselArea && window.innerWidth <= 768) {
+          let touchStartX = 0;
+          let touchStartTime = 0;
+
+          carouselArea.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length !== 1) return;
+              touchStartX = e.touches[0].clientX;
+              touchStartTime = Date.now();
+            },
+            { passive: true }
+          );
+
+          carouselArea.addEventListener(
+            "touchend",
+            (e) => {
+              const touch = e.changedTouches[0];
+              const dx = touch.clientX - touchStartX;
+              const dt = Date.now() - touchStartTime;
+              const distanceOK = Math.abs(dx) > 40;
+              const quickSwipe = dt < 500;
+              if (!distanceOK || !quickSwipe) return;
+
+              if (dx > 0) {
+                // swipe kanan → slide sebelumnya
+                showSlide(slideIndex - 1, true);
+              } else {
+                // swipe kiri → slide berikutnya
+                showSlide(slideIndex + 1, true);
+              }
+            },
+            { passive: true }
+          );
+        }
 
         showSlide(slideIndex, false);
 
