@@ -110,24 +110,21 @@ def _title_from_video_url(video_url: str | None) -> str:
     return cleaned.title() if cleaned else "Untitled Video"
 
 # ---------------- App ----------------
-BASE_PATH = "/learnvid-ai"
-# app = FastAPI()
-app = FastAPI(root_path=BASE_PATH)
+app = FastAPI()
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
 # Static untuk asset biasa
-# app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
+app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
 
-app.mount(f"{BASE_PATH}/static", StaticFiles(directory="MAIN/static"), name="static")
-
+# Static untuk video lokal
 video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
 video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
-app.mount(f"{BASE_PATH}/videos", StaticFiles(directory=str(video_dir)), name="videos")
+app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+
 
 @app.exception_handler(HTTPException)
 async def custom_http_exception_handler(request: Request, exc: HTTPException):
@@ -194,33 +191,33 @@ def current_user_required(request: Request):  # >>> changed
 from fastapi.responses import FileResponse
 # ---------------- Pages ----------------
 
-@app.get(BASE_PATH + "/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get(BASE_PATH + "/faq", response_class=HTMLResponse)
+@app.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
-@app.get(BASE_PATH + "/how-it-works", response_class=HTMLResponse)
+@app.get("/how-it-works", response_class=HTMLResponse)
 def how_it_works_page(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
 
-@app.get(BASE_PATH + "/register", response_class=HTMLResponse)
+@app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "message": None})
 
-@app.get(BASE_PATH + "/login", response_class=HTMLResponse)
+@app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "message": None})
 
-@app.get(BASE_PATH + "/logout")
+@app.get("/logout")
 def logout():
-    resp = RedirectResponse(url=BASE_PATH + "/", status_code=303)   # >>> changed
+    resp = RedirectResponse(url="/", status_code=303)   # >>> changed
     clear_session(resp)
     return resp
 
-@app.get(BASE_PATH + "/gallery", response_class=HTMLResponse)
+@app.get("/gallery", response_class=HTMLResponse)
 def gallery_page(request: Request, user: User = Depends(current_user_required)):
     with Session(engine) as session:
         chat_list = session.exec(
@@ -238,7 +235,7 @@ def gallery_page(request: Request, user: User = Depends(current_user_required)):
         }
     )
 
-@app.get(BASE_PATH + "/chat", response_class=HTMLResponse)
+@app.get("/chat", response_class=HTMLResponse)
 def chat_page(request: Request, user: User = Depends(current_user_required)):  # >>> changed
     with Session(engine) as session:
         chat_list = session.exec(
@@ -252,7 +249,7 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
     )
     
     
-@app.get(BASE_PATH + "/reviews", response_class=HTMLResponse)
+@app.get("/reviews", response_class=HTMLResponse)
 def reviews_page(request: Request):
     return templates.TemplateResponse("reviews.html", {"request": request, "message": None})
 
@@ -356,7 +353,7 @@ def get_all_reviews():
     ]
 
 # ---------------- Auth Actions ----------------
-@app.post(BASE_PATH + "/register", response_class=HTMLResponse)
+@app.post("/register", response_class=HTMLResponse)
 def register_action(
     request: Request,
     username: str = Form(...),
@@ -387,11 +384,11 @@ def register_action(
         session.refresh(user)
 
     # >>> set cookie & langsung menuju /chat (tanpa query)
-    resp = RedirectResponse(url=BASE_PATH + "/chat", status_code=303)
+    resp = RedirectResponse(url="/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 
-@app.post(BASE_PATH + "/login", response_class=HTMLResponse)
+@app.post("/login", response_class=HTMLResponse)
 def login_action(
     request: Request,
     username_or_email: str = Form(...),
@@ -419,7 +416,7 @@ def login_action(
         )
 
     # Kalau semua benar → set session & redirect
-    resp = RedirectResponse(url=BASE_PATH + "/chat", status_code=303)
+    resp = RedirectResponse(url="/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 
