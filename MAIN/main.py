@@ -124,9 +124,22 @@ video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
 # app.mount("/videos", StaticFiles(directory="MAIN/videos"), name="videos")
 # app.mount("/learnvid-ai/videos", StaticFiles(directory=str(video_dir)), name="videos")
+
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+video_dir = Path("MAIN/videos").resolve()
+
+@app.get("/videos/{filename}")
+async def get_video(filename: str):
+    file_path = video_dir / filename
+    if not file_path.exists():
+        return {"detail": "Video not found"}
+
+    return FileResponse(path=str(file_path), media_type="video/mp4")
 
 
 
