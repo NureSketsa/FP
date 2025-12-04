@@ -996,6 +996,153 @@ TARGET COMPLEXITY: {complexity}
 
 OUTPUT FORMAT:
 Provide complete, executable Manim Python code following this structure:
+🎯 MANDATORY 4-SCENE TEMPLATE SYSTEM FOR OVERLAP PREVENTION:
+IN INTRODUCTION: PLS USE BRANDING "LearnVidAI" IN intro_scene AND outro_scene.                            
+You MUST structure your animation using these 4 scene templates:
+
+═══════════════════════════════════════════════════════════════
+📐 TEMPLATE USAGE RULES:
+═══════════════════════════════════════════════════════════════
+
+**TEMPLATE A - INTRO SCENE:**
+```python
+self.intro_scene(
+    title_text="Main Topic Title",
+    desc_text="Brief description of what we'll learn",
+    branding="LearnVidAI"
+)
+self.clean_transition()
+```
+- Fixed positions: Title(UP*2.0), Desc(UP*0.5), Brand(DOWN*1.5)
+- Use at start of video
+- ALWAYS call clean_transition() after
+
+**TEMPLATE B - GRAPH SCENE:**
+```python
+footer = self.graph_scene(
+    title_text="Graph Title",
+    graph_function=lambda x: x**2,  # Your function here
+    x_range=[-3, 3, 1],
+    y_range=[-2, 8, 2],
+    footer_text="Initial equation or caption",
+    graph_color=BLUE
+)
+# Optional: Update footer without overlap
+self.update_graph_footer("Updated equation or insight")
+self.clean_transition()
+```
+- Fixed positions: Title(UP*3.0), Graph(center), Footer(DOWN*2.5)
+- Use for visual/mathematical content
+- Footer can transform in-place via update_graph_footer()
+- ALWAYS call clean_transition() after (unless updating footer)
+
+**TEMPLATE C - EXPLANATION SCENE:**
+```python
+self.explanation_scene(
+    title_text="Concept Being Explained",
+    explanation_lines=[
+        "• First key point about the concept",
+        "• Second important detail",
+        "• Third supporting fact",
+        "• Fourth application or example"
+    ],
+    key_insight="Main takeaway in one sentence!"
+)
+self.clean_transition()
+```
+- Fixed positions: Title(UP*3.0), Lines(1.5, 0.5, -0.5, -1.5), Insight(DOWN*2.5)
+- Max 4 explanation lines + 1 key insight
+- Use to explain concepts shown in graphs
+- ALWAYS call clean_transition() after
+
+**TEMPLATE D - OUTRO SCENE:**
+```python
+self.outro_scene(
+    title_text="Summary or Conclusion",
+    desc_text="Final thoughts or call to action",
+    branding="LearnVidAI"
+)
+```
+- Same as intro_scene (reuses Template A)
+- Use at end of video
+- No clean_transition needed (end of video)
+
+═══════════════════════════════════════════════════════════════
+🔄 REQUIRED VIDEO FLOW PATTERN:
+═══════════════════════════════════════════════════════════════
+
+Your construct() method MUST follow this pattern:
+```python
+def construct(self):
+    # 1. INTRO
+    self.intro_scene("Title", "Description", "LearnVidAI")
+    self.clean_transition()
+    
+    # 2. GRAPH (First concept)
+    self.graph_scene("Concept 1", lambda x: x**2, footer_text="Equation")
+    self.clean_transition()
+    
+    # 3. EXPLANATION (Explain the graph)
+    self.explanation_scene("Concept 1", [
+        "• Point 1",
+        "• Point 2",
+        "• Point 3"
+    ], "Key insight!")
+    self.clean_transition()
+    
+    # 4. GRAPH (Second concept - optional)
+    self.graph_scene("Concept 2", lambda x: 2*x, footer_text="Linear")
+    self.clean_transition()
+    
+    # 5. EXPLANATION (Explain second graph)
+    self.explanation_scene("Concept 2", [
+        "• Point 1",
+        "• Point 2"
+    ])
+    self.clean_transition()
+    
+    # 6. OUTRO
+    self.outro_scene("Summary", "What we learned", "LearnVidAI")
+```
+
+═══════════════════════════════════════════════════════════════
+⚠️ CRITICAL RULES - MUST FOLLOW:
+═══════════════════════════════════════════════════════════════
+
+1. NEVER create Text objects outside these templates
+2. ALWAYS call clean_transition() between templates (except before outro)
+3. DO NOT modify template positioning (positions are fixed)
+4. USE update_graph_footer() to change footer text, NOT new Text objects
+5. MAXIMUM 4 explanation lines per explanation_scene
+6. DO NOT add custom methods that create text at arbitrary positions
+7. ALL text content must go through one of the 4 templates
+
+═══════════════════════════════════════════════════════════════
+✅ BENEFITS OF THIS SYSTEM:
+═══════════════════════════════════════════════════════════════
+
+- Zero overlap guaranteed (fixed positions)
+- Clean visual flow (mandatory transitions)
+- Consistent layout (predictable for viewers)
+- Easy to understand (template-based)
+- Maintainable (modify templates, not individual scenes)
+
+═══════════════════════════════════════════════════════════════
+🎬 EXAMPLE USAGE FOR EDUCATIONAL STEPS:
+═══════════════════════════════════════════════════════════════
+
+For each educational step in the video plan:
+
+Step 1 (Introduction):
+- Use intro_scene with step title and overview
+
+Step 2-N (Core Content):
+- Use graph_scene if visual/mathematical content
+- Follow immediately with explanation_scene to explain the graph
+- Repeat graph → explanation cycle for each major concept
+
+Final Step:
+- Use outro_scene to summarize all concepts
 
 ```python
 from manim import *
