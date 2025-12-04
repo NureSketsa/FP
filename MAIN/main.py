@@ -123,7 +123,8 @@ video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+app.mount("/learnvid-ai/videos", StaticFiles(directory="MAIN/videos"), name="videos")
 
 
 @app.exception_handler(HTTPException)
