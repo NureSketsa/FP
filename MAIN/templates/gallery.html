@@ -12,7 +12,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/learnvid-ai/static/logo.svg" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
@@ -1332,12 +1332,11 @@
         </div>
 
         <div class="sidebar-menu">
-          <a href="/chat" class="menu-item">
+          <a href="/learnvid-ai/chat" class="menu-item">
             <i class="bi bi-plus-circle"></i>
             New Chat
           </a>
-
-          <a href="/gallery" class="menu-item active">
+          <a href="/learnvid-ai/gallery" class="menu-item active">
             <i class="bi bi-bookmark"></i>
             Gallery
           </a>
@@ -1582,7 +1581,7 @@
         if (!cleaned || cleaned === currentTitle) return;
 
         try {
-          const res = await fetch(`/api/chats/${chatId}`, {
+          const res = await fetch(`/learnvid-ai/api/chats/${chatId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: cleaned }),
@@ -1617,7 +1616,7 @@
         if (!confirmDelete) return;
 
         try {
-          const res = await fetch(`/api/chats/${chatId}`, { method: "DELETE" });
+          const res = await fetch(`/learnvid-ai/api/chats/${chatId}`, { method: "DELETE" });
           if (!res.ok) throw new Error("Delete failed");
 
           item.remove();
@@ -1711,7 +1710,7 @@
           "<p style='color:#112D4E; text-align:center; padding:20px;'>Loading...</p>";
 
         try {
-          const res = await fetch("/api/gallery/videos");
+          const res = await fetch("/learnvid-ai/api/gallery/videos");
           if (!res.ok) {
             throw new Error("Failed to fetch videos");
           }

@@ -110,6 +110,7 @@ def _title_from_video_url(video_url: str | None) -> str:
     return cleaned.title() if cleaned else "Untitled Video"
 
 # ---------------- App ----------------
+BASE_PATH = "/learnvid-ai"
 app = FastAPI()
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
@@ -191,33 +192,33 @@ def current_user_required(request: Request):  # >>> changed
 from fastapi.responses import FileResponse
 # ---------------- Pages ----------------
 
-@app.get("/learnvid-ai/", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/faq", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
-@app.get("/how-it-works", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/how-it-works", response_class=HTMLResponse)
 def how_it_works_page(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
 
-@app.get("/learnvid-ai/register", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "message": None})
 
-@app.get("/login", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/login", response_class=HTMLResponse)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "message": None})
 
-@app.get("/logout")
+@app.get(BASE_PATH + "/logout")
 def logout():
-    resp = RedirectResponse(url="/", status_code=303)   # >>> changed
+    resp = RedirectResponse(url=BASE_PATH + "/", status_code=303)   # >>> changed
     clear_session(resp)
     return resp
 
-@app.get("/gallery", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/gallery", response_class=HTMLResponse)
 def gallery_page(request: Request, user: User = Depends(current_user_required)):
     with Session(engine) as session:
         chat_list = session.exec(
@@ -235,7 +236,7 @@ def gallery_page(request: Request, user: User = Depends(current_user_required)):
         }
     )
 
-@app.get("/chat", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/chat", response_class=HTMLResponse)
 def chat_page(request: Request, user: User = Depends(current_user_required)):  # >>> changed
     with Session(engine) as session:
         chat_list = session.exec(
@@ -249,7 +250,7 @@ def chat_page(request: Request, user: User = Depends(current_user_required)):  #
     )
     
     
-@app.get("/reviews", response_class=HTMLResponse)
+@app.get(BASE_PATH + "/reviews", response_class=HTMLResponse)
 def reviews_page(request: Request):
     return templates.TemplateResponse("reviews.html", {"request": request, "message": None})
 
@@ -353,7 +354,7 @@ def get_all_reviews():
     ]
 
 # ---------------- Auth Actions ----------------
-@app.post("/register", response_class=HTMLResponse)
+@app.post(BASE_PATH + "/register", response_class=HTMLResponse)
 def register_action(
     request: Request,
     username: str = Form(...),
@@ -384,11 +385,11 @@ def register_action(
         session.refresh(user)
 
     # >>> set cookie & langsung menuju /chat (tanpa query)
-    resp = RedirectResponse(url="/chat", status_code=303)
+    resp = RedirectResponse(url=BASE_PATH + "/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 
-@app.post("/login", response_class=HTMLResponse)
+@app.post(BASE_PATH + "/login", response_class=HTMLResponse)
 def login_action(
     request: Request,
     username_or_email: str = Form(...),
@@ -416,7 +417,7 @@ def login_action(
         )
 
     # Kalau semua benar → set session & redirect
-    resp = RedirectResponse(url="/chat", status_code=303)
+    resp = RedirectResponse(url=BASE_PATH + "/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 

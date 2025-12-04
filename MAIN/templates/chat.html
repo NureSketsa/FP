@@ -15,7 +15,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/learnvid-ai/static/logo.svg" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
@@ -1340,14 +1340,13 @@
 
         <div class="sidebar-menu">
           <a
-            href="/chat"
+            href="/learnvid-ai/chat"
             class="menu-item {% if not request.query_params.get('id') %}active{% endif %}"
           >
             <i class="bi bi-plus-circle"></i>
             New Chat
           </a>
-
-          <a href="/gallery" class="menu-item">
+          <a href="/learnvid-ai/gallery" class="menu-item">
             <i class="bi bi-bookmark"></i>
             Gallery
           </a>
@@ -1387,7 +1386,7 @@
         <div class="chat-header">
           <div class="chat-title">LearnVid AI</div>
           <div class="chat-actions">
-            <a href="/logout" class="action-btn">Log out</a>
+            <a href="/learnvid-ai/logout" class="action-btn">Log out</a>
           </div>
         </div>
 
@@ -1904,7 +1903,7 @@
       }
 
       async function createChat(title) {
-        const res = await fetch("/api/chats", {
+        const res = await fetch("/learnvid-ai/api/chats", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: CURRENT_USERNAME, title }),
@@ -1915,7 +1914,7 @@
 
       async function loadMessages(chatId) {
         const res = await fetch(
-          `/api/chats/${chatId}/messages?username=${encodeURIComponent(
+          `/learnvid-ai/api/chats/${chatId}/messages?username=${encodeURIComponent(
             CURRENT_USERNAME
           )}`
         );
@@ -1931,7 +1930,7 @@
       }
 
       async function postMessage(chatId, content) {
-        const res = await fetch(`/api/chats/${chatId}/messages`, {
+        const res = await fetch(`/learnvid-ai/api/chats/${chatId}/messages`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           // Disesuaikan dengan API Anda
@@ -1995,7 +1994,7 @@
             setActiveChatItemById(chat.id);
             updateHeaderTitleFromActiveChat();
             // Update URL tanpa reload
-            history.pushState(null, "", `/chat?id=${chat.id}`);
+            history.pushState(null, "", `/learnvid-ai/chat?id=${chat.id}`);
           }
 
           showChatUI();
@@ -2017,7 +2016,7 @@
 
             try {
               const res = await fetch(
-                `/api/chats/${currentChatId}/generate_video`,
+                `/learnvid-ai/api/chats/${currentChatId}/generate_video`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },

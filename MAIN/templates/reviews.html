@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnVid AI - Reviews</title>
-    <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/learnvid-ai/static/logo.svg" />
     <script src="https://cdn.lordicon.com/lordicon.js"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
@@ -1315,14 +1315,14 @@
         <div class="nav-container">
           <div class="logo">LearnVid AI</div>
           <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/how-it-works">How it works</a></li>
-            <li><a href="/faq">FAQ</a></li>
-            <li><a href="/reviews">Reviews</a></li>
+            <li><a href="/learnvid-ai/">Home</a></li>
+            <li><a href="/learnvid-ai/how-it-works">How it works</a></li>
+            <li><a href="/learnvid-ai/faq">FAQ</a></li>
+            <li><a href="/learnvid-ai/reviews">Reviews</a></li>
           </ul>
           <div class="nav-buttons">
-            <a href="/register" class="register-btn">Register</a>
-            <a href="/login" class="login-link">Login</a>
+            <a href="/learnvid-ai/register" class="register-btn">Register</a>
+            <a href="/learnvid-ai/login" class="login-link">Login</a>
           </div>
           <button class="mobile-menu-btn" aria-label="Toggle menu">
             <span></span>
@@ -1335,10 +1335,10 @@
 
     <div class="mobile-nav">
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/how-it-works">How it works</a></li>
-        <li><a href="/faq">FAQ</a></li>
-        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/learnvid-ai/">Home</a></li>
+        <li><a href="/learnvid-ai/how-it-works">How it works</a></li>
+        <li><a href="/learnvid-ai/faq">FAQ</a></li>
+        <li><a href="/learnvid-ai/reviews">Reviews</a></li>
       </ul>
     </div>
 
@@ -1742,7 +1742,7 @@
 
       async function fetchReviews() {
         try {
-          const res = await fetch("/api/reviews");
+          const res = await fetch("/learnvid-ai/api/reviews");
           if (!res.ok) throw new Error("Failed to fetch reviews");
           reviews = await res.json();
           filteredReviews = [...reviews];
@@ -1891,7 +1891,7 @@
           }
 
           try {
-            const res = await fetch("/api/reviews", {
+            const res = await fetch("/learnvid-ai/api/reviews", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
