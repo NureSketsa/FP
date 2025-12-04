@@ -138,7 +138,7 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
 
     # Jika unauthorized saat akses halaman biasa → redirect ke beranda
     if exc.status_code == 401:
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/learnvid-ai/", status_code=303)
 
     # Selain itu, gunakan handler default
     return await http_exception_handler(request, exc)
@@ -213,7 +213,7 @@ def login_page(request: Request):
 
 @app.get("/logout")
 def logout():
-    resp = RedirectResponse(url="/", status_code=303)   # >>> changed
+    resp = RedirectResponse(url="/learnvid-ai/", status_code=303)   # >>> changed
     clear_session(resp)
     return resp
 
@@ -384,7 +384,7 @@ def register_action(
         session.refresh(user)
 
     # >>> set cookie & langsung menuju /chat (tanpa query)
-    resp = RedirectResponse(url="/chat", status_code=303)
+    resp = RedirectResponse(url="/learnvid-ai/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 
@@ -416,7 +416,7 @@ def login_action(
         )
 
     # Kalau semua benar → set session & redirect
-    resp = RedirectResponse(url="/chat", status_code=303)
+    resp = RedirectResponse(url="/learnvid-ai/chat", status_code=303)
     set_session(resp, user.id, user.username)
     return resp
 
