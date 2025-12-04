@@ -2167,7 +2167,7 @@
             updateHeaderTitleFromActiveChat();
 
             // Update URL
-            history.pushState(null, "", `/chat?id=${chatId}`);
+            history.pushState(null, "", `/learnvid-ai/chat?id=${chatId}`);
 
             const msgs = await loadMessages(chatId);
             ensureNotEmptyState();
@@ -2214,7 +2214,7 @@
           resetInput();
 
           // URL tanpa id, supaya sendMessage nanti buat chat baru
-          history.pushState(null, "", "/chat");
+          history.pushState(null, "", "/learnvid-ai/chat");
           closeMobileSidebar();
         });
       }
@@ -2335,7 +2335,7 @@
             chatMessages.style.display = "none";
             welcomeScreen.classList.remove("hidden");
             activeChatId = null;
-            history.pushState(null, "", "/chat");
+            history.pushState(null, "", "/learnvid-ai/chat");
 
             // Opsional: aktifkan chat pertama jika ada
             const first = document.querySelector(".chat-item[data-chat-id]");
