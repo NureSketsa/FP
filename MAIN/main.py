@@ -110,8 +110,8 @@ def _title_from_video_url(video_url: str | None) -> str:
     return cleaned.title() if cleaned else "Untitled Video"
 
 # ---------------- App ----------------
-# app = FastAPI()
-app = FastAPI(root_path="/learnvid-ai")
+app = FastAPI()
+# app = FastAPI(root_path="/learnvid-ai")
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
