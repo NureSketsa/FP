@@ -112,11 +112,12 @@ def _title_from_video_url(video_url: str | None) -> str:
 # ---------------- App ----------------
 # app = FastAPI()
 app = FastAPI(root_path="/learnvid-ai")
-templates = Jinja2Templates(directory="MAIN/templates")
+# app = FastAPI(root_path="/learnvid-ai")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 from fastapi.staticfiles import StaticFiles
 
 # Static untuk asset biasa
-app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 # app.mount("/learnvid-ai/static", StaticFiles(directory="MAIN/static"), name="static")
 
 # # Static untuk video lokal
@@ -127,7 +128,7 @@ app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
 # video_dir.mkdir(parents=True, exist_ok=True)
 # # app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
 
-VIDEO_DIR = Path("MAIN/static/videos").resolve()
+VIDEO_DIR = (BASE_DIR / "static" / "videos").resolve()
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 
 video_dir = VIDEO_DIR  # agar kode lain tetap jalan
