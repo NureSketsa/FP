@@ -135,15 +135,15 @@ video_dir = VIDEO_DIR  # agar kode lain tetap jalan
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-video_dir = Path("MAIN/videos").resolve()
+# video_dir = Path("MAIN/videos").resolve()
 
-@app.get("/videos/{filename}")
-async def get_video(filename: str):
-    file_path = video_dir / filename
-    if not file_path.exists():
-        return {"detail": "Video not found"}
+# @app.get("/videos/{filename}")
+# async def get_video(filename: str):
+#     file_path = video_dir / filename
+#     if not file_path.exists():
+#         return {"detail": "Video not found"}
 
-    return FileResponse(path=str(file_path), media_type="video/mp4")
+#     return FileResponse(path=str(file_path), media_type="video/mp4")
 
 
 
