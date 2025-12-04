@@ -111,21 +111,23 @@ def _title_from_video_url(video_url: str | None) -> str:
 
 # ---------------- App ----------------
 BASE_PATH = "/learnvid-ai"
-app = FastAPI()
+# app = FastAPI()
+app = FastAPI(root_path=BASE_PATH)
 templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
 # Static untuk asset biasa
-app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
+# app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
 
-# Static untuk video lokal
+app.mount(f"{BASE_PATH}/static", StaticFiles(directory="MAIN/static"), name="static")
+
 video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
 video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
-
+# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+app.mount(f"{BASE_PATH}/videos", StaticFiles(directory=str(video_dir)), name="videos")
 
 @app.exception_handler(HTTPException)
 async def custom_http_exception_handler(request: Request, exc: HTTPException):
