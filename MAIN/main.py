@@ -191,7 +191,7 @@ def current_user_required(request: Request):  # >>> changed
 from fastapi.responses import FileResponse
 # ---------------- Pages ----------------
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/learnvid-ai/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
@@ -203,7 +203,7 @@ def faq_page(request: Request):
 def how_it_works_page(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
 
-@app.get("/register", response_class=HTMLResponse)
+@app.get("/learnvid-ai/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "message": None})
 
