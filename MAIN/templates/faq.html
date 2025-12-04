@@ -22,6 +22,7 @@
       :root {
         --font-display: "Cabinet Grotesk", sans-serif;
         --font-body: "Montserrat", sans-serif;
+        --nav-height: 88px;
       }
 
       @import url("https://fonts.googleapis.com/css2?family=Costaline:wght@400&display=swap");
@@ -202,7 +203,7 @@
       .mobile-nav {
         display: none;
         position: fixed;
-        top: 70px;
+        top: var(--nav-height, 70px);
         left: 0;
         right: 0;
         background: rgba(17, 45, 78, 0.98);
@@ -693,13 +694,23 @@
     <script>
       const nav = document.querySelector("nav");
 
+      const setNavHeight = () => {
+        if (!nav) return;
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${nav.offsetHeight}px`
+        );
+      };
+
       const updateNavState = () => {
         const scrolled = window.scrollY > 10;
         nav.classList.toggle("nav-scrolled", scrolled);
         nav.classList.remove("nav-hidden");
+        setNavHeight();
       };
 
       updateNavState();
+      window.addEventListener("resize", setNavHeight);
       window.addEventListener("scroll", updateNavState);
 
       // Mobile Nav Toggle
