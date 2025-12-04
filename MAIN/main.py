@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import Body, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.templating import Jinja2Templates
 from itsdangerous import BadSignature, URLSafeSerializer
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -123,6 +124,24 @@ if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    """
+    Redirect user to home (/) for 401 errors on HTML pages,
+    but keep JSON response for API endpoints.
+    """
+    # Untuk endpoint API, tetap kembalikan JSON default
+    if request.url.path.startswith("/api"):
+        return await http_exception_handler(request, exc)
+
+    # Jika unauthorized saat akses halaman biasa → redirect ke beranda
+    if exc.status_code == 401:
+        return RedirectResponse(url="/", status_code=303)
+
+    # Selain itu, gunakan handler default
+    return await http_exception_handler(request, exc)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -263,7 +282,7 @@ def api_gallery_videos(user: User = Depends(current_user_required)):
 
 
 @app.post("/api/reviews")
-def submit_review(data: dict, user: User = Depends(current_user_required)):
+def submit_review(data: dict):
     """Terima review dari form frontend (AJAX POST)"""
     try:
         nama = data.get("nama", "").strip()
@@ -557,10 +576,42 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         session.refresh(user_msg)  # untuk dapatkan ID pesan user
 
     def generate_with_progress():
-        """Synchronous generator function"""
+        """Synchronous generator function
+        
+        Menyimpan hanya SATU baris progress di tabel messages
+        untuk proses pembuatan video ini. Setiap update progress
+        akan mengubah isi baris tersebut agar yang tersimpan
+        selalu status progress terkini.
+        """
+        # ID message progress (AI) yang sedang berjalan untuk chat & request ini
+        progress_msg_id: Optional[int] = None
+
         try:
             initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
             yield f"data: {json.dumps(initial_msg)}\n\n"
+
+            # 💾 Simpan / update progress awal ke DB (hanya 1 baris)
+            try:
+                with Session(engine) as session:
+                    if progress_msg_id is None:
+                        progress_msg = Message(
+                            chat_folder_id=chat_id,
+                            role=False,
+                            # Simpan hanya teks pesan tanpa prefix status
+                            content=initial_msg["message"],
+                        )
+                        session.add(progress_msg)
+                        session.commit()
+                        session.refresh(progress_msg)
+                        progress_msg_id = progress_msg.id
+                    else:
+                        progress_msg = session.get(Message, progress_msg_id)
+                        if progress_msg:
+                            progress_msg.content = initial_msg["message"]
+                            session.add(progress_msg)
+                            session.commit()
+            except Exception as db_err:
+                print(f"[PROGRESS DB ERROR] {db_err}")
             
             video_url = None
             has_error = False
@@ -569,6 +620,34 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
                 print(f"[STREAM] Progress: {progress}")
                 yield f"data: {json.dumps(progress)}\n\n"
+
+                # 💾 Simpan setiap progress penting ke DB (update baris yang sama)
+                try:
+                    status = progress.get("status")
+                    message_text = progress.get("message") or ""
+
+                    # Simpan hanya status utama agar tidak terlalu bising
+                    if status in {"generating_content", "generating_code", "rendering", "saving", "error"} and message_text:
+                        with Session(engine) as session:
+                            if progress_msg_id is None:
+                                progress_msg = Message(
+                                    chat_folder_id=chat_id,
+                                    role=False,
+                                    # Simpan hanya teks progress tanpa prefix status
+                                    content=message_text,
+                                )
+                                session.add(progress_msg)
+                                session.commit()
+                                session.refresh(progress_msg)
+                                progress_msg_id = progress_msg.id
+                            else:
+                                progress_msg = session.get(Message, progress_msg_id)
+                                if progress_msg:
+                                    progress_msg.content = message_text
+                                    session.add(progress_msg)
+                                    session.commit()
+                except Exception as db_err:
+                    print(f"[PROGRESS DB ERROR] {db_err}")
                 
                 if progress.get('status') == 'completed':
                     video_url = progress.get('video_url')

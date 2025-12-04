@@ -1777,6 +1777,8 @@
                 controls
                 preload="metadata"
                 playsinline
+                autoplay
+                muted
                 poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
                 src="/videos/demo1.mp4"
               ></video>
@@ -1784,6 +1786,8 @@
                 class="slide"
                 preload="metadata"
                 playsinline
+                autoplay
+                muted
                 poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
                 src="/videos/demo2.mp4"
               ></video>
@@ -1791,6 +1795,8 @@
                 class="slide"
                 preload="metadata"
                 playsinline
+                autoplay
+                muted
                 poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
                 src="/videos/demo3.mp4"
               ></video>
@@ -1798,6 +1804,8 @@
                 class="slide"
                 preload="metadata"
                 playsinline
+                autoplay
+                muted
                 poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect width='960' height='540' fill='%23112d4e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dbe2ef' font-family='sans-serif' font-size='26'%3EYour featured video%3C/text%3E%3C/svg%3E"
                 src="/videos/demo4.mp4"
               ></video>
@@ -1990,8 +1998,6 @@
           0,
           slides.findIndex((slide) => slide.classList.contains("active"))
         );
-        let slideAuto = null;
-        const SLIDE_AUTOPLAY_DELAY = 4500;
 
         const showSlide = (idx, preservePlayback = false) => {
           if (!slides.length) return;
@@ -1999,12 +2005,6 @@
           const nextIndex = (idx + total) % total;
           const outgoing = slides[slideIndex];
           const incoming = slides[nextIndex];
-          const wasPlaying =
-            preservePlayback &&
-            outgoing &&
-            outgoing.tagName === "VIDEO" &&
-            !outgoing.paused &&
-            !outgoing.ended;
 
           slides.forEach((slide, i) => {
             const isActive = i === nextIndex;
@@ -2016,7 +2016,9 @@
             }
           });
 
-          if (wasPlaying && incoming?.play) {
+          // Selalu coba autoplay slide video yang sedang aktif
+          if (incoming && incoming.tagName === "VIDEO") {
+            incoming.muted = true;
             incoming.play().catch(() => {});
           }
 
@@ -2027,79 +2029,59 @@
           slideIndex = nextIndex;
         };
 
-        const startAutoplay = () => {
-          clearInterval(slideAuto);
-          if (slides.length > 1) {
-            slideAuto = setInterval(
-              () => showSlide(slideIndex + 1, true),
-              SLIDE_AUTOPLAY_DELAY
-            );
-          }
-        };
-
-        const pauseAutoplay = () => clearInterval(slideAuto);
-
         prevBtn?.addEventListener("click", () => {
           showSlide(slideIndex - 1, true);
-          startAutoplay();
         });
 
         nextBtn?.addEventListener("click", () => {
           showSlide(slideIndex + 1, true);
-          startAutoplay();
         });
 
         videoIndicators.forEach((dot) => {
           dot.addEventListener("click", () => {
             const target = Number(dot.dataset.slide || 0);
             showSlide(target, true);
-            startAutoplay();
           });
         });
 
-        if (carouselArea) {
-          carouselArea.addEventListener("mouseenter", pauseAutoplay);
-          carouselArea.addEventListener("mouseleave", startAutoplay);
+        // Swipe support khusus mobile (touch)
+        if (carouselArea && window.innerWidth <= 768) {
+          let touchStartX = 0;
+          let touchStartTime = 0;
 
-          // Basic swipe support for touch/pointer devices
-          let swipeStartX = 0;
-          let swipeStartTime = 0;
-          let activePointer = null;
+          carouselArea.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length !== 1) return;
+              touchStartX = e.touches[0].clientX;
+              touchStartTime = Date.now();
+            },
+            { passive: true }
+          );
 
-          const onPointerDown = (e) => {
-            activePointer = e.pointerId;
-            swipeStartX = e.clientX;
-            swipeStartTime = Date.now();
-            carouselArea.setPointerCapture(activePointer);
-          };
+          carouselArea.addEventListener(
+            "touchend",
+            (e) => {
+              const touch = e.changedTouches[0];
+              const dx = touch.clientX - touchStartX;
+              const dt = Date.now() - touchStartTime;
+              const distanceOK = Math.abs(dx) > 40;
+              const quickSwipe = dt < 500;
+              if (!distanceOK || !quickSwipe) return;
 
-          const onPointerUp = (e) => {
-            if (activePointer !== e.pointerId) return;
-            carouselArea.releasePointerCapture(activePointer);
-            const dx = e.clientX - swipeStartX;
-            const dt = Date.now() - swipeStartTime;
-            const distanceOK = Math.abs(dx) > 35;
-            const quickSwipe = dt < 500 && distanceOK;
-            if (distanceOK && quickSwipe) {
               if (dx > 0) {
+                // swipe kanan → slide sebelumnya
                 showSlide(slideIndex - 1, true);
               } else {
+                // swipe kiri → slide berikutnya
                 showSlide(slideIndex + 1, true);
               }
-              startAutoplay();
-            }
-            activePointer = null;
-          };
-
-          carouselArea.addEventListener("pointerdown", onPointerDown);
-          carouselArea.addEventListener("pointerup", onPointerUp);
-          carouselArea.addEventListener("pointercancel", () => {
-            activePointer = null;
-          });
+            },
+            { passive: true }
+          );
         }
 
         showSlide(slideIndex, false);
-        startAutoplay();
 
         // Reveal video feature on scroll
         const videoFeature = document.querySelector(".video-feature");
