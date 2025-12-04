@@ -118,15 +118,19 @@ from fastapi.staticfiles import StaticFiles
 # Static untuk asset biasa
 app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
 
-# Static untuk video lokal
-video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
-video_dir = Path(video_folder_env)
-if not video_dir.is_absolute():
-    video_dir = (project_root / video_dir).resolve()
-video_dir.mkdir(parents=True, exist_ok=True)
-# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
-# app.mount("/videos", StaticFiles(directory="MAIN/videos"), name="videos")
-# app.mount("/learnvid-ai/videos", StaticFiles(directory=str(video_dir)), name="videos")
+# # Static untuk video lokal
+# video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
+# video_dir = Path(video_folder_env)
+# if not video_dir.is_absolute():
+#     video_dir = (project_root / video_dir).resolve()
+# video_dir.mkdir(parents=True, exist_ok=True)
+# # app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+
+VIDEO_DIR = Path("MAIN/static/videos").resolve()
+VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+
+video_dir = VIDEO_DIR  # agar kode lain tetap jalan
+
 
 from fastapi.responses import FileResponse
 from pathlib import Path
