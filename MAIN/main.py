@@ -115,19 +115,16 @@ templates = Jinja2Templates(directory="MAIN/templates")
 from fastapi.staticfiles import StaticFiles
 
 # Static untuk asset biasa
-# Bisa diakses via /static/... maupun /learnvid-ai/static/...
-app.mount("/static", StaticFiles(directory="MAIN/static"), name="static-root")
-app.mount("/learnvid-ai/static", StaticFiles(directory="MAIN/static"), name="static")
+app.mount("/static", StaticFiles(directory="MAIN/static"), name="static")
 
 # Static untuk video lokal
-# Bisa diakses via /videos/... maupun /learnvid-ai/videos/...
 video_folder_env = os.getenv("VIDEO_FOLDER", "MAIN/videos")
 video_dir = Path(video_folder_env)
 if not video_dir.is_absolute():
     video_dir = (project_root / video_dir).resolve()
 video_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos-root")
-app.mount("/learnvid-ai/videos", StaticFiles(directory=str(video_dir)), name="videos")
+# app.mount("/videos", StaticFiles(directory=str(video_dir)), name="videos")
+app.mount("/videos", StaticFiles(directory="MAIN/videos"), name="videos")
 
 
 

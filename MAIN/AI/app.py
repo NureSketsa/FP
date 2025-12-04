@@ -86,9 +86,9 @@ def _move_video_to_storage(temp_video_path: str, final_name: str | None = None) 
 
     shutil.move(str(temp_video), target_path)
 
-    # URL publik relative yang akan dilayani oleh FastAPI (selalu dari root backend).
-    # Prefix seperti /learnvid-ai biasanya ditangani oleh reverse proxy kampus.
-    public_url = f"/videos/{target_path.name}"
+    # URL publik relative yang akan dilayani oleh FastAPI:
+    # public_url = f"/videos/{target_path.name}"
+    public_url = f"/learnvid-ai/videos/{target_path.name}"
     return str(target_path), public_url
 
 
