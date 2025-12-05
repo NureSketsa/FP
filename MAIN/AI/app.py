@@ -89,6 +89,8 @@ def _move_video_to_storage(temp_video_path: str, final_name: str | None = None) 
     # URL publik relative yang akan dilayani oleh FastAPI:
     # public_url = f"/videos/{target_path.name}"
     # public_url = f"/learnvid-ai/videos/{target_path.name}"
+    print(f"[DEBUG] Video moved to storage: {target_path}")
+    print(f'where am I? {Path(__file__).resolve().parent}')
     public_url = f"/learnvid-ai/static/videos/{target_path.name}"
     return str(target_path), public_url
 
