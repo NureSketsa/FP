@@ -90,7 +90,7 @@ def _move_video_to_storage(temp_video_path: str, final_name: str | None = None) 
     # public_url = f"/videos/{target_path.name}"
     # public_url = f"/learnvid-ai/videos/{target_path.name}"
     print(f"[DEBUG] Video moved to storage: {target_path}")
-    print(f'where am I? {Path(__file__).resolve().parent}')
+    print(f'where am ')
     public_url = f"/learnvid-ai/static/videos/{target_path.name}"
     return str(target_path), public_url
 
@@ -239,32 +239,55 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
         
         if not video_path or not os.path.exists(video_path):
-            # error_msg = f"Failed to create animation. Video path: {video_path}"
             error_msg = f"Failed to create animation."
             print(f"[DEBUG ERROR] {error_msg}")
             raise Exception(error_msg)
 
-        print(f"[DEBUG] Video rendered at: {video_path}")
+        # [DEBUG 1] Check initial rendered file
+        file_size = os.path.getsize(video_path)
+        print(f"[DEBUG DETAIL] 1. Initial Video Found at: {video_path}")
+        print(f"[DEBUG DETAIL]    Size: {file_size / (1024*1024):.2f} MB ({file_size} bytes)")
+        if file_size == 0:
+            print(f"[DEBUG ERROR] ⚠️ WARNING: Video file exists but is EMPTY (0 bytes)!")
 
-        # Rename video file (sertakan message_id jika ada)
+        # Rename video file
         prefix = f"{message_id}_" if message_id is not None else ""
         new_video_name = f"{prefix}{timestamp}_{safe_topic}.mp4"
         new_video_path = unique_output / new_video_name
-        
+
         print(f"[DEBUG] Renaming video to: {new_video_path}")
         os.rename(video_path, new_video_path)
-        video_path = str(new_video_path)  # masih di folder sementara
-        
+        video_path = str(new_video_path)  # Update reference
+
+        # [DEBUG 2] Check file after renaming
+        if os.path.exists(video_path):
+            print(f"[DEBUG DETAIL] 2. Rename Successful. File at: {video_path}")
+        else:
+            print(f"[DEBUG ERROR] ❌ LOST FILE after rename! Expected at: {video_path}")
+
         print("[DEBUG] Step 3 completed: Video rendered successfully")
-        
-        # === Step 4: Pindahkan ke storage lokal ===
+
+        # === Step 4: Move to local storage ===
         yield {"status": "saving", "message": "💾 Menyimpan video ke server..."}
         print("[DEBUG] Step 4: Moving video to local storage")
 
         try:
             stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
+            
+            # [DEBUG 3] Check the final destination BEFORE deleting the temp file
+            if os.path.exists(stored_path):
+                final_size = os.path.getsize(stored_path)
+                print(f"[DEBUG DETAIL] 3. Move Successful. File located at: {stored_path}")
+                print(f"[DEBUG DETAIL]    Final Size: {final_size / (1024*1024):.2f} MB")
+                
+                # Verify URL is generated
+                print(f"[DEBUG DETAIL]    Public URL generated: {public_url}")
+            else:
+                print(f"[DEBUG ERROR] ❌ Move failed! File NOT found at storage path: {stored_path}")
+                # Optional: You might want to stop here so you don't delete the temp file below
 
-            # 🧹 Hapus folder spesifik topik ini saja (folder sementara)
+            # 🧹 Only delete temp if we are sure the file moved successfully? 
+            # Current logic deletes anyway:
             shutil.rmtree(unique_output, ignore_errors=True)
             print(f"[DEBUG] Cleaned up temp folder: {unique_output}")
 
@@ -273,7 +296,7 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
             print(f"[DEBUG ERROR] {error_msg}")
             yield {"status": "error", "message": f"❌ {error_msg}"}
             return
-        
+
         print(f"[DEBUG] Final video stored at: {stored_path}, public URL: {public_url}")
         yield {
             "status": "completed",
