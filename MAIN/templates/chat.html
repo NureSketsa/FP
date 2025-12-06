@@ -2014,49 +2014,57 @@
               if (!res.ok) throw new Error("Gagal membuat video");
 
               // ... existing fetch code ...
+              // ... inside your fetch / await reader ...
               const reader = res.body.getReader();
               const decoder = new TextDecoder();
-              let buffer = ""; // Store partial data here
+              let buffer = ""; // <--- CRITICAL: Store split pieces here
 
               while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
-                // Decode the chunk and add to buffer
-                const chunk = decoder.decode(value, { stream: true });
-                buffer += chunk;
+                // 1. Decode new chunk and add to buffer
+                buffer += decoder.decode(value, { stream: true });
 
-                // Process complete messages (SSE messages end with double newline usually, or single)
-                // We split by newline to process line by line
+                // 2. Split buffer by newlines
                 const lines = buffer.split("\n");
-                
-                // Keep the last line in the buffer because it might be incomplete
+
+                // 3. Keep the last piece in the buffer (it might be incomplete)
                 buffer = lines.pop(); 
 
                 for (const line of lines) {
                   const trimmedLine = line.trim();
                   
-                  // SSE lines start with "data: "
-                  if (trimmedLine.startsWith("data: ")) {
-                    const jsonStr = trimmedLine.replace("data: ", "");
-                    
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      console.log("Received status:", data); // Debug log
+                  // Ignore Keep-Alive comments or empty lines
+                  if (!trimmedLine || trimmedLine.startsWith(":")) continue;
 
-                      // 🟢 UPDATE UI HERE
+                  if (trimmedLine.startsWith("data: ")) {
+                    try {
+                      const jsonStr = trimmedLine.replace("data: ", "");
+                      const data = JSON.parse(jsonStr);
+
+                      // --- UPDATE UI LOGIC ---
                       if (data.status === 'completed' || data.status === 'done') {
-                          addStatusToLoading("✅ " + data.message, true);
-                          // DO SOMETHING WITH data.video_url HERE
-                      } else if (data.status === 'error' || data.status === 'final_error') {
-                          addStatusToLoading("❌ " + data.message, false, true);
-                      } else {
-                          // Normal progress
-                          addStatusToLoading("⏳ " + data.message, false);
+                          markLastStatusComplete();
+                          setTimeout(() => {
+                              removeLoadingMessage();
+                              // ✅ PASS THE VIDEO URL HERE
+                              addMessage(data.message, "ai", data.video_url); 
+                          }, 500);
+                      } 
+                      else if (data.status === 'error' || data.status === 'final_error') {
+                          markLastStatusComplete();
+                          addStatusToLoading(data.message, false, true); 
+                      } 
+                      else {
+                          // "Creating content...", "Rendering..."
+                          markLastStatusComplete();
+                          addStatusToLoading(data.message, false);
                       }
+                      // -----------------------
 
                     } catch (e) {
-                      console.warn("Error parsing JSON chunk:", e);
+                      console.warn("Skipping invalid JSON chunk", e);
                     }
                   }
                 }

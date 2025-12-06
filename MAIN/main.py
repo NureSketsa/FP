@@ -608,8 +608,8 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         try:
             # === 1. JUNK PADDING (For Nginx Entry) ===
             # Forces Nginx to open the stream immediately
-            junk_data = ''.join(random.choices(string.ascii_letters + string.digits, k=8192))
-            yield f": {junk_data}\n\n"
+            padding = ''.join(random.choices(string.ascii_letters, k=2048))
+            yield f": {padding}\n\n"
             
             print("[STREAM] Flushed padding...")
             
