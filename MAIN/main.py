@@ -606,11 +606,19 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         akan mengubah isi baris tersebut agar yang tersimpan
         selalu status progress terkini.
         """
+        
+        import random
+        import string
+
         # ID message progress (AI) yang sedang berjalan untuk chat & request ini
         progress_msg_id: Optional[int] = None
 
         try:
-            yield f": {' ' * 4096}\n\n"
+            junk_data = ''.join(random.choices(string.ascii_letters + string.digits, k=8192))
+            yield f": {junk_data}\n\n"
+            
+            # === DEBUG MARKER ===
+            print("[STREAM] Flushed padding, sending start message...")
             initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
             yield f"data: {json.dumps(initial_msg)}\n\n"
 
@@ -723,6 +731,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             "Connection": "keep-alive",
             # Beberapa setup nginx menghormati header ini untuk mematikan buffering
             "X-Accel-Buffering": "no",
+            "Content-Encoding": "none"
         },
     )
 
