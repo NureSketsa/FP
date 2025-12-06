@@ -178,10 +178,11 @@ def generate_educational_video(
 
 def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int] = None):
     """
-    Modified version that yields progress updates
+    Modified version that yields progress updates AND keeps connection alive
     """
     import shutil
-    from time import sleep
+    import time
+    import concurrent.futures # <--- REQUIRED FOR THREADING
     from pathlib import Path
     
     print(f"[DEBUG] Starting video generation for topic: '{topic}'")
@@ -210,15 +211,13 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
         prompt = f"Create an educational animation about {topic}"
         
-        print(f"[DEBUG] Generating video plan with prompt: {prompt}")
         video_plan = video_generator.generate_complete_video_plan(prompt)
         
         if not video_plan or "error" in video_plan:
             error_msg = f"Failed to generate educational content: {video_plan.get('error', 'Unknown error')}"
-            print(f"[DEBUG ERROR] {error_msg}")
             raise Exception(error_msg)
         
-        print("[DEBUG] Step 1 completed: Educational content generated")
+        print("[DEBUG] Step 1 completed")
         
         # === Step 2: Generate Manim code ===
         yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
@@ -228,29 +227,54 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
         
         if not manim_code or len(manim_code.strip()) < 100:
-            error_msg = "Generated Manim code is too short or empty"
-            print(f"[DEBUG ERROR] {error_msg}")
-            raise Exception(error_msg)
+            raise Exception("Generated Manim code is too short or empty")
         
-        print(f"[DEBUG] Step 2 completed: Manim code generated ({len(manim_code)} characters)")
+        print(f"[DEBUG] Step 2 completed ({len(manim_code)} chars)")
         
-        # === Step 3: Render video ===
-        yield {"status": "rendering", "message": "🎬 Merender video..."}
-        print("[DEBUG] Step 3: Starting video rendering")
+        # === Step 3: Render video (WITH HEARTBEAT / KEEP-ALIVE) ===
+        # 🟢 THIS IS THE FIX FOR THE TIMEOUT
+        yield {"status": "rendering", "message": "🎬 Merender video (mohon tunggu)..."}
+        print("[DEBUG] Step 3: Starting video rendering with Heartbeat")
         
-        video_path = create_animation_from_code(manim_code, output_dir=str(unique_output))
+        video_path = None
+        
+        # We run the heavy render in a separate thread
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            # Submit the task to the background
+            future = executor.submit(create_animation_from_code, manim_code, output_dir=str(unique_output))
+            
+            # Loop while the background thread is working
+            start_render_time = time.time()
+            while not future.done():
+                # Wait 2 seconds
+                time.sleep(2)
+                
+                # 🟢 SEND HEARTBEAT: This tells Nginx "I am still alive!"
+                # Lines starting with ':' are comments in SSE and are ignored by JS
+                yield f": keep-alive-{int(time.time())}\n\n"
+                
+                # Optional: Force flush Python buffer (usually automatic with yield but good for safety)
+                
+                # If it takes too long (> 5 mins), maybe we want to abort? (Optional)
+                if time.time() - start_render_time > 300: 
+                    print("[DEBUG] Render timeout break")
+                    break
+
+            # Get the result (or the exception if it crashed)
+            try:
+                video_path = future.result()
+            except Exception as render_err:
+                raise Exception(f"Render failed: {str(render_err)}")
+
         
         if not video_path or not os.path.exists(video_path):
-            error_msg = f"Failed to create animation."
-            print(f"[DEBUG ERROR] {error_msg}")
-            raise Exception(error_msg)
+            raise Exception("Failed to create animation (File not found).")
 
-        # [DEBUG 1] Check initial rendered file
+        # [DEBUG] Check file
         file_size = os.path.getsize(video_path)
-        print(f"[DEBUG DETAIL] 1. Initial Video Found at: {video_path}")
-        print(f"[DEBUG DETAIL]    Size: {file_size / (1024*1024):.2f} MB ({file_size} bytes)")
+        print(f"[DEBUG] Rendered file size: {file_size} bytes")
         if file_size == 0:
-            print(f"[DEBUG ERROR] ⚠️ WARNING: Video file exists but is EMPTY (0 bytes)!")
+            print(f"[DEBUG ERROR] ⚠️ Video file is empty!")
 
         # Rename video file
         prefix = f"{message_id}_" if message_id is not None else ""
@@ -259,15 +283,9 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
 
         print(f"[DEBUG] Renaming video to: {new_video_path}")
         os.rename(video_path, new_video_path)
-        video_path = str(new_video_path)  # Update reference
+        video_path = str(new_video_path) 
 
-        # [DEBUG 2] Check file after renaming
-        if os.path.exists(video_path):
-            print(f"[DEBUG DETAIL] 2. Rename Successful. File at: {video_path}")
-        else:
-            print(f"[DEBUG ERROR] ❌ LOST FILE after rename! Expected at: {video_path}")
-
-        print("[DEBUG] Step 3 completed: Video rendered successfully")
+        print("[DEBUG] Step 3 completed")
 
         # === Step 4: Move to local storage ===
         yield {"status": "saving", "message": "💾 Menyimpan video ke server..."}
@@ -275,9 +293,7 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
 
         try:
             public_url = _move_video_to_storage(video_path, final_name=new_video_name)
-
-            # cleanup
-            shutil.rmtree(unique_output, ignore_errors=True)
+            shutil.rmtree(unique_output, ignore_errors=True) # Cleanup
 
         except Exception as storage_error:
             yield {"status": "error", "message": f"❌ {str(storage_error)}"}
@@ -291,15 +307,12 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
             
     except Exception as e:
         import traceback
-        error_details = traceback.format_exc()
-        print(f"[DEBUG EXCEPTION] {error_details}")
+        print(f"[DEBUG EXCEPTION] {traceback.format_exc()}")
         yield {"status": "error", "message": f"❌ Error: {str(e)}"}
         
-        # Cleanup on error
         try:
             if unique_output.exists():
                 shutil.rmtree(unique_output, ignore_errors=True)
-                print(f"[DEBUG] Cleaned up folder after error: {unique_output}")
         except:
             pass
         

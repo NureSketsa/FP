@@ -580,7 +580,7 @@ from fastapi import APIRouter
 @app.post("/api/chats/{chat_id}/generate_video")
 def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current_user_required)):
     """
-    Endpoint with SSE streaming for progress updates (SYNC version)
+    Endpoint with SSE streaming + Heartbeat support
     """
     topic = (payload.get("topic") or "").strip()
     print(f"[API DEBUG] Received topic: '{topic}'")
@@ -596,52 +596,39 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         user_msg = Message(chat_folder_id=chat.id, role=True, content=topic)
         session.add(user_msg)
         session.commit()
-        session.refresh(user_msg)  # untuk dapatkan ID pesan user
+        session.refresh(user_msg)
 
     def generate_with_progress():
-        """Synchronous generator function
-        
-        Menyimpan hanya SATU baris progress di tabel messages
-        untuk proses pembuatan video ini. Setiap update progress
-        akan mengubah isi baris tersebut agar yang tersimpan
-        selalu status progress terkini.
-        """
-        
+        """Synchronous generator function"""
         import random
         import string
 
-        # ID message progress (AI) yang sedang berjalan untuk chat & request ini
         progress_msg_id: Optional[int] = None
 
         try:
+            # === 1. JUNK PADDING (For Nginx Entry) ===
+            # Forces Nginx to open the stream immediately
             junk_data = ''.join(random.choices(string.ascii_letters + string.digits, k=8192))
             yield f": {junk_data}\n\n"
             
-            # === DEBUG MARKER ===
-            print("[STREAM] Flushed padding, sending start message...")
+            print("[STREAM] Flushed padding...")
+            
             initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
             yield f"data: {json.dumps(initial_msg)}\n\n"
 
-            # 💾 Simpan / update progress awal ke DB (hanya 1 baris)
+            # 💾 Save Initial DB Status
             try:
                 with Session(engine) as session:
                     if progress_msg_id is None:
                         progress_msg = Message(
                             chat_folder_id=chat_id,
                             role=False,
-                            # Simpan hanya teks pesan tanpa prefix status
                             content=initial_msg["message"],
                         )
                         session.add(progress_msg)
                         session.commit()
                         session.refresh(progress_msg)
                         progress_msg_id = progress_msg.id
-                    else:
-                        progress_msg = session.get(Message, progress_msg_id)
-                        if progress_msg:
-                            progress_msg.content = initial_msg["message"]
-                            session.add(progress_msg)
-                            session.commit()
             except Exception as db_err:
                 print(f"[PROGRESS DB ERROR] {db_err}")
             
@@ -649,30 +636,27 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             has_error = False
             error_text = None
             
+            # === LOOP WITH HEARTBEAT CHECK ===
             for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
+                
+                # 🟢 CRITICAL FIX: Check if this is a Keep-Alive String
+                if isinstance(progress, str):
+                    # It's a heartbeat (e.g., ": keep-alive..."), yield it raw!
+                    yield progress
+                    continue
+                
+                # If we get here, it's a normal Dictionary
                 print(f"[STREAM] Progress: {progress}")
                 yield f"data: {json.dumps(progress)}\n\n"
 
-                # 💾 Simpan setiap progress penting ke DB (update baris yang sama)
+                # 💾 DB Save Logic (Same as before)
                 try:
                     status = progress.get("status")
                     message_text = progress.get("message") or ""
 
-                    # Simpan hanya status utama agar tidak terlalu bising
                     if status in {"generating_content", "generating_code", "rendering", "saving", "error"} and message_text:
                         with Session(engine) as session:
-                            if progress_msg_id is None:
-                                progress_msg = Message(
-                                    chat_folder_id=chat_id,
-                                    role=False,
-                                    # Simpan hanya teks progress tanpa prefix status
-                                    content=message_text,
-                                )
-                                session.add(progress_msg)
-                                session.commit()
-                                session.refresh(progress_msg)
-                                progress_msg_id = progress_msg.id
-                            else:
+                            if progress_msg_id:
                                 progress_msg = session.get(Message, progress_msg_id)
                                 if progress_msg:
                                     progress_msg.content = message_text
@@ -687,6 +671,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     has_error = True
                     error_text = progress.get('message')
             
+            # === FINAL STATUS ===
             if not has_error and video_url:
                 with Session(engine) as session:
                     ai_msg = Message(
@@ -700,8 +685,8 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     session.refresh(ai_msg)
                     
                     yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
+            
             elif has_error:
-                # Simpan pesan error ke database agar tidak temporary
                 with Session(engine) as session:
                     ai_msg = Message(
                         chat_folder_id=chat_id,
@@ -720,17 +705,13 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             print(f"[STREAM ERROR] {traceback.format_exc()}")
             yield f"data: {json.dumps({'status': 'error', 'message': f'❌ Error: {str(e)}'})}\n\n"
 
-    # Gunakan StreamingResponse untuk SSE (Server-Sent Events)
-    # Tambah header anti-buffering agar reverse proxy (mis. nginx di kampus)
-    # tidak menahan output sampai selesai, sehingga progress bisa tampil live.
     return StreamingResponse(
         generate_with_progress(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            # Beberapa setup nginx menghormati header ini untuk mematikan buffering
-            "X-Accel-Buffering": "no",
+            "X-Accel-Buffering": "no", # Vital for Nginx
             "Content-Encoding": "none"
         },
     )
