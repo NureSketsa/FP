@@ -2013,36 +2013,50 @@
 
               if (!res.ok) throw new Error("Gagal membuat video");
 
+              // ... existing fetch code ...
               const reader = res.body.getReader();
               const decoder = new TextDecoder();
+              let buffer = ""; // Store partial data here
 
               while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
+                // Decode the chunk and add to buffer
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+
+                // Process complete messages (SSE messages end with double newline usually, or single)
+                // We split by newline to process line by line
+                const lines = buffer.split("\n");
+                
+                // Keep the last line in the buffer because it might be incomplete
+                buffer = lines.pop(); 
 
                 for (const line of lines) {
-                  if (line.startsWith("data: ")) {
-                    const data = JSON.parse(line.slice(6));
+                  const trimmedLine = line.trim();
+                  
+                  // SSE lines start with "data: "
+                  if (trimmedLine.startsWith("data: ")) {
+                    const jsonStr = trimmedLine.replace("data: ", "");
+                    
+                    try {
+                      const data = JSON.parse(jsonStr);
+                      console.log("Received status:", data); // Debug log
 
-                    if (data.status === "completed") {
-                      // Mark last status complete and remove loading
-                      markLastStatusComplete();
-                      setTimeout(() => {
-                        removeLoadingMessage();
-                        addMessage(data.message, "ai", data.video_url);
-                      }, 500);
-                    } else if (data.status === "error") {
-                      // Don't remove stack on error, just mark as failed
-                      markLastStatusComplete();
-                      addStatusToLoading(data.message, false, true); // Pass true for isError
-                      // Keep the error visible, don't auto-remove
-                    } else {
-                      // Mark previous status as complete, add new status
-                      markLastStatusComplete();
-                      addStatusToLoading(data.message, false);
+                      // 🟢 UPDATE UI HERE
+                      if (data.status === 'completed' || data.status === 'done') {
+                          addStatusToLoading("✅ " + data.message, true);
+                          // DO SOMETHING WITH data.video_url HERE
+                      } else if (data.status === 'error' || data.status === 'final_error') {
+                          addStatusToLoading("❌ " + data.message, false, true);
+                      } else {
+                          // Normal progress
+                          addStatusToLoading("⏳ " + data.message, false);
+                      }
+
+                    } catch (e) {
+                      console.warn("Error parsing JSON chunk:", e);
                     }
                   }
                 }

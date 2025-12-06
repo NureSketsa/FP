@@ -610,6 +610,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         progress_msg_id: Optional[int] = None
 
         try:
+            yield f": {' ' * 4096}\n\n"
             initial_msg = {'status': 'started', 'message': f'🎬 Memulai pembuatan video tentang {topic}...'}
             yield f"data: {json.dumps(initial_msg)}\n\n"
 
