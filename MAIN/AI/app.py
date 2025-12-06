@@ -171,7 +171,10 @@ def generate_educational_video(
         "generation_metadata": video_plan.get("generation_metadata", {}),
     }
 
-    return stored_path, ai_response
+    # Kembalikan URL publik sebagai nilai pertama
+    # supaya kalau dipakai langsung untuk disimpan di DB,
+    # yang tersimpan adalah path seperti: /learnvid-ai/static/videos/xxx.mp4
+    return public_url, ai_response
 
 
 def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int] = None):
