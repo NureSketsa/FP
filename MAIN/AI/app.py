@@ -176,7 +176,15 @@ def generate_educational_video(
     return public_url, ai_response
 
 
-def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int] = None):
+def generate_video_for_topic_with_progress(
+    topic: str, 
+    message_id: Optional[int] = None,
+    progress_msg_id: Optional[int] = None,  # 🟢 New parameter
+    chat_id: Optional[int] = None  # 🟢 New parameter
+):
+    """
+    Modified version that yields progress updates AND keeps connection alive
+    """
     import shutil
     import time
     import concurrent.futures
@@ -200,6 +208,19 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
     try:
         # === Step 1: Generate educational content ===
         yield {"status": "generating_content", "message": "📝 Membuat konten edukatif..."}
+        
+        # 🟢 Update DB
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = "📝 Membuat konten edukatif..."
+                        session.add(msg)
+                        session.commit()
+            except Exception as e:
+                print(f"[DB ERROR] {e}")
+        
         print("[DEBUG] Step 1: Starting educational content generation")
         
         api_key = os.getenv("GOOGLE_API_KEY")
@@ -209,15 +230,13 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
         prompt = f"Create an educational animation about {topic}"
         
-        # 🟢 Run in thread with AGGRESSIVE heartbeats
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(video_generator.generate_complete_video_plan, prompt)
             
             heartbeat_count = 0
             while not future.done():
-                time.sleep(1)  # Every 1 second
+                time.sleep(1)
                 heartbeat_count += 1
-                # 🟢 Make heartbeat BIGGER with padding
                 padding = ''.join(random.choices(string.ascii_letters, k=400))
                 yield f": heartbeat-content-{heartbeat_count}-{padding}\n\n"
             
@@ -231,6 +250,19 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         
         # === Step 2: Generate Manim code ===
         yield {"status": "generating_code", "message": "💻 Membuat kode animasi..."}
+        
+        # 🟢 Update DB
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = "💻 Membuat kode animasi..."
+                        session.add(msg)
+                        session.commit()
+            except Exception as e:
+                print(f"[DB ERROR] {e}")
+        
         print("[DEBUG] Step 2: Starting Manim code generation")
         
         manim_generator = ManIMCodeGenerator(google_api_key=api_key)
@@ -254,6 +286,19 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         
         # === Step 3: Render video ===
         yield {"status": "rendering", "message": "🎬 Merender video (mohon tunggu)..."}
+        
+        # 🟢 Update DB
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = "🎬 Merender video (mohon tunggu)..."
+                        session.add(msg)
+                        session.commit()
+            except Exception as e:
+                print(f"[DB ERROR] {e}")
+        
         print("[DEBUG] Step 3: Starting video rendering with Heartbeat")
         
         video_path = None
@@ -264,7 +309,7 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
             start_render_time = time.time()
             heartbeat_count = 0
             while not future.done():
-                time.sleep(1)  # Every 1 second
+                time.sleep(1)
                 heartbeat_count += 1
                 padding = ''.join(random.choices(string.ascii_letters, k=400))
                 yield f": heartbeat-render-{heartbeat_count}-{padding}\n\n"
@@ -298,6 +343,19 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
 
         # === Step 4: Move to local storage ===
         yield {"status": "saving", "message": "💾 Menyimpan video ke server..."}
+        
+        # 🟢 Update DB
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = "💾 Menyimpan video ke server..."
+                        session.add(msg)
+                        session.commit()
+            except Exception as e:
+                print(f"[DB ERROR] {e}")
+        
         print("[DEBUG] Step 4: Moving video to local storage")
 
         try:
@@ -308,16 +366,48 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
             yield {"status": "error", "message": f"❌ {str(storage_error)}"}
             return
 
+        # 🟢 FINAL: Update the SAME message with video URL
+        final_message = f"✅ Video tentang '{topic}' berhasil dibuat!"
+        
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = final_message
+                        msg.video_url = public_url  # 🟢 Add video URL
+                        session.add(msg)
+                        session.commit()
+            except Exception as e:
+                print(f"[DB ERROR] {e}")
+
+        # 🟢 Send completion with message_id so frontend knows it's the same message
         yield {
             "status": "completed",
-            "message": "✅ Video berhasil dibuat!",
+            "message": final_message,
             "video_url": public_url,
+            "message_id": progress_msg_id  # 🟢 Include the ID
         }
             
     except Exception as e:
         import traceback
         print(f"[DEBUG EXCEPTION] {traceback.format_exc()}")
-        yield {"status": "error", "message": f"❌ Error: {str(e)}"}
+        
+        error_message = f"❌ Error: {str(e)}"
+        
+        # 🟢 Update the same message with error
+        if progress_msg_id and chat_id:
+            try:
+                with Session(engine) as session:
+                    msg = session.get(Message, progress_msg_id)
+                    if msg:
+                        msg.content = error_message
+                        session.add(msg)
+                        session.commit()
+            except Exception as db_err:
+                print(f"[DB ERROR] {db_err}")
+        
+        yield {"status": "error", "message": error_message}
         
         try:
             if unique_output.exists():

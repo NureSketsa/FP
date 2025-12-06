@@ -635,12 +635,14 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             except Exception as db_err:
                 print(f"[PROGRESS DB ERROR] {db_err}")
             
-            video_url = None
-            has_error = False
-            error_text = None
-            
             # === LOOP WITH AGGRESSIVE HEARTBEAT ===
-            for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
+            # 🟢 Pass the progress_msg_id to the generator so it can update the SAME message
+            for progress in generate_video_for_topic_with_progress(
+                topic, 
+                message_id=user_msg.id, 
+                progress_msg_id=progress_msg_id,  # 🟢 Pass this!
+                chat_id=chat_id  # 🟢 Pass this too!
+            ):
                 
                 if isinstance(progress, str):
                     if progress.strip().startswith(":"):
@@ -656,56 +658,9 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                 padding = ''.join(random.choices(string.ascii_letters, k=300))
                 yield f"data: {progress_json}\n: pad-{padding}\n\n"
 
-                # 💾 DB Save Logic - Update existing message
-                try:
-                    status = progress.get("status")
-                    message_text = progress.get("message") or ""
-
-                    if status in {"generating_content", "generating_code", "rendering", "saving", "error"} and message_text:
-                        with Session(engine) as session:
-                            if progress_msg_id:
-                                progress_msg = session.get(Message, progress_msg_id)
-                                if progress_msg:
-                                    progress_msg.content = message_text
-                                    session.add(progress_msg)
-                                    session.commit()
-                except Exception as db_err:
-                    print(f"[PROGRESS DB ERROR] {db_err}")
-                
-                # 🟢 Capture the final state
-                if progress.get('status') == 'completed':
-                    video_url = progress.get('video_url')
-                if progress.get('status') == 'error':
-                    has_error = True
-                    error_text = progress.get('message')
+                # 🟢 REMOVED: No more DB updates here - the generator handles it all
             
-            # === FINAL STATUS - UPDATE EXISTING MESSAGE, DON'T CREATE NEW ONE ===
-            if not has_error and video_url:
-                # 🟢 UPDATE the progress message with final status + video URL
-                with Session(engine) as session:
-                    if progress_msg_id:
-                        final_msg = session.get(Message, progress_msg_id)
-                        if final_msg:
-                            final_msg.content = f"✅ Video tentang '{topic}' berhasil dibuat!"
-                            final_msg.video_url = video_url
-                            session.add(final_msg)
-                            session.commit()
-                            
-                            # Send 'done' status with the SAME message_id
-                            yield f"data: {json.dumps({'status': 'done', 'message': final_msg.content, 'video_url': video_url, 'message_id': final_msg.id})}\n\n"
-            
-            elif has_error:
-                # 🟢 UPDATE the progress message with error
-                with Session(engine) as session:
-                    if progress_msg_id:
-                        error_msg = session.get(Message, progress_msg_id)
-                        if error_msg:
-                            error_msg.content = error_text or "❌ Maaf, terjadi kesalahan. Coba lagi nanti."
-                            error_msg.video_url = None
-                            session.add(error_msg)
-                            session.commit()
-
-                            yield f"data: {json.dumps({'status': 'final_error', 'message': error_msg.content, 'message_id': error_msg.id})}\n\n"
+            # 🟢 REMOVED: No more final message creation here
         
         except Exception as e:
             import traceback
