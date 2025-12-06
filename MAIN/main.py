@@ -606,10 +606,16 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         progress_msg_id: Optional[int] = None
 
         try:
-            # === 1. JUNK PADDING (For Nginx Entry) ===
-            # Forces Nginx to open the stream immediately
-            padding = ''.join(random.choices(string.ascii_letters, k=2048))
+            # === 1. BIGGER JUNK PADDING ===
+            # 🟢 INCREASE from 2048 to 8192 bytes (8KB)
+            # Nginx typically buffers 4KB-8KB, so this forces it to flush
+            padding = ''.join(random.choices(string.ascii_letters + string.digits, k=8192))
             yield f": {padding}\n\n"
+            
+            # 🟢 Send MULTIPLE padding chunks to guarantee flush
+            for i in range(3):
+                padding_extra = ''.join(random.choices(string.ascii_letters, k=2048))
+                yield f": padding-{i}-{padding_extra}\n\n"
             
             print("[STREAM] Flushed padding...")
             
@@ -636,20 +642,29 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             has_error = False
             error_text = None
             
-            # === LOOP WITH HEARTBEAT CHECK ===
+            # === LOOP WITH AGGRESSIVE HEARTBEAT ===
             for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
                 
-                # 🟢 CRITICAL FIX: Check if this is a Keep-Alive String
+                # 🟢 Check if this is a Keep-Alive String
                 if isinstance(progress, str):
-                    # It's a heartbeat (e.g., ": keep-alive..."), yield it raw!
-                    yield progress
+                    # 🟢 Make heartbeats BIGGER (Nginx might ignore small ones)
+                    if progress.strip().startswith(":"):
+                        # Pad the heartbeat to ~500 bytes
+                        padding = ''.join(random.choices(string.ascii_letters, k=400))
+                        yield f"{progress.strip()}-{padding}\n\n"
+                    else:
+                        yield progress
                     continue
                 
-                # If we get here, it's a normal Dictionary
+                # Normal Dictionary progress
                 print(f"[STREAM] Progress: {progress}")
-                yield f"data: {json.dumps(progress)}\n\n"
+                
+                # 🟢 Pad each data message to force flush
+                progress_json = json.dumps(progress)
+                padding = ''.join(random.choices(string.ascii_letters, k=300))
+                yield f"data: {progress_json}\n: pad-{padding}\n\n"
 
-                # 💾 DB Save Logic (Same as before)
+                # 💾 DB Save Logic
                 try:
                     status = progress.get("status")
                     message_text = progress.get("message") or ""
@@ -684,7 +699,8 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     session.commit()
                     session.refresh(ai_msg)
                     
-                    yield f"data: {json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})}\n\n"
+                    final_json = json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})
+                    yield f"data: {final_json}\n\n"
             
             elif has_error:
                 with Session(engine) as session:
@@ -698,7 +714,8 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
                     session.commit()
                     session.refresh(ai_msg)
 
-                    yield f"data: {json.dumps({'status': 'final_error', 'message': ai_msg.content, 'message_id': ai_msg.id})}\n\n"
+                    error_json = json.dumps({'status': 'final_error', 'message': ai_msg.content, 'message_id': ai_msg.id})
+                    yield f"data: {error_json}\n\n"
         
         except Exception as e:
             import traceback
@@ -711,7 +728,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no", # Vital for Nginx
+            "X-Accel-Buffering": "no",
             "Content-Encoding": "none"
         },
     )

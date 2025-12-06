@@ -177,12 +177,11 @@ def generate_educational_video(
 
 
 def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int] = None):
-    """
-    Modified version that yields progress updates AND keeps connection alive
-    """
     import shutil
     import time
-    import concurrent.futures # <--- REQUIRED FOR THREADING
+    import concurrent.futures
+    import random
+    import string
     from pathlib import Path
     
     print(f"[DEBUG] Starting video generation for topic: '{topic}'")
@@ -191,7 +190,6 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
     output_root = (BASE_DIR.parent / "MAIN" / "output").resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 
-    # === Buat subfolder unik untuk topik ini ===
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_topic = "".join(c if c.isalnum() else "_" for c in topic)[:25]
     unique_output = output_root / f"{timestamp}_{safe_topic}"
@@ -211,7 +209,19 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         video_generator = ScienceVideoGenerator(google_api_key=api_key)
         prompt = f"Create an educational animation about {topic}"
         
-        video_plan = video_generator.generate_complete_video_plan(prompt)
+        # 🟢 Run in thread with AGGRESSIVE heartbeats
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(video_generator.generate_complete_video_plan, prompt)
+            
+            heartbeat_count = 0
+            while not future.done():
+                time.sleep(1)  # Every 1 second
+                heartbeat_count += 1
+                # 🟢 Make heartbeat BIGGER with padding
+                padding = ''.join(random.choices(string.ascii_letters, k=400))
+                yield f": heartbeat-content-{heartbeat_count}-{padding}\n\n"
+            
+            video_plan = future.result()
         
         if not video_plan or "error" in video_plan:
             error_msg = f"Failed to generate educational content: {video_plan.get('error', 'Unknown error')}"
@@ -224,59 +234,58 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         print("[DEBUG] Step 2: Starting Manim code generation")
         
         manim_generator = ManIMCodeGenerator(google_api_key=api_key)
-        manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(manim_generator.generate_3b1b_manim_code, video_plan)
+            
+            heartbeat_count = 0
+            while not future.done():
+                time.sleep(1)
+                heartbeat_count += 1
+                padding = ''.join(random.choices(string.ascii_letters, k=400))
+                yield f": heartbeat-code-{heartbeat_count}-{padding}\n\n"
+            
+            manim_code = future.result()
         
         if not manim_code or len(manim_code.strip()) < 100:
             raise Exception("Generated Manim code is too short or empty")
         
         print(f"[DEBUG] Step 2 completed ({len(manim_code)} chars)")
         
-        # === Step 3: Render video (WITH HEARTBEAT / KEEP-ALIVE) ===
-        # 🟢 THIS IS THE FIX FOR THE TIMEOUT
+        # === Step 3: Render video ===
         yield {"status": "rendering", "message": "🎬 Merender video (mohon tunggu)..."}
         print("[DEBUG] Step 3: Starting video rendering with Heartbeat")
         
         video_path = None
         
-        # We run the heavy render in a separate thread
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            # Submit the task to the background
             future = executor.submit(create_animation_from_code, manim_code, output_dir=str(unique_output))
             
-            # Loop while the background thread is working
             start_render_time = time.time()
+            heartbeat_count = 0
             while not future.done():
-                # Wait 2 seconds
-                time.sleep(2)
+                time.sleep(1)  # Every 1 second
+                heartbeat_count += 1
+                padding = ''.join(random.choices(string.ascii_letters, k=400))
+                yield f": heartbeat-render-{heartbeat_count}-{padding}\n\n"
                 
-                # 🟢 SEND HEARTBEAT: This tells Nginx "I am still alive!"
-                # Lines starting with ':' are comments in SSE and are ignored by JS
-                yield f": keep-alive-{int(time.time())}\n\n"
-                
-                # Optional: Force flush Python buffer (usually automatic with yield but good for safety)
-                
-                # If it takes too long (> 5 mins), maybe we want to abort? (Optional)
                 if time.time() - start_render_time > 300: 
                     print("[DEBUG] Render timeout break")
                     break
 
-            # Get the result (or the exception if it crashed)
             try:
                 video_path = future.result()
             except Exception as render_err:
                 raise Exception(f"Render failed: {str(render_err)}")
-
         
         if not video_path or not os.path.exists(video_path):
             raise Exception("Failed to create animation (File not found).")
 
-        # [DEBUG] Check file
         file_size = os.path.getsize(video_path)
         print(f"[DEBUG] Rendered file size: {file_size} bytes")
         if file_size == 0:
             print(f"[DEBUG ERROR] ⚠️ Video file is empty!")
 
-        # Rename video file
         prefix = f"{message_id}_" if message_id is not None else ""
         new_video_name = f"{prefix}{timestamp}_{safe_topic}.mp4"
         new_video_path = unique_output / new_video_name
@@ -293,7 +302,7 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
 
         try:
             public_url = _move_video_to_storage(video_path, final_name=new_video_name)
-            shutil.rmtree(unique_output, ignore_errors=True) # Cleanup
+            shutil.rmtree(unique_output, ignore_errors=True)
 
         except Exception as storage_error:
             yield {"status": "error", "message": f"❌ {str(storage_error)}"}
