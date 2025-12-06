@@ -1,8 +1,8 @@
-"""
+""" 
 Simple LEARNVIDAI function - Generate educational videos with a single function call
 """
 
-
+import boto3
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -59,41 +59,39 @@ def _get_video_storage_dir() -> Path:
     return video_dir
 
 
-def _move_video_to_storage(temp_video_path: str, final_name: str | None = None) -> tuple[str, str]:
+def _move_video_to_storage(temp_video_path: str, final_name: str):
     """
-    Pindahkan file video dari folder sementara ke folder storage lokal.
-    Return:
-      - absolute_path (di filesystem)
-      - public_url (relative URL FastAPI, misal: /videos/xxx.mp4)
+    Upload ke Cloudflare R2 dan return public URL.
     """
-    import shutil
-
     temp_video = Path(temp_video_path)
+
     if not temp_video.exists():
-        raise FileNotFoundError(f"Video sementara tidak ditemukan: {temp_video}")
+        raise FileNotFoundError("Video tidak ditemukan")
 
-    storage_dir = _get_video_storage_dir()
-    # Gunakan nama yang diberikan, atau gunakan nama file asal
-    target_name = final_name or temp_video.name
-    target_path = storage_dir / target_name
+    r2 = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("R2_ENDPOINT"),
+        aws_access_key_id=os.getenv("R2_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY"),
+        region_name="auto",
+    )
 
-    # Jika sudah ada file dengan nama sama, tambahkan suffix angka
-    counter = 1
-    stem, suffix = os.path.splitext(target_name)
-    while target_path.exists():
-        target_path = storage_dir / f"{stem}_{counter}{suffix}"
-        counter += 1
+    bucket = os.getenv("R2_BUCKET_NAME")
+    public_base = os.getenv("R2_BUCKET_PUBLIC_URL")
 
-    shutil.move(str(temp_video), target_path)
+    # Upload file ke R2
+    r2.upload_file(
+        Filename=str(temp_video),
+        Bucket=bucket,
+        Key=final_name,
+        ExtraArgs={"ContentType": "video/mp4"}
+    )
 
-    # URL publik relative yang akan dilayani oleh FastAPI:
-    # public_url = f"/videos/{target_path.name}"
-    # public_url = f"/learnvid-ai/videos/{target_path.name}"
-    print(f"[DEBUG] Video moved to storage: {target_path}")
-    print(f'where am ')
-    public_url = f"/learnvid-ai/static/videos/{target_path.name}"
-    return str(target_path), public_url
+    # Setelah upload, hapus file lokal
+    temp_video.unlink()
 
+    public_url = f"{public_base}/{final_name}"
+    return public_url
 
 def generate_educational_video(
     topic: str,
@@ -153,7 +151,8 @@ def generate_educational_video(
 
     # === Pindahkan ke storage lokal dan buat URL publik ===
     print("\n💾 Menyimpan video ke storage lokal...")
-    stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
+    # stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
+    public_url = _move_video_to_storage(video_path, final_name=new_video_name)
 
     # 🧹 Hapus folder spesifik topik ini saja (folder sementara)
     shutil.rmtree(unique_output, ignore_errors=True)
@@ -164,7 +163,7 @@ def generate_educational_video(
         "complexity": complexity,
         "domain": domain,
         "timestamp": timestamp,
-        "video_path": stored_path,   # absolute path di server (opsional)
+        "video_path": None,   # absolute path di server (opsional)
         "video_url": public_url,     # URL publik untuk diakses frontend
         "educational_breakdown": video_plan.get("educational_breakdown", {}),
         "manim_structure": video_plan.get("manim_structure", {}),
@@ -275,32 +274,15 @@ def generate_video_for_topic_with_progress(topic: str, message_id: Optional[int]
         print("[DEBUG] Step 4: Moving video to local storage")
 
         try:
-            stored_path, public_url = _move_video_to_storage(video_path, final_name=new_video_name)
-            
-            # [DEBUG 3] Check the final destination BEFORE deleting the temp file
-            if os.path.exists(stored_path):
-                final_size = os.path.getsize(stored_path)
-                print(f"[DEBUG DETAIL] 3. Move Successful. File located at: {stored_path}")
-                print(f"[DEBUG DETAIL]    Final Size: {final_size / (1024*1024):.2f} MB")
-                
-                # Verify URL is generated
-                print(f"[DEBUG DETAIL]    Public URL generated: {public_url}")
-            else:
-                print(f"[DEBUG ERROR] ❌ Move failed! File NOT found at storage path: {stored_path}")
-                # Optional: You might want to stop here so you don't delete the temp file below
+            public_url = _move_video_to_storage(video_path, final_name=new_video_name)
 
-            # 🧹 Only delete temp if we are sure the file moved successfully? 
-            # Current logic deletes anyway:
+            # cleanup
             shutil.rmtree(unique_output, ignore_errors=True)
-            print(f"[DEBUG] Cleaned up temp folder: {unique_output}")
 
         except Exception as storage_error:
-            error_msg = f"Gagal menyimpan video ke storage lokal: {str(storage_error)}"
-            print(f"[DEBUG ERROR] {error_msg}")
-            yield {"status": "error", "message": f"❌ {error_msg}"}
+            yield {"status": "error", "message": f"❌ {str(storage_error)}"}
             return
 
-        print(f"[DEBUG] Final video stored at: {stored_path}, public URL: {public_url}")
         yield {
             "status": "completed",
             "message": "✅ Video berhasil dibuat!",

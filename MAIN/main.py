@@ -711,7 +711,19 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             print(f"[STREAM ERROR] {traceback.format_exc()}")
             yield f"data: {json.dumps({'status': 'error', 'message': f'❌ Error: {str(e)}'})}\n\n"
 
-    return StreamingResponse(generate_with_progress(), media_type="text/event-stream")
+    # Gunakan StreamingResponse untuk SSE (Server-Sent Events)
+    # Tambah header anti-buffering agar reverse proxy (mis. nginx di kampus)
+    # tidak menahan output sampai selesai, sehingga progress bisa tampil live.
+    return StreamingResponse(
+        generate_with_progress(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            # Beberapa setup nginx menghormati header ini untuk mematikan buffering
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 class RenameChatIn(BaseModel):
     title: str
@@ -779,3 +791,36 @@ def api_search_chats(
         chats = session.exec(stmt).all()
 
     return [{"id": c.id, "title": c.title} for c in chats]
+
+@app.get("/api/download")
+async def proxy_download(url: str):
+    import httpx
+    
+    # Extract filename from URL
+    original_name = url.split("/")[-1]
+
+    # Example: 446_20251206_152930_fisika_smp.mp4
+    name_without_ext, ext = original_name.rsplit(".", 1)
+
+    # Split into 4 parts: id, date, time, title
+    parts = name_without_ext.split("_", 3)
+
+    if len(parts) == 4:
+        title_raw = parts[3]  # → "fisika_smp"
+        download_name = title_raw.replace("_", " ").strip() + "." + ext
+    else:
+        # fallback: remove numbers & cleanup
+        download_name = name_without_ext.replace("_", " ").strip() + "." + ext
+
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url)
+        if r.status_code != 200:
+            raise HTTPException(404, "File not found")
+
+        return Response(
+            content=r.content,
+            media_type="application/octet-stream",
+            headers={
+                "Content-Disposition": f'attachment; filename="{download_name}"'
+            }
+        )

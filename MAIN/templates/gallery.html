@@ -1981,7 +1981,7 @@
         }));
 
         // Download button handler
-        grid.addEventListener("click", async (e) => {
+        grid.addEventListener("click", (e) => {
           const downloadBtn = e.target.closest(".download-btn");
           if (!downloadBtn) return;
 
@@ -1990,9 +1990,11 @@
 
           const card = downloadBtn.closest(".video-card");
           const videoUrl = card.dataset.videoUrl;
-          const videoTitle = card.dataset.videoTitle;
 
-          downloadVideo(videoUrl, videoTitle);
+          const backendUrl = `/learnvid-ai/api/download?url=${encodeURIComponent(
+            videoUrl
+          )}`;
+          window.location.href = backendUrl;
         });
 
         // Klik di mana saja pada card (kecuali tombol download) -> fullscreen
@@ -2177,7 +2179,7 @@
         });
 
         // Download button handler
-        grid.addEventListener("click", async (e) => {
+        grid.addEventListener("click", (e) => {
           const downloadBtn = e.target.closest(".download-btn");
           if (!downloadBtn) return;
 
@@ -2186,9 +2188,11 @@
 
           const card = downloadBtn.closest(".video-card");
           const videoUrl = card.dataset.videoUrl;
-          const videoTitle = card.dataset.videoTitle;
 
-          downloadVideo(videoUrl, videoTitle);
+          const backendUrl = `/learnvid-ai/api/download?url=${encodeURIComponent(
+            videoUrl
+          )}`;
+          window.location.href = backendUrl;
         });
 
         // Klik di mana saja pada card (kecuali tombol download/fullscreen) -> fullscreen

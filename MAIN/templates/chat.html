@@ -1841,23 +1841,10 @@
             fontWeight: "bold",
           });
 
-          downloadBtn.onclick = async () => {
-            try {
-              const response = await fetch(videoUrl);
-              const blob = await response.blob();
-              const blobUrl = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = blobUrl;
-              a.download = fileName;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              URL.revokeObjectURL(blobUrl);
-            } catch (err) {
-              alert("❌ Gagal mengunduh video.");
-              console.error("Download error:", err);
-            }
-          };
+        downloadBtn.onclick = () => {
+          const backendUrl = `/learnvid-ai/api/download?url=${encodeURIComponent(videoUrl)}`;
+          window.location.href = backendUrl;
+        };
 
           videoContainer.appendChild(video);
           videoContainer.appendChild(downloadBtn);
@@ -2184,7 +2171,7 @@
 
       // Tombol "New Chat" di sidebar
       const sidebarNewChat = document.querySelector(
-        '.sidebar-menu .menu-item[href="/chat"]'
+        '.sidebar-menu .menu-item[href="/learnvid-ai/chat"]'
       );
       if (sidebarNewChat) {
         sidebarNewChat.addEventListener("click", (e) => {
