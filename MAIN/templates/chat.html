@@ -1998,82 +1998,83 @@
 
           let data;
           if (videoMode) {
-            showLoadingMessage("video");
-            addStatusToLoading("[ LEARNVIDAI INITIATE ]", false);
+          showLoadingMessage("video");
+          addStatusToLoading("[ LEARNVIDAI INITIATE ]", false);
 
-            try {
-              const res = await fetch(
-                `/learnvid-ai/api/chats/${currentChatId}/generate_video`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ topic: message }),
-                }
-              );
+          try {
+            const res = await fetch(
+              `/learnvid-ai/api/chats/${currentChatId}/generate_video`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic: message }),
+              }
+            );
 
-              if (!res.ok) throw new Error("Gagal membuat video");
+            if (!res.ok) throw new Error("Gagal membuat video");
 
-              // ... existing fetch code ...
-              // ... inside your fetch / await reader ...
-              const reader = res.body.getReader();
-              const decoder = new TextDecoder();
-              let buffer = ""; // <--- CRITICAL: Store split pieces here
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
 
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
-                // 1. Decode new chunk and add to buffer
-                buffer += decoder.decode(value, { stream: true });
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop();
 
-                // 2. Split buffer by newlines
-                const lines = buffer.split("\n");
+              for (const line of lines) {
+                const trimmedLine = line.trim();
+                
+                if (!trimmedLine || trimmedLine.startsWith(":")) continue;
 
-                // 3. Keep the last piece in the buffer (it might be incomplete)
-                buffer = lines.pop(); 
+                if (trimmedLine.startsWith("data: ")) {
+                  try {
+                    const jsonStr = trimmedLine.replace("data: ", "");
+                    const data = JSON.parse(jsonStr);
 
-                for (const line of lines) {
-                  const trimmedLine = line.trim();
-                  
-                  // Ignore Keep-Alive comments or empty lines
-                  if (!trimmedLine || trimmedLine.startsWith(":")) continue;
-
-                  if (trimmedLine.startsWith("data: ")) {
-                    try {
-                      const jsonStr = trimmedLine.replace("data: ", "");
-                      const data = JSON.parse(jsonStr);
-
-                      // --- UPDATE UI LOGIC ---
-                      if (data.status === 'completed' || data.status === 'done') {
-                          markLastStatusComplete();
-                          setTimeout(() => {
-                              removeLoadingMessage();
-                              // ✅ PASS THE VIDEO URL HERE
-                              addMessage(data.message, "ai", data.video_url); 
-                          }, 500);
-                      } 
-                      else if (data.status === 'error' || data.status === 'final_error') {
-                          markLastStatusComplete();
-                          addStatusToLoading(data.message, false, true); 
-                      } 
-                      else {
-                          // "Creating content...", "Rendering..."
-                          markLastStatusComplete();
-                          addStatusToLoading(data.message, false);
-                      }
-                      // -----------------------
-
-                    } catch (e) {
-                      console.warn("Skipping invalid JSON chunk", e);
+                    // --- UPDATE UI LOGIC ---
+                    if (data.status === 'completed' || data.status === 'done') {
+                        markLastStatusComplete();
+                        // 🟢 FIX: Replace the loading message, don't add new one
+                        setTimeout(() => {
+                            removeLoadingMessage(); // Remove loading UI
+                            // 🟢 The message already exists in DB, just update the UI
+                            // If you're using message_id, you could update existing message in UI
+                            // Otherwise, add it fresh (but DB already has it, so page refresh shows 1)
+                            addMessage(data.message, "ai", data.video_url); 
+                        }, 500);
+                    } 
+                    else if (data.status === 'error' || data.status === 'final_error') {
+                        markLastStatusComplete();
+                        addStatusToLoading(data.message, false, true);
+                        // 🟢 Don't add another message - the error is already in the loading message
+                        setTimeout(() => {
+                            removeLoadingMessage();
+                        }, 2000);
+                    } 
+                    else {
+                        markLastStatusComplete();
+                        addStatusToLoading(data.message, false);
                     }
+
+                  } catch (e) {
+                    console.warn("Skipping invalid JSON chunk", e);
                   }
                 }
               }
-            } catch (error) {
-              // Keep stack and add error at the end
-              markLastStatusComplete();
-              addStatusToLoading(`❌ Error: ${error.message}`, false);
             }
+            
+          } catch (error) {
+            console.error("Video generation error:", error);
+            markLastStatusComplete();
+            addStatusToLoading("❌ Gagal membuat video", false, true);
+            setTimeout(() => {
+                removeLoadingMessage();
+            }, 2000);
+          }
           } else {
             data = await postMessage(currentChatId, message);
             removeLoadingMessage();
