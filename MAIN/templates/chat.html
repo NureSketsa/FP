@@ -2277,7 +2277,7 @@
         if (!cleaned || cleaned === currentTitle) return;
 
         try {
-          const res = await fetch(`/api/chats/${chatId}`, {
+          const res = await fetch(`/learnvid-ai/api/chats/${chatId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: cleaned }),
@@ -2315,7 +2315,7 @@
         if (!confirmDelete) return;
 
         try {
-          const res = await fetch(`/api/chats/${chatId}`, { method: "DELETE" });
+          const res = await fetch(`/learnvid-ai/api/chats/${chatId}`, { method: "DELETE" });
           if (!res.ok) throw new Error("Delete failed");
 
           const deletingActive = item.classList.contains("active");
