@@ -607,9 +607,12 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
 
         try:
             # === 1. BIGGER JUNK PADDING ===
+            # 🟢 INCREASE from 2048 to 8192 bytes (8KB)
+            # Nginx typically buffers 4KB-8KB, so this forces it to flush
             padding = ''.join(random.choices(string.ascii_letters + string.digits, k=8192))
             yield f": {padding}\n\n"
             
+            # 🟢 Send MULTIPLE padding chunks to guarantee flush
             for i in range(3):
                 padding_extra = ''.join(random.choices(string.ascii_letters, k=2048))
                 yield f": padding-{i}-{padding_extra}\n\n"
@@ -635,32 +638,88 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             except Exception as db_err:
                 print(f"[PROGRESS DB ERROR] {db_err}")
             
+            video_url = None
+            has_error = False
+            error_text = None
+            
             # === LOOP WITH AGGRESSIVE HEARTBEAT ===
-            # 🟢 Pass the progress_msg_id to the generator so it can update the SAME message
-            for progress in generate_video_for_topic_with_progress(
-                topic, 
-                message_id=user_msg.id, 
-                progress_msg_id=progress_msg_id,  # 🟢 Pass this!
-                chat_id=chat_id  # 🟢 Pass this too!
-            ):
+            for progress in generate_video_for_topic_with_progress(topic, message_id=user_msg.id):
                 
+                # 🟢 Check if this is a Keep-Alive String
                 if isinstance(progress, str):
+                    # 🟢 Make heartbeats BIGGER (Nginx might ignore small ones)
                     if progress.strip().startswith(":"):
+                        # Pad the heartbeat to ~500 bytes
                         padding = ''.join(random.choices(string.ascii_letters, k=400))
                         yield f"{progress.strip()}-{padding}\n\n"
                     else:
                         yield progress
                     continue
                 
+                # Normal Dictionary progress
                 print(f"[STREAM] Progress: {progress}")
+
+                # Tangani status final di server agar frontend
+                # hanya menerima satu event final (tidak dobel).
+                status = progress.get("status")
+                if status == "completed":
+                    video_url = progress.get("video_url")
+                    continue
+                if status == "error":
+                    has_error = True
+                    error_text = progress.get("message")
+                    continue
                 
+                # 🟢 Pad each data message to force flush
                 progress_json = json.dumps(progress)
                 padding = ''.join(random.choices(string.ascii_letters, k=300))
                 yield f"data: {progress_json}\n: pad-{padding}\n\n"
 
-                # 🟢 REMOVED: No more DB updates here - the generator handles it all
+                # 💾 DB Save Logic
+                try:
+                    message_text = progress.get("message") or ""
+
+                    if status in {"generating_content", "generating_code", "rendering", "saving"} and message_text:
+                        with Session(engine) as session:
+                            if progress_msg_id:
+                                progress_msg = session.get(Message, progress_msg_id)
+                                if progress_msg:
+                                    progress_msg.content = message_text
+                                    session.add(progress_msg)
+                                    session.commit()
+                except Exception as db_err:
+                    print(f"[PROGRESS DB ERROR] {db_err}")
             
-            # 🟢 REMOVED: No more final message creation here
+            # === FINAL STATUS ===
+            if not has_error and video_url:
+                with Session(engine) as session:
+                    ai_msg = Message(
+                        chat_folder_id=chat_id,
+                        role=False,
+                        content=f"✅ Video tentang '{topic}' berhasil dibuat!",
+                        video_url=video_url
+                    )
+                    session.add(ai_msg)
+                    session.commit()
+                    session.refresh(ai_msg)
+                    
+                    final_json = json.dumps({'status': 'done', 'message': ai_msg.content, 'video_url': video_url, 'message_id': ai_msg.id})
+                    yield f"data: {final_json}\n\n"
+            
+            elif has_error:
+                with Session(engine) as session:
+                    ai_msg = Message(
+                        chat_folder_id=chat_id,
+                        role=False,
+                        content=error_text or "❌ Maaf, terjadi kesalahan. Coba lagi nanti.",
+                        video_url=None
+                    )
+                    session.add(ai_msg)
+                    session.commit()
+                    session.refresh(ai_msg)
+
+                    error_json = json.dumps({'status': 'final_error', 'message': ai_msg.content, 'message_id': ai_msg.id})
+                    yield f"data: {error_json}\n\n"
         
         except Exception as e:
             import traceback
@@ -677,7 +736,7 @@ def api_generate_video(chat_id: int, payload: dict, user: User = Depends(current
             "Content-Encoding": "none"
         },
     )
-
+    
 class RenameChatIn(BaseModel):
     title: str
 
